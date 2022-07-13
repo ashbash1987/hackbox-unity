@@ -1,0 +1,16 @@
+{
+    "name": "Hackbox",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Newtonsoft.Json.dll",
+        "SocketIOClient.dll",
+        "websocket-sharp.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": []
+}
