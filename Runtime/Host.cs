@@ -43,7 +43,7 @@ namespace Hackbox
         }
 
         public Member[] AllMembers => Members.Values.ToArray();
-        public bool HasPlayers => Members.Any();
+        public bool HasMembers => Members.Any();
         #endregion
 
         #region Private Constants
@@ -119,12 +119,12 @@ namespace Hackbox
             _ = EndSocket();
         }
 
-        public Member GetPlayerByName(string name)
+        public Member GetMemberByName(string name)
         {
             return Members.Values.FirstOrDefault(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        public Member GetPlayerByID(string userID)
+        public Member GetMemberByID(string userID)
         {
             return Members.Values.FirstOrDefault(x => x.UserID.Equals(name));
         }
@@ -238,11 +238,6 @@ namespace Hackbox
 
             _socket = new SocketIO(SOCKET_URL, new SocketIOOptions() { EIO = 4, Query = queryParameters });
 
-            /*_socket.OnReceivedEvent += (sender, e) =>
-            {
-                Debug.Log(e.Event + "\n" + e.Response.ToString());
-            };*/
-
             _socket.OnConnected += (sender, e) =>
             {
                 Log($"Connected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i>.");
@@ -339,7 +334,7 @@ namespace Hackbox
             string from = (string)msgObject["from"];
             if (!Members.TryGetValue(from, out Member fromMember))
             {
-                Debug.LogError($"Received a message from player <i>{from}</i> but there is no known associated Member object!");
+                Debug.LogError($"Received a message from member <i>{from}</i> but there is no known associated Member object!");
                 return;
             }
 

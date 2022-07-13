@@ -33,8 +33,8 @@ namespace Hackbox
             EditorGUILayout.LabelField("Room Code", _obj.RoomCode);
             EditorGUILayout.Space();
             
-            EditorGUILayout.LabelField("Players", EditorStyles.boldLabel);
-            if (_obj.HasPlayers)
+            EditorGUILayout.LabelField("Members", EditorStyles.boldLabel);
+            if (_obj.HasMembers)
             {
                 foreach (Member member in _obj.AllMembers)
                 {
@@ -48,7 +48,7 @@ namespace Hackbox
             }
             else
             {
-                EditorGUILayout.LabelField("<No players>");
+                EditorGUILayout.LabelField("<No members>");
             }
         }
     }

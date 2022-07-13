@@ -42,9 +42,9 @@ namespace Hackbox
 
         public override bool Equals(object obj)
         {
-            if (obj is Member otherPlayer)
+            if (obj is Member otherMember)
             {
-                return UserID == otherPlayer.UserID;
+                return UserID == otherMember.UserID;
             }
 
             return false;
