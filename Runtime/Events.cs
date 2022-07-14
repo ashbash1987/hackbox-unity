@@ -19,6 +19,7 @@ namespace Hackbox
         }
     }
 
+    [Serializable]
     public class MessageEvent : UnityEvent<Message>
     {
         public MessageEvent()
