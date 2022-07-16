@@ -22,28 +22,14 @@ namespace Hackbox.UI
         public Preset Preset = null;
         public ParameterList ParameterList = new ParameterList();
 
-        public Parameter this[int parameterIndex] => ParameterList.Parameters[parameterIndex];
-        public Parameter this[string parameterName] => ParameterList.Parameters.Find(x => x.Name == parameterName);
+        public Parameter this[int parameterIndex] => ParameterList[parameterIndex];
+        public Parameter this[string parameterName] => ParameterList[parameterName];
 
         private JObject _obj = new JObject();
 
         public T GetParameter<T>(string parameterName) where T : Parameter, new()
         {
-            Parameter parameter = this[parameterName];
-            if (parameter is T typedParameter)
-            {
-                return typedParameter;
-            }
-
-            if (parameter != null)
-            {
-                throw new Exception($"Trying to get parameter {parameterName} but using the wrong parameter type. Expected {parameter.GetType().Name}, asking for {typeof(T).Name}");
-            }
-
-            typedParameter = new T() { Name = parameterName };
-            ParameterList.Parameters.Add(typedParameter);
-
-            return typedParameter;
+            return ParameterList.GetParameter<T>(parameterName);
         }
 
         public JObject GenerateJSON()

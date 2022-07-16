@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Hackbox.Parameters;
 using Hackbox.UI;
+using Hackbox.Parameters;
 
 namespace Hackbox
 {
@@ -40,14 +40,24 @@ namespace Hackbox
 
         private JObject _obj = new JObject();
 
+        public void SetHeaderParameter<S, T>(string parameterName, T value) where S : Parameter<T>, new()
+        {
+            SetParameter(HeaderParameterList.GetParameter<S>(parameterName), value);
+        }
+
+        public void SetHeaderText(string text)
+        {
+            SetHeaderParameter<StringParameter, string>("text", text);
+        }
+
         public void SetComponentParameter<S, T>(int componentIndex, string parameterName, T value) where S: Parameter<T>, new()
         {
-            SetComponentParameter(this[componentIndex].GetParameter<S>(parameterName), value);
+            SetParameter(this[componentIndex].GetParameter<S>(parameterName), value);
         }
 
         public void SetComponentParameter<S, T>(string componentName, string parameterName, T value) where S : Parameter<T>, new()
         {
-            SetComponentParameter(this[componentName].GetParameter<S>(parameterName), value);
+            SetParameter(this[componentName].GetParameter<S>(parameterName), value);
         }
 
         public void SetComponentText(int componentIndex, string text)
@@ -127,9 +137,9 @@ namespace Hackbox
             return presets;
         }
 
-        private void SetComponentParameter<T>(Parameter<T> component, T value)
+        private void SetParameter<T>(Parameter<T> parameter, T value)
         {
-            component.Value = value;
+            parameter.Value = value;
         }
     }
 }

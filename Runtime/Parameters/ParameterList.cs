@@ -20,5 +20,28 @@ namespace Hackbox.Parameters
         [HideInInspector]
         [SerializeReference]
         public List<Parameter> Parameters = new List<Parameter>();
+
+        public Parameter this[int parameterIndex] => Parameters[parameterIndex];
+        public Parameter this[string parameterName] => Parameters.Find(x => x.Name == parameterName);
+
+
+        public T GetParameter<T>(string parameterName) where T : Parameter, new()
+        {
+            Parameter parameter = this[parameterName];
+            if (parameter is T typedParameter)
+            {
+                return typedParameter;
+            }
+
+            if (parameter != null)
+            {
+                throw new Exception($"Trying to get parameter {parameterName} but using the wrong parameter type. Expected {parameter.GetType().Name}, asking for {typeof(T).Name}");
+            }
+
+            typedParameter = new T() { Name = parameterName };
+            Parameters.Add(typedParameter);
+
+            return typedParameter;
+        }
     }
 }
