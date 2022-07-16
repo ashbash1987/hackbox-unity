@@ -23,6 +23,8 @@ namespace Hackbox
         public MemberEvent OnMemberJoined = new MemberEvent();
         public MemberEvent OnMemberKicked = new MemberEvent();
         public MessageEvent OnMessage = new MessageEvent();
+
+        public readonly MessageEventCollection MessageEvents = new MessageEventCollection();
         #endregion
 
         #region Public Fields
@@ -343,7 +345,16 @@ namespace Hackbox
 
             Message message = new Message(fromMember, id, DateTimeOffset.FromUnixTimeMilliseconds(timestamp), (JObject)msgObject["message"]);
             Log($"<i>{fromMember.Name}</i> {message}");
-            DoUnityAction(() => OnMessage.Invoke(message));
+            DoUnityAction(() =>
+            {
+                OnMessage.Invoke(message);
+                fromMember.OnMessage.Invoke(message);
+                if (!string.IsNullOrEmpty(message.Event))
+                {
+                    MessageEvents.Invoke(message.Event, message);
+                    fromMember.MessageEvents.Invoke(message.Event, message);
+                }
+            });
         }
         #endregion
     }

@@ -11,6 +11,10 @@ namespace Hackbox
             State = new State();
         }
 
+        public MessageEvent OnMessage = new MessageEvent();
+
+        public readonly MessageEventCollection MessageEvents = new MessageEventCollection();
+
         public string UserID
         {
             get;

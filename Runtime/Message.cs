@@ -9,18 +9,23 @@ namespace Hackbox
         {
             Member = member;
             ID = id;
-            Time = time;
+            Timestamp = time;
             MessageData = messageData;
         }
 
         public readonly Member Member;
         public readonly string ID;
-        public readonly DateTimeOffset Time;
+        public readonly DateTimeOffset Timestamp;
         public readonly JObject MessageData;
 
         public string Event
         {
             get => MessageData.ContainsKey("event") ? (string)MessageData["event"] : null;
+        }
+
+        public int Milliseconds
+        {
+            get => MessageData.ContainsKey("ms") ? (int)MessageData["ms"] : 0;
         }
 
         public string Value
@@ -30,7 +35,7 @@ namespace Hackbox
 
         public override string ToString()
         {
-            return $"[{Time}|{ID}]: {Event}, {Value}";
+            return $"[{Timestamp}|{ID}]: {Event}, {Value}";
         }
     }
 }
