@@ -24,11 +24,10 @@ namespace Hackbox.Parameters
         public Parameter this[int parameterIndex] => Parameters[parameterIndex];
         public Parameter this[string parameterName] => Parameters.Find(x => x.Name == parameterName);
 
-
-        public T GetParameter<T>(string parameterName) where T : Parameter, new()
+        public Parameter<T> GetParameter<T>(string parameterName)
         {
             Parameter parameter = this[parameterName];
-            if (parameter is T typedParameter)
+            if (parameter is Parameter<T> typedParameter)
             {
                 return typedParameter;
             }
@@ -38,10 +37,19 @@ namespace Hackbox.Parameters
                 throw new Exception($"Trying to get parameter {parameterName} but using the wrong parameter type. Expected {parameter.GetType().Name}, asking for {typeof(T).Name}");
             }
 
-            typedParameter = new T() { Name = parameterName };
-            Parameters.Add(typedParameter);
+            Parameter newParameter = CommonParameters.CreateParameter(parameterName);
+            if (newParameter is Parameter<T> newTypedParameter)
+            {
+                Parameters.Add(newTypedParameter);
+                return newTypedParameter;
+            }
 
-            return typedParameter;
+            return null;
+        }
+
+        public void SetParameterValue<T>(string parameterName, T value)
+        {
+            GetParameter<T>(parameterName).Value = value;
         }
     }
 }

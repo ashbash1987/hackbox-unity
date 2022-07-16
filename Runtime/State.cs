@@ -27,67 +27,87 @@ namespace Hackbox
         public ParameterList MainParameterList = new ParameterList();
         public List<UIComponent> Components = new List<UIComponent>();
 
-        public UIComponent this[string componentName]
-        {
-            get => Components.Find(x => x.Name.Equals(componentName));
-        }
-
         public UIComponent this[int componentIndex]
         {
             get => Components[componentIndex];
             set => Components[componentIndex] = value;
         }
 
+        public UIComponent this[string componentName]
+        {
+            get => Components.Find(x => x.Name.Equals(componentName));
+        }
+
         private JObject _obj = new JObject();
 
-        public void SetHeaderParameter<S, T>(string parameterName, T value) where S : Parameter<T>, new()
+        public void SetHeaderParameter<T>(string parameterName, T value)
         {
-            SetParameter(HeaderParameterList.GetParameter<S>(parameterName), value);
+            HeaderParameterList.SetParameterValue<T>(parameterName, value);
         }
 
         public void SetHeaderText(string text)
         {
-            SetHeaderParameter<StringParameter, string>("text", text);
+            SetHeaderParameter<string>("text", text);
         }
 
-        public void SetComponentParameter<S, T>(int componentIndex, string parameterName, T value) where S: Parameter<T>, new()
+        public UIComponent GetComponent(int componentIndex)
         {
-            SetParameter(this[componentIndex].GetParameter<S>(parameterName), value);
+            return this[componentIndex];
         }
 
-        public void SetComponentParameter<S, T>(string componentName, string parameterName, T value) where S : Parameter<T>, new()
+        public UIComponent GetComponent(string componentName)
         {
-            SetParameter(this[componentName].GetParameter<S>(parameterName), value);
+            return this[componentName];
+        }
+
+        public Parameter<T> GetComponentParameter<T>(int componentIndex, string parameterName)
+        {
+            return this[componentIndex].GetParameter<T>(parameterName);
+        }
+
+        public Parameter<T> GetComponentParameter<T>(string componentName, string parameterName)
+        {
+            return this[componentName].GetParameter<T>(parameterName);
+        }
+
+        public void SetComponentParameterValue<T>(int componentIndex, string parameterName, T value)
+        {
+            this[componentIndex].SetParameterValue<T>(parameterName, value);
+        }
+
+        public void SetComponentParameterValue<T>(string componentName, string parameterName, T value)
+        {
+            this[componentName].SetParameterValue<T>(parameterName, value);
         }
 
         public void SetComponentText(int componentIndex, string text)
         {
-            SetComponentParameter<StringParameter, string>(componentIndex, "text", text);
+            SetComponentParameterValue(componentIndex, "text", text);
         }
 
         public void SetComponentText(string componentName, string text)
         {
-            SetComponentParameter<StringParameter, string>(componentName, "text", text);
+            SetComponentParameterValue(componentName, "text", text);
         }
 
         public void SetComponentLabel(int componentIndex, string label)
         {
-            SetComponentParameter<StringParameter, string>(componentIndex, "label", label);
+            SetComponentParameterValue(componentIndex, "label", label);
         }
 
         public void SetComponentLabel(string componentName, string label)
         {
-            SetComponentParameter<StringParameter, string>(componentName, "label", label);
+            SetComponentParameterValue(componentName, "label", label);
         }
 
         public void SetComponentValue(int componentIndex, string value)
         {
-            SetComponentParameter<StringParameter, string>(componentIndex, "value", value);
+            SetComponentParameterValue(componentIndex, "value", value);
         }
 
         public void SetComponentValue(string componentName, string value)
         {
-            SetComponentParameter<StringParameter, string>(componentName, "value", value);
+            SetComponentParameterValue(componentName, "value", value);
         }
 
         public JObject GenerateJSON()
@@ -135,11 +155,6 @@ namespace Hackbox
             }
 
             return presets;
-        }
-
-        private void SetParameter<T>(Parameter<T> parameter, T value)
-        {
-            parameter.Value = value;
         }
     }
 }

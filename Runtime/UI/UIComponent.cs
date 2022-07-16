@@ -27,9 +27,14 @@ namespace Hackbox.UI
 
         private JObject _obj = new JObject();
 
-        public T GetParameter<T>(string parameterName) where T : Parameter, new()
+        public Parameter<T> GetParameter<T>(string parameterName)
         {
             return ParameterList.GetParameter<T>(parameterName);
+        }
+
+        public void SetParameterValue<T>(string parameterName, T value)
+        {
+            ParameterList.SetParameterValue<T>(parameterName, value);
         }
 
         public JObject GenerateJSON()
