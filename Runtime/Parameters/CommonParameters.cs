@@ -9,25 +9,28 @@ namespace Hackbox.Parameters
         public static readonly Dictionary<string, Type> ParameterLookup = new Dictionary<string, Type>()
         {
             ["align"] = typeof(StringParameter),
+            ["background"] = typeof(StringParameter),
             ["border"] = typeof(StringParameter),
             ["shadow"] = typeof(StringParameter),
             ["radius"] = typeof(StringParameter),
             ["width"] = typeof(StringParameter),
             ["height"] = typeof(StringParameter),
+
             ["fontSize"] = typeof(StringParameter),
-
-            ["textColor"] = typeof(ColorParameter),
-            ["backgroundColor"] = typeof(ColorParameter),
-            ["borderColor"] = typeof(ColorParameter),
-            ["hoverTextColor"] = typeof(ColorParameter),
-            ["hoverBackgroundColor"] = typeof(ColorParameter),
-            ["hoverBorderColor"] = typeof(ColorParameter),
-
             ["text"] = typeof(StringParameter),
             ["label"] = typeof(StringParameter),
+            ["event"] = typeof(StringParameter),
             ["value"] = typeof(StringParameter),
+
+            ["color"] = typeof(ColorParameter),
+            ["borderColor"] = typeof(ColorParameter),
+
+            ["multiSelect"] = typeof(BoolParameter),
+            
+            ["hover"] = typeof(ParameterListParameter),
+            ["submit"] = typeof(ParameterListParameter),
+
             ["choices"] = typeof(ChoicesParameter),
-            ["event"] = typeof(StringParameter)
         };
 
         public static Parameter CreateParameter(string parameterName)

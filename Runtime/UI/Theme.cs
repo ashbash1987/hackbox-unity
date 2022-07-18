@@ -6,9 +6,10 @@ namespace Hackbox.UI
     [CreateAssetMenu(menuName = "Hackbox/Theme")]
     public class Theme : ScriptableObject
     {
-        public Color HeaderTextColor = Color.black;
-        public Color HeaderBackgroundColor = Color.white;
-        public Color MainBackgroundColor = Color.blue;
+        public Color HeaderColor = Color.black;
+        public string HeaderBackground = "#ffffff";
+        public Color MainColor = Color.white;
+        public string MainBackground = "#0000ff";
 
         private JObject _obj = new JObject();
 
@@ -16,12 +17,13 @@ namespace Hackbox.UI
         {
             _obj["header"] = JObject.FromObject(new
             {
-                textColor = HeaderTextColor.ToHTMLString(),
-                backgroundColor = HeaderBackgroundColor.ToHTMLString()
+                color = HeaderColor.ToHTMLString(),
+                background = HeaderBackground
             });
             _obj["main"] = JObject.FromObject(new
             {
-                backgroundColor = MainBackgroundColor.ToHTMLString()
+                color = MainColor.ToHTMLString(),
+                background = MainBackground
             });
 
             return _obj;
