@@ -16,7 +16,6 @@ namespace Hackbox.Parameters
             SerializedObject serializedObject = property.serializedObject;
 
             EditorGUI.BeginChangeCheck();
-            serializedObject.Update();
 
             EditorGUI.BeginProperty(position, label, property);
 
@@ -26,8 +25,10 @@ namespace Hackbox.Parameters
 
             EditorGUI.EndProperty();
 
-            serializedObject.ApplyModifiedProperties();
-            EditorGUI.EndChangeCheck();
+            if (EditorGUI.EndChangeCheck())
+            {
+                serializedObject.ApplyModifiedProperties();
+            }
         }
     }
 }

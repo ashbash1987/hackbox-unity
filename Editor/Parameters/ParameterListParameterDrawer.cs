@@ -10,7 +10,7 @@ namespace Hackbox.Parameters
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return EditorGUI.GetPropertyHeight(property.FindPropertyRelative("_value"));
+            return EditorGUI.GetPropertyHeight(property.FindPropertyRelative("_value")) + EditorGUIUtility.singleLineHeight;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -23,18 +23,21 @@ namespace Hackbox.Parameters
             SerializedObject serializedObject = property.serializedObject;
 
             EditorGUI.BeginChangeCheck();
-            serializedObject.Update();
 
             EditorGUI.BeginProperty(position, label, property);
 
-            SerializedProperty name = property.FindPropertyRelative("Name");            
+            SerializedProperty name = property.FindPropertyRelative("Name");
+            EditorGUI.LabelField(new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight), new GUIContent(name.stringValue));
+
             SerializedProperty value = property.FindPropertyRelative("_value");
-            EditorGUI.PropertyField(position, value, new GUIContent(name.stringValue), true);
+            EditorGUI.PropertyField(new Rect(position.x, position.y + EditorGUIUtility.singleLineHeight, position.width, position.height - EditorGUIUtility.singleLineHeight), value, new GUIContent(), true);
 
             EditorGUI.EndProperty();
 
-            serializedObject.ApplyModifiedProperties();
-            EditorGUI.EndChangeCheck();
+            if (EditorGUI.EndChangeCheck())
+            {
+                serializedObject.ApplyModifiedProperties();
+            }
         }
     }
 }

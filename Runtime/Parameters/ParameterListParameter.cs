@@ -25,6 +25,7 @@ namespace Hackbox.Parameters
         }
 
         [SerializeField]
+        [SerializeReference]
         public ParameterList _value = new ParameterList();
 
         public override void ApplyValueToJObject(JObject parent)

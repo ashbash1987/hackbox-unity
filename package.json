@@ -1,15 +1,16 @@
 {
   "name": "com.atb.hackbox",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "displayName": "Hackbox.ca",
   "description": "This integrates the online signalling system Hackbox.ca into Unity.",
   "unity": "2019.3",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "1.1.2"
- },
+  },
   "author": {
     "name": "Ash The Bash / DevDev",
     "email": "ash@atbweb.co.uk",
     "url": "https://hackbox.ca"
-  }
+  },
+  "type": "library"
 }

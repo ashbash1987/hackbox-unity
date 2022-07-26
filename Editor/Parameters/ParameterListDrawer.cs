@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
@@ -8,15 +9,15 @@ namespace Hackbox.Parameters
     [CustomPropertyDrawer(typeof(ParameterList))]
     public class ParameterListDrawer : PropertyDrawer
     {
-        private ParameterList _obj = null;
-        private ReorderableList _reorder = null;
+        private readonly Dictionary<string, (ParameterList obj, ReorderableList reorder)> _setups = new Dictionary<string, (ParameterList, ReorderableList)>();
+
         private int _parameterIndex = 0;
         private static string[] _commonParameterNames = null;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             CheckInitialize(property);
-            return _reorder.GetHeight();
+            return _setups[property.propertyPath].reorder.GetHeight();
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -28,31 +29,31 @@ namespace Hackbox.Parameters
             SerializedObject serializedObject = property.serializedObject;
 
             EditorGUI.BeginChangeCheck();
-            serializedObject.Update();
-
             EditorGUI.BeginProperty(position, label, property);
 
-            _parameterIndex = EditorGUI.Popup(new Rect(position.x, position.yMax - _reorder.footerHeight, EditorGUIUtility.labelWidth, EditorGUIUtility.singleLineHeight), _parameterIndex, _commonParameterNames);
-            if (GUI.Button(new Rect(position.x + EditorGUIUtility.labelWidth, position.yMax - _reorder.footerHeight, 20, EditorGUIUtility.singleLineHeight), "+"))
+            (ParameterList obj, ReorderableList reorder) = _setups[property.propertyPath];
+
+            _parameterIndex = EditorGUI.Popup(new Rect(position.x, position.yMax - reorder.footerHeight, EditorGUIUtility.labelWidth, EditorGUIUtility.singleLineHeight), _parameterIndex, _commonParameterNames);
+            if (GUI.Button(new Rect(position.x + EditorGUIUtility.labelWidth, position.yMax - reorder.footerHeight, 20, EditorGUIUtility.singleLineHeight), "+"))
             {
                 Parameter parameter = CommonParameters.CreateParameter(_commonParameterNames[_parameterIndex]);
-                _obj.Parameters.Add(parameter);
+                obj.Parameters.Add(parameter);
             }
 
-            _reorder.DoList(position);
+            reorder.DoList(position);
 
             EditorGUI.EndProperty();
 
-            serializedObject.ApplyModifiedProperties();
             if (EditorGUI.EndChangeCheck())
-            {                
+            {
+                serializedObject.ApplyModifiedProperties();
                 EditorUtility.SetDirty(serializedObject.targetObject);
             }
         }
 
         private void CheckInitialize(SerializedProperty property)
         {
-            if (_obj == null || _reorder == null)
+            if (!_setups.ContainsKey(property.propertyPath))
             {
                 Initialize(property);
             }
@@ -65,21 +66,27 @@ namespace Hackbox.Parameters
 
         private void Initialize(SerializedProperty property)
         {
-            _obj = (ParameterList)PropertyDiscovery.GetValue(property);
+            ParameterList obj = (ParameterList)PropertyDiscovery.GetValue(property);
+            if (obj.Parameters == null)                
+            {
+                obj.Parameters = new List<Parameter>();
+            }
 
-            _reorder = new ReorderableList(_obj.Parameters, typeof(Parameter), true, true, false, true);
+            ReorderableList reorder = new ReorderableList(obj.Parameters, typeof(Parameter), true, true, false, true);
 
-            _reorder.headerHeight = EditorGUIUtility.singleLineHeight;
-            _reorder.drawHeaderCallback = (Rect rect) =>
+            _setups[property.propertyPath] = (obj, reorder);
+
+            reorder.headerHeight = EditorGUIUtility.singleLineHeight;
+            reorder.drawHeaderCallback = (Rect rect) =>
             {
                 EditorGUI.LabelField(rect, property.displayName, EditorStyles.boldLabel);
             };
 
-            _reorder.footerHeight = EditorGUIUtility.singleLineHeight * 2;
+            reorder.footerHeight = EditorGUIUtility.singleLineHeight * 2;
 
             SerializedProperty parametersProperty = property.FindPropertyRelative("Parameters");            
 
-            _reorder.elementHeightCallback = (int index) =>
+            reorder.elementHeightCallback = (int index) =>
             {
                 if (index < 0 || index >= parametersProperty.arraySize)
                 {
@@ -94,7 +101,7 @@ namespace Hackbox.Parameters
                 return EditorGUIUtility.singleLineHeight;
             };
 
-            _reorder.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            reorder.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
             {
                 if (index < 0 || index >= parametersProperty.arraySize)
                 {
