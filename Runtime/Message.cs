@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace Hackbox
@@ -30,7 +31,48 @@ namespace Hackbox
 
         public string Value
         {
-            get => MessageData.ContainsKey("value") ? (string)MessageData["value"] : null;
+            get
+            {
+                string[] values = Values;
+                if (values == null || values.Length == 0)
+                {
+                    return null;
+                }
+                if (values.Length == 1)
+                {
+                    return values[0];
+                }
+
+                return string.Join(",", values);
+            }
+        }
+
+        public string[] Values
+        {
+            get
+            {
+                if (!MessageData.TryGetValue("value", out JToken value))
+                {
+                    return null;
+                }
+
+                if (value is JArray valueArray)
+                {
+                    return valueArray.Values<string>().ToArray();
+                }
+
+                if (value is JValue)
+                {
+                    return new[] { (string)value };
+                }
+
+                if (value is JObject)
+                {
+                    return new[] { value.ToString() };
+                }
+
+                return null;
+            }
         }
 
         public override string ToString()
