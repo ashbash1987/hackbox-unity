@@ -60,12 +60,22 @@ namespace Hackbox
             return this[componentName];
         }
 
-        public Parameter<T> GetComponentParameter<T>(int componentIndex, string parameterName)
+        public Parameter<T> GetComponentGenericParameter<T>(int componentIndex, string parameterName)
+        {
+            return this[componentIndex].GetGenericParameter<T>(parameterName);
+        }
+
+        public Parameter<T> GetComponentGenericParameter<T>(string componentName, string parameterName)
+        {
+            return this[componentName].GetGenericParameter<T>(parameterName);
+        }
+
+        public T GetComponentParameter<T>(int componentIndex, string parameterName) where T: Parameter, new()
         {
             return this[componentIndex].GetParameter<T>(parameterName);
         }
 
-        public Parameter<T> GetComponentParameter<T>(string componentName, string parameterName)
+        public T GetComponentParameter<T>(string componentName, string parameterName) where T : Parameter, new()
         {
             return this[componentName].GetParameter<T>(parameterName);
         }

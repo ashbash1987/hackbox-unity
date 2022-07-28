@@ -27,7 +27,12 @@ namespace Hackbox.UI
 
         private JObject _obj = new JObject();
 
-        public Parameter<T> GetParameter<T>(string parameterName)
+        public Parameter<T> GetGenericParameter<T>(string parameterName)
+        {
+            return ParameterList.GetGenericParameter<T>(parameterName);
+        }
+
+        public T GetParameter<T>(string parameterName) where T: Parameter, new()
         {
             return ParameterList.GetParameter<T>(parameterName);
         }
