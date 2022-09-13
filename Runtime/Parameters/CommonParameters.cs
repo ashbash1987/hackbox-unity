@@ -15,6 +15,8 @@ namespace Hackbox.Parameters
             ["radius"] = typeof(StringParameter),
             ["width"] = typeof(StringParameter),
             ["height"] = typeof(StringParameter),
+            ["padding"] = typeof(StringParameter),
+            ["margin"] = typeof(StringParameter),
 
             ["fontSize"] = typeof(StringParameter),
             ["text"] = typeof(StringParameter),
