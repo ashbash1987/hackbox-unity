@@ -1,6 +1,6 @@
 # Hackbox Unity
 
-A Unity Package that leverages Hackbox.ca to provide Jackbox-style interactive gameplay for Unity games.
+A Unity Package that leverages [Hackbox](https://github.com/devanhurst/hackbox) to provide Jackbox-style interactive gameplay for Unity games.
 
 ## What is Hackbox.ca?
 
