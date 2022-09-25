@@ -290,6 +290,7 @@ namespace Hackbox
         private void SendMemberUpdate(JToken to, JObject statePayload)
         {
             JObject obj = new JObject(
+                new JProperty("version", HostVersion),
                 new JProperty("to", to),
                 new JProperty("data", statePayload)
             );
