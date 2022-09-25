@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,13 +7,17 @@ using UnityEditorInternal;
 
 namespace Hackbox.Parameters
 {
-    [CustomPropertyDrawer(typeof(ParameterList))]
+    [CustomPropertyDrawer(typeof(AnyParameterListAttribute))]
     public class ParameterListDrawer : PropertyDrawer
     {
         private readonly Dictionary<string, (ParameterList obj, ReorderableList reorder)> _setups = new Dictionary<string, (ParameterList, ReorderableList)>();
 
+        private string[] _parameterNames = null;
         private int _parameterIndex = 0;
-        private static string[] _commonParameterNames = null;
+
+        protected virtual IEnumerable<string> ParameterNames => CommonParameters.AllParameterKeys;
+
+        protected virtual Func<string, Parameter> ParameterFactory => CommonParameters.CreateAnyParameter;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
@@ -33,10 +38,10 @@ namespace Hackbox.Parameters
 
             (ParameterList obj, ReorderableList reorder) = _setups[property.propertyPath];
 
-            _parameterIndex = EditorGUI.Popup(new Rect(position.x, position.yMax - reorder.footerHeight, EditorGUIUtility.labelWidth, EditorGUIUtility.singleLineHeight), _parameterIndex, _commonParameterNames);
+            _parameterIndex = EditorGUI.Popup(new Rect(position.x, position.yMax - reorder.footerHeight, EditorGUIUtility.labelWidth, EditorGUIUtility.singleLineHeight), _parameterIndex, _parameterNames);
             if (GUI.Button(new Rect(position.x + EditorGUIUtility.labelWidth, position.yMax - reorder.footerHeight, 20, EditorGUIUtility.singleLineHeight), "+"))
             {
-                Parameter parameter = CommonParameters.CreateParameter(_commonParameterNames[_parameterIndex]);
+                Parameter parameter = ParameterFactory(_parameterNames[_parameterIndex]);
                 obj.Parameters.Add(parameter);
             }
 
@@ -58,16 +63,16 @@ namespace Hackbox.Parameters
                 Initialize(property);
             }
 
-            if (_commonParameterNames == null)
+            if (_parameterNames == null)
             {
-                _commonParameterNames = CommonParameters.ParameterLookup.Keys.OrderBy(x => x).ToArray();
+                _parameterNames = ParameterNames.OrderBy(x => x).ToArray();
             }
         }
 
         private void Initialize(SerializedProperty property)
         {
             ParameterList obj = (ParameterList)PropertyDiscovery.GetValue(property);
-            if (obj.Parameters == null)                
+            if (obj.Parameters == null)
             {
                 obj.Parameters = new List<Parameter>();
             }
@@ -84,7 +89,7 @@ namespace Hackbox.Parameters
 
             reorder.footerHeight = EditorGUIUtility.singleLineHeight * 2;
 
-            SerializedProperty parametersProperty = property.FindPropertyRelative("Parameters");            
+            SerializedProperty parametersProperty = property.FindPropertyRelative("Parameters");
 
             reorder.elementHeightCallback = (int index) =>
             {
@@ -109,8 +114,53 @@ namespace Hackbox.Parameters
                 }
 
                 SerializedProperty parameterProperty = parametersProperty.GetArrayElementAtIndex(index);
-                EditorGUI.PropertyField(rect, parameterProperty, true);                
+                string parameterName = parameterProperty.FindPropertyRelative("Name").stringValue;
+
+                Color color = GUI.color;
+                if (!_parameterNames.Contains(parameterName))
+                {
+                    GUI.color = Color.yellow;
+                    EditorGUI.LabelField(rect, EditorGUIUtility.IconContent("Warning", "This parameter is not expected in this section."));
+                    rect.x += 20;
+                    rect.width -= 20;
+                }
+
+                EditorGUI.PropertyField(rect, parameterProperty, true);
+
+                GUI.color = color;
             };
         }
+    }
+
+    [CustomPropertyDrawer(typeof(StyleParameterListAttribute))]
+    public class StyleParameterListDrawer : ParameterListDrawer
+    {
+        protected override IEnumerable<string> ParameterNames => CommonParameters.StyleParameterLookup.Keys;
+
+        protected override Func<string, Parameter> ParameterFactory => CommonParameters.CreateStyleParameter;
+    }
+
+    [CustomPropertyDrawer(typeof(NormalParameterListAttribute))]
+    public class NormalParameterListDrawer : ParameterListDrawer
+    {
+        protected override IEnumerable<string> ParameterNames => CommonParameters.NormalParameterLookup.Keys;
+
+        protected override Func<string, Parameter> ParameterFactory => CommonParameters.CreateNormalParameter;
+    }
+
+    [CustomPropertyDrawer(typeof(HeaderParameterListAttribute))]
+    public class HeaderParameterListDrawer : ParameterListDrawer
+    {
+        protected override IEnumerable<string> ParameterNames => CommonParameters.HeaderParameterLookup.Keys;
+
+        protected override Func<string, Parameter> ParameterFactory => CommonParameters.CreateHeaderParameter;
+    }
+
+    [CustomPropertyDrawer(typeof(MainParameterListAttribute))]
+    public class MainParameterListDrawer : ParameterListDrawer
+    {
+        protected override IEnumerable<string> ParameterNames => CommonParameters.MainParameterLookup.Keys;
+
+        protected override Func<string, Parameter> ParameterFactory => CommonParameters.CreateMainParameter;
     }
 }

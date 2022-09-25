@@ -23,8 +23,13 @@ namespace Hackbox
         }
 
         public Theme Theme = null;
+
+        [HeaderParameterList]
         public ParameterList HeaderParameterList = new ParameterList();
+
+        [MainParameterList]
         public ParameterList MainParameterList = new ParameterList();
+
         public List<UIComponent> Components = new List<UIComponent>();
 
         public UIComponent this[int componentIndex]
@@ -120,7 +125,7 @@ namespace Hackbox
             SetComponentParameterValue(componentName, "value", value);
         }
 
-        public JObject GenerateJSON()
+        public JObject GenerateJSON(int version)
         {
             if (Theme == null)
             {
@@ -129,14 +134,14 @@ namespace Hackbox
 
             _obj = JObject.FromObject(new
             {
-                theme = Theme.GenerateJSON(),
-                presets = GeneratePresets(),
+                theme = Theme.GenerateJSON(version),
+                presets = GeneratePresets(version),
                 ui = new
                 {
                     header = new {},
                     main = new
                     {
-                        components = new JArray(Components.Select(x => x.GenerateJSON()))
+                        components = new JArray(Components.Select(x => x.GenerateJSON(version)))
                     }
                 }                
             });
@@ -144,24 +149,24 @@ namespace Hackbox
             JObject headerObj = (JObject)_obj["ui"]["header"];
             foreach (Parameter parameter in HeaderParameterList.Parameters)
             {
-                parameter.ApplyValueToJObject(headerObj);
+                parameter.ApplyValueToJObject(headerObj, version);
             }
 
             JObject mainObj = (JObject)_obj["ui"]["main"];
             foreach (Parameter parameter in MainParameterList.Parameters)
             {
-                parameter.ApplyValueToJObject(mainObj);
+                parameter.ApplyValueToJObject(mainObj, version);
             }
 
             return _obj;
         }
 
-        private JObject GeneratePresets()
+        private JObject GeneratePresets(int version)
         {
             JObject presets = new JObject();
             foreach (Preset preset in Components.Select(x => x.Preset).Distinct())
             {
-                presets[preset.name] = preset.GenerateJSON();
+                presets[preset.name] = preset.GenerateJSON(version);
             }
 
             return presets;

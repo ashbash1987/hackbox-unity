@@ -28,12 +28,12 @@ namespace Hackbox.Parameters
         [SerializeReference]
         public ParameterList _value = new ParameterList();
 
-        public override void ApplyValueToJObject(JObject parent)
+        public override void ApplyValueToJObject(JObject parent, int version)
         {
             JObject parametersObject = new JObject();
             foreach (Parameter parameter in Value.Parameters)
             {
-                parameter.ApplyValueToJObject(parametersObject);
+                parameter.ApplyValueToJObject(parametersObject, version);
             }
 
             parent[Name] = parametersObject;

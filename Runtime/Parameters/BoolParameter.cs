@@ -27,7 +27,7 @@ namespace Hackbox.Parameters
         [SerializeField]
         public bool _value;
 
-        public override void ApplyValueToJObject(JObject parent)
+        public override void ApplyValueToJObject(JObject parent, int version)
         {
             parent[Name] = Value;
         }

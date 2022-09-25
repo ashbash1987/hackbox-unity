@@ -69,7 +69,7 @@ namespace Hackbox.Parameters
         [SerializeField]
         public ChoiceList _value = new ChoiceList();
 
-        public override void ApplyValueToJObject(JObject parent)
+        public override void ApplyValueToJObject(JObject parent, int version)
         {
             parent[Name] = new JArray(Value.Select(x => x.GenerateJSON()).ToArray());
         }

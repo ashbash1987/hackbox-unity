@@ -13,7 +13,7 @@ namespace Hackbox.UI
 
         private JObject _obj = new JObject();
 
-        public JObject GenerateJSON()
+        public JObject GenerateJSON(int version)
         {
             _obj["header"] = JObject.FromObject(new
             {

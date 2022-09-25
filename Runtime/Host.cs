@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Collections;
@@ -28,6 +28,7 @@ namespace Hackbox
         #endregion
 
         #region Public Fields
+        public int HostVersion = 1;
         public bool ReloadHost = false;
         #endregion
 
@@ -52,7 +53,7 @@ namespace Hackbox
         private const string URL = "https://app.hackbox.ca/";
         private const string AppName = "Hackbox.ca";
         private static readonly string SOCKET_URL = URL;
-        private static readonly string ROOMS_URL = $"{URL}/rooms/";
+        private static readonly string ROOMS_URL = $"{URL}rooms/";
         private const string TemporaryFileName = "LastHackboxRoom.json";
         #endregion
 
@@ -134,7 +135,7 @@ namespace Hackbox
         public void UpdateMemberState(Member member, State state)
         {
             member.State = state;
-            SendMemberUpdate(new JValue(member.UserID), state.GenerateJSON());
+            SendMemberUpdate(new JValue(member.UserID), state.GenerateJSON(HostVersion));
         }
 
         public void UpdateMemberStates(IEnumerable<Member> members, State state)
@@ -144,7 +145,7 @@ namespace Hackbox
                 member.State = state;
             }
 
-            SendMemberUpdate(new JArray(members.Select(x => x.UserID).ToArray()), state.GenerateJSON());
+            SendMemberUpdate(new JArray(members.Select(x => x.UserID).ToArray()), state.GenerateJSON(HostVersion));
         }
  
         public void UpdateAllMemberStates(State state)
@@ -154,7 +155,7 @@ namespace Hackbox
                 member.State = state;
             }
 
-            SendMemberUpdate(new JArray(AllMembers.Select(x => x.UserID).ToArray()), state.GenerateJSON());
+            SendMemberUpdate(new JArray(AllMembers.Select(x => x.UserID).ToArray()), state.GenerateJSON(HostVersion));
         }
         #endregion
 
