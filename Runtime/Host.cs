@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Collections;
@@ -128,7 +128,7 @@ namespace Hackbox
 
         public Member GetMemberByID(string userID)
         {
-            return Members.Values.FirstOrDefault(x => x.UserID.Equals(name));
+            return Members.Values.FirstOrDefault(x => x.UserID.Equals(userID));
         }
 
         public void UpdateMemberState(Member member, State state)
