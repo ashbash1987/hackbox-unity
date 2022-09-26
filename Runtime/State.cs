@@ -134,6 +134,7 @@ namespace Hackbox
 
             _obj = JObject.FromObject(new
             {
+                version = version,
                 theme = Theme.GenerateJSON(version),
                 presets = GeneratePresets(version),
                 ui = new
