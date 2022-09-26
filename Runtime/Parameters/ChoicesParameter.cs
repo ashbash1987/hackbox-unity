@@ -30,7 +30,10 @@ namespace Hackbox.Parameters
             public string Value = "";
             public string[] Keys = new string[0];
 
-            public JObject GenerateJSON()
+            [StyleParameterList]
+            public ParameterList StyleParameterList = new ParameterList();
+
+            public JObject GenerateJSON(int version)
             {
                 JObject choiceObject = JObject.FromObject(new
                 {
@@ -44,7 +47,23 @@ namespace Hackbox.Parameters
                     choiceObject["keys"] = new JArray(Keys);
                 }
 
+                if (StyleParameterList != null && StyleParameterList.Parameters.Count > 0)
+                {
+                    choiceObject["style"] = GenerateStyleProps(version);
+                }
+
                 return choiceObject;
+            }
+
+            private JObject GenerateStyleProps(int version)
+            {
+                JObject props = new JObject();
+                foreach (Parameter parameter in StyleParameterList.Parameters)
+                {
+                    parameter.ApplyValueToJObject(props, version);
+                }
+
+                return props;
             }
         }
 
@@ -71,7 +90,7 @@ namespace Hackbox.Parameters
 
         public override void ApplyValueToJObject(JObject parent, int version)
         {
-            parent[Name] = new JArray(Value.Select(x => x.GenerateJSON()).ToArray());
+            parent[Name] = new JArray(Value.Select(x => x.GenerateJSON(version)).ToArray());
         }
     }
 }
