@@ -8,6 +8,7 @@ using UnityEditorInternal;
 namespace Hackbox.Parameters
 {
     [CustomPropertyDrawer(typeof(AnyParameterListAttribute))]
+    [CustomPropertyDrawer(typeof(ParameterList))]
     public class ParameterListDrawer : PropertyDrawer
     {
         private readonly Dictionary<string, (ParameterList obj, ReorderableList reorder)> _setups = new Dictionary<string, (ParameterList, ReorderableList)>();
