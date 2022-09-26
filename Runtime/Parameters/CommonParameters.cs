@@ -25,6 +25,8 @@ namespace Hackbox.Parameters
             ["borderRadius"] = typeof(StringParameter),
             ["borderColor"] = typeof(ColorParameter),
             ["radius"] = typeof(StringParameter),
+
+            ["hover"] = typeof(ParameterListParameter),
         };
 
         public static readonly Dictionary<string, Type> NormalParameterLookup = new Dictionary<string, Type>()
@@ -36,7 +38,6 @@ namespace Hackbox.Parameters
 
             ["multiSelect"] = typeof(BoolParameter),
             
-            ["hover"] = typeof(ParameterListParameter),
             ["submit"] = typeof(ParameterListParameter),
 
             ["choices"] = typeof(ChoicesParameter),
