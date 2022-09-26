@@ -47,7 +47,7 @@ namespace Hackbox.Parameters
                     choiceObject["keys"] = new JArray(Keys);
                 }
 
-                if (StyleParameterList != null && StyleParameterList.Parameters.Count > 0)
+                if (StyleParameterList != null && StyleParameterList.Parameters.Count > 0 && version >= 2)
                 {
                     choiceObject["style"] = GenerateStyleProps(version);
                 }
