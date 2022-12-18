@@ -14,12 +14,14 @@ namespace Hackbox.UI
         public UIComponent(UIComponent from)
         {
             Name = from.Name;
+            Key = from.Key;
             Preset = from.Preset;
             StyleParameterList = new ParameterList(from.StyleParameterList);
             ParameterList = new ParameterList(from.ParameterList);
         }
 
         public string Name = "";
+        public string Key = "";
         public Preset Preset = null;
 
         [StyleParameterList]
@@ -66,6 +68,12 @@ namespace Hackbox.UI
         public JObject GenerateJSON(int version)
         {
             _obj["type"] = Preset.name;
+
+            if (!string.IsNullOrEmpty(Key))
+            {
+                _obj["key"] = Key;
+            }
+
             _obj["props"] = GenerateProps(version);
 
             return _obj;
