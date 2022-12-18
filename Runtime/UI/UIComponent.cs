@@ -15,6 +15,7 @@ namespace Hackbox.UI
         {
             Name = from.Name;
             Preset = from.Preset;
+            StyleParameterList = new ParameterList(from.StyleParameterList);
             ParameterList = new ParameterList(from.ParameterList);
         }
 
@@ -74,6 +75,10 @@ namespace Hackbox.UI
         {
             JObject props = new JObject();
             foreach (Parameter parameter in ParameterList.Parameters)
+            {
+                parameter.ApplyValueToJObject(props, version);
+            }
+            foreach (Parameter parameter in StyleParameterList.Parameters)
             {
                 parameter.ApplyValueToJObject(props, version);
             }

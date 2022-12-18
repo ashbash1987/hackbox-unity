@@ -24,6 +24,7 @@ namespace Hackbox.Parameters
                 Value = other.Value;
                 Keys = new string[other.Keys.Length];
                 Array.Copy(other.Keys, Keys, other.Keys.Length);
+                StyleParameterList = new ParameterList(other.StyleParameterList);
             }
 
             public string Label = "";
