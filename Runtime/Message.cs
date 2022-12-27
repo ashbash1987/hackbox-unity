@@ -77,7 +77,12 @@ namespace Hackbox
 
         public override string ToString()
         {
-            return $"[{Timestamp}|{ID}]: {Event}, {Value}";
+            if (string.IsNullOrEmpty(Value))
+            {
+                return $"[{Timestamp}|{ID}]: <b>{Event}</b>";
+            }
+
+            return $"[{Timestamp}|{ID}]: <b>{Event}</b>=[<b>{Value}</b>]";
         }
     }
 }

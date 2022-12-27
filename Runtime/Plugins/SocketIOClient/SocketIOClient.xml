@@ -4,6 +4,33 @@
         <name>SocketIOClient</name>
     </assembly>
     <members>
+        <member name="T:SocketIOClient.Messages.ClientAckMessage">
+            <summary>
+            The server calls the client's callback
+            </summary>
+        </member>
+        <member name="T:SocketIOClient.Messages.ClientBinaryAckMessage">
+            <summary>
+            The server calls the client's callback with binary
+            </summary>
+        </member>
+        <member name="T:SocketIOClient.Messages.ServerAckMessage">
+            <summary>
+            The client calls the server's callback
+            </summary>
+        </member>
+        <member name="T:SocketIOClient.Messages.ServerBinaryAckMessage">
+            <summary>
+            The client calls the server's callback with binary
+            </summary>
+        </member>
+        <member name="M:SocketIOClient.Routers.Router.StartPing(System.Threading.CancellationToken)">
+            <summary>
+            <para>Eio3 ping is sent by the client</para>
+            <para>Eio4 ping is sent by the server</para>
+            </summary>
+            <param name="cancellationToken"></param>
+        </member>
         <member name="T:SocketIOClient.SocketIO">
             <summary>
             socket.io client class
@@ -35,11 +62,6 @@
             <param name="uri"></param>
             <param name="options"></param>
         </member>
-        <member name="M:SocketIOClient.SocketIO.#ctor">
-            <summary>
-            Create SocketIO object with default options
-            </summary>
-        </member>
         <member name="P:SocketIOClient.SocketIO.Id">
             <summary>
             An unique identifier for the socket session. Set after the connect event is triggered, and updated after the reconnect event.
@@ -50,16 +72,35 @@
             Whether or not the socket is connected to the server.
             </summary>
         </member>
+        <member name="P:SocketIOClient.SocketIO.Attempts">
+            <summary>
+            Gets current attempt of reconnection.
+            </summary>
+        </member>
         <member name="P:SocketIOClient.SocketIO.Disconnected">
             <summary>
             Whether or not the socket is disconnected from the server.
             </summary>
         </member>
-        <member name="M:SocketIOClient.SocketIO.ConnectAsync">
+        <member name="E:SocketIOClient.SocketIO.OnReconnected">
             <summary>
-            
+            Fired upon a successful reconnection.
             </summary>
-            <returns></returns>
+        </member>
+        <member name="E:SocketIOClient.SocketIO.OnReconnectAttempt">
+            <summary>
+            Fired upon an attempt to reconnect.
+            </summary>
+        </member>
+        <member name="E:SocketIOClient.SocketIO.OnReconnectError">
+            <summary>
+            Fired upon a reconnection attempt error.
+            </summary>
+        </member>
+        <member name="E:SocketIOClient.SocketIO.OnReconnectFailed">
+            <summary>
+            Fired when couldn’t reconnect within reconnectionAttempts
+            </summary>
         </member>
         <member name="M:SocketIOClient.SocketIO.On(System.String,System.Action{SocketIOClient.SocketIOResponse})">
             <summary>
@@ -96,42 +137,20 @@
             Whether to allow reconnection if accidentally disconnected
             </summary>
         </member>
-        <member name="P:SocketIOClient.SocketIOOptions.AllowedRetryFirstConnection">
-            <summary>
-            Allow reconnection when the first connection fails.
-            Generally speaking, the usage scenario is if the server starts later than the client.
-            </summary>
-        </member>
-        <member name="T:SocketIOClient.WebSocketClient.ClientWebSocket">
-            <summary>
-            Internally uses 'System.Net.WebSockets.ClientWebSocket' as websocket client
-            </summary>
-        </member>
-        <member name="M:SocketIOClient.WebSocketClient.ClientWebSocket.ConnectAsync(System.Uri)">
-            <summary>
-            
-            </summary>
-            <param name="uri"></param>
-            <param name="options"></param>
-            <exception cref="T:System.TimeoutException"></exception>
+        <member name="M:SocketIOClient.Transport.WebSocketTransport.ConnectAsync(System.Uri)">
             <exception cref="T:System.Net.WebSockets.WebSocketException"></exception>
-            <returns></returns>
         </member>
-        <member name="M:SocketIOClient.WebSocketClient.ClientWebSocket.SendMessageAsync(System.String)">
-            <summary>
-            
-            </summary>
-            <param name="text"></param>
-            <returns></returns>
-            <exception cref="T:SocketIOClient.Exceptions.InvalidSocketStateException"></exception>
+        <member name="M:SocketIOClient.Transport.WebSocketTransport.SendAsync(System.Byte[],System.Threading.CancellationToken)">
+            <exception cref="T:System.InvalidOperationException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.Net.WebSockets.WebSocketException"></exception>
+            <exception cref="T:System.Threading.Tasks.TaskCanceledException"></exception>
         </member>
-        <member name="M:SocketIOClient.WebSocketClient.ClientWebSocket.SendMessageAsync(System.Byte[])">
-            <summary>
-            
-            </summary>
-            <param name="bytes"></param>
-            <returns></returns>
-            <exception cref="T:SocketIOClient.Exceptions.InvalidSocketStateException"></exception>
+        <member name="M:SocketIOClient.Transport.WebSocketTransport.SendAsync(System.String,System.Threading.CancellationToken)">
+            <exception cref="T:System.InvalidOperationException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.Net.WebSockets.WebSocketException"></exception>
+            <exception cref="T:System.Threading.Tasks.TaskCanceledException"></exception>
         </member>
     </members>
 </doc>

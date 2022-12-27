@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Collections;
@@ -7,9 +7,13 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Networking;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using SocketIOClient;
+using SocketIOClient.Newtonsoft.Json;
 
 namespace Hackbox
 {
@@ -20,9 +24,12 @@ namespace Hackbox
         public RoomCodeEvent OnRoomCreated = new RoomCodeEvent();
         public RoomCodeEvent OnRoomConnected = new RoomCodeEvent();
         public RoomCodeEvent OnRoomDisconnected = new RoomCodeEvent();
+        public RoomCodeEvent OnRoomReconnecting = new RoomCodeEvent();
+        public RoomCodeEvent OnRoomReconnectFailed = new RoomCodeEvent();
         public MemberEvent OnMemberJoined = new MemberEvent();
         public MemberEvent OnMemberKicked = new MemberEvent();
         public MessageEvent OnMessage = new MessageEvent();
+        public UnityEvent OnPingPong = new UnityEvent();
 
         public readonly MessageEventCollection MessageEvents = new MessageEventCollection();
         #endregion
@@ -30,6 +37,7 @@ namespace Hackbox
         #region Public Fields
         public int HostVersion = 1;
         public bool ReloadHost = false;
+        public bool Debugging = false;
         #endregion
 
         #region Public Properties        
@@ -170,6 +178,16 @@ namespace Hackbox
             DoUnityAction(() => Debug.Log(message));
         }
 
+        private void LogWarn(string message)
+        {
+            DoUnityAction(() => Debug.LogWarning(message));
+        }
+
+        private void LogError(string message)
+        {
+            DoUnityAction(() => Debug.LogError(message));
+        }
+
         private void LoadRoomData()
         {
             try
@@ -233,6 +251,15 @@ namespace Hackbox
         {
             Log($"Attempting socket connection to {AppName} for <b>{RoomCode}</b> with host <i>{UserID}</i>...");
 
+            NewtonsoftJsonSerializer serializer = new NewtonsoftJsonSerializer();
+            serializer.OptionsProvider = () => new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                }
+            };
+
             Dictionary<string, string> queryParameters = new Dictionary<string, string>()
             {
                 ["userId"] = UserID,
@@ -240,28 +267,98 @@ namespace Hackbox
             };
 
             _socket = new SocketIO(SOCKET_URL, new SocketIOOptions() { EIO = 4, Query = queryParameters });
+            _socket.JsonSerializer = serializer;
 
-            _socket.OnConnected += (sender, e) =>
+            _socket.OnConnected += OnConnected;
+            _socket.OnError += OnError;
+            _socket.OnDisconnected += OnDisconnected;
+            _socket.OnReconnectAttempt += OnReconnectAttempt;
+            _socket.OnReconnected += OnReconnected;
+            _socket.OnReconnectFailed += OnReconnectFailed;
+            _socket.OnPing += OnPing;
+            _socket.OnPong += OnPong;
+
+            await _socket.ConnectAsync();
+        }
+
+        private void OnConnected(object sender, EventArgs e)
+        {
+            Log($"Connected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i>.");
+            DoUnityAction(() =>
             {
-                Log($"Connected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i>.");
-                DoUnityAction(() => OnRoomConnected.Invoke(RoomCode));
+                OnRoomConnected.Invoke(RoomCode);
+            });
 
-                _socket.On("state.host", OnHostStateUpdate);
-                _socket.On("msg", OnMemberMessage);
-            };
+            _socket.On("state.host", OnHostStateUpdate);
+            _socket.On("msg", OnMemberMessage);
+        }
 
-            _socket.OnError += (sender, e) =>
+        private void OnError(object sender, string e)
+        {
+            LogError($"Failed connection to {AppName}: {e}");
+        }
+
+        private void OnDisconnected(object sender, string e)
+        {
+            LogWarn($"Disconnected from {AppName}: {e}");
+            DoUnityAction(() =>
             {
-                Log($"Failed connection to {AppName}: {e}");
-            };
+                OnRoomDisconnected.Invoke(RoomCode);
+            });
+        }
 
-            _socket.OnDisconnected += (sender, e) =>
+        private void OnReconnectAttempt(object sender, int e)
+        {
+            Log($"Reconnecting to {AppName} <b>{RoomCode}</b> (attempt {e})...");
+            DoUnityAction(() =>
             {
-                Log($"Disconnected from {AppName}.");
-                DoUnityAction(() => OnRoomDisconnected.Invoke(RoomCode));
-            };
+                OnRoomReconnecting.Invoke(RoomCode);
+            });
+        }
 
-            await _socket.ConnectAsync();            
+        private void OnReconnected(object sender, int e)
+        {
+            Log($"Reconnected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i> (attempt {e}).");
+
+            DoUnityAction(() =>
+            {
+                OnRoomConnected.Invoke(RoomCode);
+
+                foreach (Member member in Members.Values)
+                {
+                    if (member.State != null)
+                    {
+                        UpdateMemberState(member, member.State);
+                    }
+                }
+            });
+        }
+
+        private void OnReconnectFailed(object sender, EventArgs e)
+        {
+            LogError($"Reconnect to {AppName} <b>{RoomCode}</b> failed.");
+            DoUnityAction(() =>
+            {
+                OnRoomReconnectFailed.Invoke(RoomCode);
+            });
+        }
+
+        private void OnPing(object sender, EventArgs e)
+        {
+            if (Debugging)
+            {
+                Log($"Ping...");
+            }
+        }
+
+        private void OnPong(object sender, TimeSpan e)
+        {
+            if (Debugging)
+            {
+                Log($"...Pong.");
+            }
+
+            DoUnityAction(() => OnPingPong.Invoke());           
         }
 
         private async Task EndSocket()
@@ -289,19 +386,31 @@ namespace Hackbox
 
         private void SendMemberUpdate(JToken to, JObject statePayload)
         {
+            if (_socket == null)
+            {
+                LogError("Cannot send a member update - socket has not been initialised!");
+                return;
+            }
+
             JObject obj = new JObject(
                 new JProperty("to", to),
                 new JProperty("data", statePayload)
             );
 
             _ = _socket.EmitAsync("member.update", obj);
+
+            if (Debugging)
+            {
+                Log($"Emitting...\n{obj.ToString(Formatting.None)}");
+            }
         }
 
         private void OnHostStateUpdate(SocketIOResponse response)
         {
             HashSet<Member> oldMembers = new HashSet<Member>(Members.Values);
 
-            JObject membersObject = (JObject)response.GetValue()["members"];
+            JObject jsonObject = response.GetValue<JObject>();
+            JObject membersObject = (JObject)jsonObject["members"];
             foreach (JProperty memberProperty in membersObject.Properties())
             {
                 JObject memberData = (JObject)memberProperty.Value;
@@ -333,7 +442,13 @@ namespace Hackbox
 
         private void OnMemberMessage(SocketIOResponse response)
         {
-            JObject msgObject = (JObject)response.GetValue();
+            JObject msgObject = response.GetValue<JObject>();
+
+            if (Debugging)
+            {
+                Log($"Receiving...\n{msgObject.ToString(Formatting.None)}");
+            }
+
             string from = (string)msgObject["from"];
             if (!Members.TryGetValue(from, out Member fromMember))
             {
