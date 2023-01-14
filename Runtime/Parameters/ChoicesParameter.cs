@@ -36,12 +36,11 @@ namespace Hackbox.Parameters
 
             public JObject GenerateJSON(int version)
             {
-                JObject choiceObject = JObject.FromObject(new
-                {
-                    label = Label,
-                    value = Value,
-                    keys = new JArray(Keys)
-                });
+                JObject choiceObject = new JObject();
+
+                choiceObject["label"] = Label;
+                choiceObject["value"] = Value;
+                choiceObject["keys"] = new JArray(Keys);
 
                 if (Keys != null)
                 {

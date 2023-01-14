@@ -132,28 +132,26 @@ namespace Hackbox
                 return _obj;
             }
 
-            _obj = JObject.FromObject(new
-            {
-                version = version,
-                theme = Theme.GenerateJSON(version),
-                presets = GeneratePresets(version),
-                ui = new
-                {
-                    header = new {},
-                    main = new
-                    {
-                        components = new JArray(Components.Select(x => x.GenerateJSON(version)))
-                    }
-                }                
-            });
+            _obj = new JObject();
+            _obj["version"] = version;
+            _obj["theme"] = Theme.GenerateJSON(version);
+            _obj["presets"] = GeneratePresets(version);
 
-            JObject headerObj = (JObject)_obj["ui"]["header"];
+            JObject ui = new JObject();
+            _obj["ui"] = ui;
+
+            JObject headerObj = new JObject();
+            _obj["ui"]["header"] = headerObj;
+
+            JObject mainObj = new JObject();
+            mainObj["components"] = new JArray(Components.Select(x => x.GenerateJSON(version)));
+            _obj["ui"]["main"] = mainObj;
+
             foreach (Parameter parameter in HeaderParameterList.Parameters)
             {
                 parameter.ApplyValueToJObject(headerObj, version);
             }
 
-            JObject mainObj = (JObject)_obj["ui"]["main"];
             foreach (Parameter parameter in MainParameterList.Parameters)
             {
                 parameter.ApplyValueToJObject(mainObj, version);

@@ -15,16 +15,15 @@ namespace Hackbox.UI
 
         public JObject GenerateJSON(int version)
         {
-            _obj["header"] = JObject.FromObject(new
-            {
-                color = HeaderColor.ToHTMLString(),
-                background = HeaderBackground
-            });
-            _obj["main"] = JObject.FromObject(new
-            {
-                color = MainColor.ToHTMLString(),
-                background = MainBackground
-            });
+            JObject header = new JObject();
+            header["color"] = HeaderColor.ToHTMLString();
+            header["background"] = HeaderBackground;
+            _obj["header"] = header;
+
+            JObject main = new JObject();
+            main["color"] = MainColor.ToHTMLString();
+            main["background"] = MainBackground;
+            _obj["main"] = main;
 
             return _obj;
         }

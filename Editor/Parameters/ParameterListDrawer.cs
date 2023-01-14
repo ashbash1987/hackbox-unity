@@ -121,7 +121,9 @@ namespace Hackbox.Parameters
                 if (!_parameterNames.Contains(parameterName))
                 {
                     GUI.color = Color.yellow;
-                    EditorGUI.LabelField(rect, EditorGUIUtility.IconContent("Warning", "This parameter is not expected in this section."));
+                    GUIContent icon = EditorGUIUtility.IconContent("Warning", "This parameter is not expected in this section.");
+                    icon.tooltip = "This parameter is not expected in this section.";
+                    EditorGUI.LabelField(rect, icon);
                     rect.x += 20;
                     rect.width -= 20;
                 }

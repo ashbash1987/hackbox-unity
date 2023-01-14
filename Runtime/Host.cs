@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Collections;
@@ -12,8 +12,6 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using SocketIOClient;
-using SocketIOClient.Newtonsoft.Json;
 
 namespace Hackbox
 {
@@ -21,26 +19,44 @@ namespace Hackbox
     {
         #region Events
         [Header("Events")]
+        [Tooltip("Called when a room is created.")]
         public RoomCodeEvent OnRoomCreated = new RoomCodeEvent();
+        [Tooltip("Called when this host connects to a room.")]
         public RoomCodeEvent OnRoomConnected = new RoomCodeEvent();
+        [Tooltip("Called when this host disconnects from a room.")]
         public RoomCodeEvent OnRoomDisconnected = new RoomCodeEvent();
+        [Tooltip("Called when this host attempts to reconnect to a room.")]
         public RoomCodeEvent OnRoomReconnecting = new RoomCodeEvent();
+        [Tooltip("Called when this host fails an attempt to reconnect to a room.")]
         public RoomCodeEvent OnRoomReconnectFailed = new RoomCodeEvent();
+        [Tooltip("Called when a member joins the room.")]
         public MemberEvent OnMemberJoined = new MemberEvent();
+        [Tooltip("Called when a member is kicked from the room.")]
         public MemberEvent OnMemberKicked = new MemberEvent();
+        [Tooltip("Called when a member sends a message in the room.")]
         public MessageEvent OnMessage = new MessageEvent();
+        [Tooltip("Called when a ping/pong event occurs for this host.")]
         public UnityEvent OnPingPong = new UnityEvent();
 
         public readonly MessageEventCollection MessageEvents = new MessageEventCollection();
         #endregion
 
         #region Public Fields
+        [Header("Settings")]
+        [Tooltip("A specific host name for this host instance.")]
+        public string HostName = null;
+        [Tooltip("The host version to connect to. Valid values are 1 or 2.")]
         public int HostVersion = 1;
+        [Tooltip("If true, then it will reload the previous host setup.")]
         public bool ReloadHost = false;
+        [Tooltip("If true, then additional debugging logging will be shown.")]
         public bool Debugging = false;
         #endregion
 
-        #region Public Properties        
+        #region Public Properties
+        public bool Connected => _socket?.Connected ?? false;
+        public bool Disconnected => _socket?.Disconnected ?? true;
+
         public string RoomCode
         {
             get;
@@ -62,17 +78,17 @@ namespace Hackbox
         private const string AppName = "Hackbox.ca";
         private static readonly string SOCKET_URL = URL;
         private static readonly string ROOMS_URL = $"{URL}rooms/";
-        private const string TemporaryFileName = "LastHackboxRoom.json";
+        private const string TemporaryFileName = "LastHackboxRoom-{Name}.json";
         #endregion
 
         #region Private Properties
-        private string TemporaryFilePath => Path.Combine(Application.temporaryCachePath, TemporaryFileName);
+        private string TemporaryFilePath => Path.Combine(Application.temporaryCachePath, TemporaryFileName.Replace("{Name}", string.IsNullOrEmpty(HostName) ? name : HostName));
         #endregion
 
         #region Private Fields
         private readonly ConcurrentDictionary<string, Member> Members = new ConcurrentDictionary<string, Member>();
         private readonly ConcurrentQueue<Action> ThreadSafeActions = new ConcurrentQueue<Action>();
-        private SocketIO _socket = null;
+        private ISocketIO _socket = null;
         #endregion
 
         #region Unity Events
@@ -83,7 +99,7 @@ namespace Hackbox
 
         protected virtual void Start()
         {
-            CreateNewRoom();
+            Connect();
         }
 
         protected virtual void Update()
@@ -99,16 +115,20 @@ namespace Hackbox
 
         protected virtual void OnDestroy()
         {
-            CloseRoom();
+            Disconnect();
         }
         #endregion
 
         #region Public Methods
-        public void CreateNewRoom()
+        public void Connect(bool forceNewRoom = false)
         {
             IEnumerator Sequence()
             {
-                if (ReloadHost)
+                if (forceNewRoom)
+                {
+                    RoomCode = null;
+                }
+                else if (ReloadHost)
                 {
                     LoadRoomData();
                 }
@@ -125,7 +145,7 @@ namespace Hackbox
             StartCoroutine(Sequence());
         }
 
-        public void CloseRoom()
+        public void Disconnect()
         {
             _ = EndSocket();
         }
@@ -190,6 +210,7 @@ namespace Hackbox
 
         private void LoadRoomData()
         {
+#if UNITY_EDITOR || UNITY_STANDALONE
             try
             {
                 if (!File.Exists(TemporaryFilePath))
@@ -206,10 +227,12 @@ namespace Hackbox
             {
                 Debug.LogException(ex);
             }
+#endif
         }
 
         private void Save()
         {
+#if UNITY_EDITOR || UNITY_STANDALONE
             JObject jData = JObject.FromObject(new
             {
                 roomCode = RoomCode,
@@ -217,6 +240,7 @@ namespace Hackbox
             });
 
             File.WriteAllText(TemporaryFilePath, jData.ToString());
+#endif
         }
 
         private IEnumerator GenerateRoom()
@@ -251,23 +275,17 @@ namespace Hackbox
         {
             Log($"Attempting socket connection to {AppName} for <b>{RoomCode}</b> with host <i>{UserID}</i>...");
 
-            NewtonsoftJsonSerializer serializer = new NewtonsoftJsonSerializer();
-            serializer.OptionsProvider = () => new Newtonsoft.Json.JsonSerializerSettings()
-            {
-                ContractResolver = new DefaultContractResolver
-                {
-                    NamingStrategy = new CamelCaseNamingStrategy()
-                }
-            };
-
             Dictionary<string, string> queryParameters = new Dictionary<string, string>()
             {
                 ["userId"] = UserID,
                 ["roomCode"] = RoomCode
             };
 
-            _socket = new SocketIO(SOCKET_URL, new SocketIOOptions() { EIO = 4, Query = queryParameters });
-            _socket.JsonSerializer = serializer;
+#if UNITY_EDITOR || UNITY_STANDALONE
+            _socket = new StandaloneSocketIO(SOCKET_URL, 4, queryParameters);
+#elif UNITY_WEBGL
+            _socket = new WebGLSocketIO(SOCKET_URL, 4, queryParameters);
+#endif
 
             _socket.OnConnected += OnConnected;
             _socket.OnError += OnError;
@@ -278,10 +296,10 @@ namespace Hackbox
             _socket.OnPing += OnPing;
             _socket.OnPong += OnPong;
 
-            await _socket.ConnectAsync();
+            await _socket.Connect();
         }
 
-        private void OnConnected(object sender, EventArgs e)
+        private void OnConnected()
         {
             Log($"Connected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i>.");
             DoUnityAction(() =>
@@ -293,32 +311,32 @@ namespace Hackbox
             _socket.On("msg", OnMemberMessage);
         }
 
-        private void OnError(object sender, string e)
+        private void OnError(string error)
         {
-            LogError($"Failed connection to {AppName}: {e}");
+            LogError($"Failed connection to {AppName}: {error}");
         }
 
-        private void OnDisconnected(object sender, string e)
+        private void OnDisconnected(string error)
         {
-            LogWarn($"Disconnected from {AppName}: {e}");
+            LogWarn($"Disconnected from {AppName}: {error}");
             DoUnityAction(() =>
             {
                 OnRoomDisconnected.Invoke(RoomCode);
             });
         }
 
-        private void OnReconnectAttempt(object sender, int e)
+        private void OnReconnectAttempt(int attemptCount)
         {
-            Log($"Reconnecting to {AppName} <b>{RoomCode}</b> (attempt {e})...");
+            Log($"Reconnecting to {AppName} <b>{RoomCode}</b> (attempt {attemptCount})...");
             DoUnityAction(() =>
             {
                 OnRoomReconnecting.Invoke(RoomCode);
             });
         }
 
-        private void OnReconnected(object sender, int e)
+        private void OnReconnected(int attemptCount)
         {
-            Log($"Reconnected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i> (attempt {e}).");
+            Log($"Reconnected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i> (attempt {attemptCount}).");
 
             DoUnityAction(() =>
             {
@@ -334,7 +352,7 @@ namespace Hackbox
             });
         }
 
-        private void OnReconnectFailed(object sender, EventArgs e)
+        private void OnReconnectFailed()
         {
             LogError($"Reconnect to {AppName} <b>{RoomCode}</b> failed.");
             DoUnityAction(() =>
@@ -343,7 +361,7 @@ namespace Hackbox
             });
         }
 
-        private void OnPing(object sender, EventArgs e)
+        private void OnPing()
         {
             if (Debugging)
             {
@@ -351,7 +369,7 @@ namespace Hackbox
             }
         }
 
-        private void OnPong(object sender, TimeSpan e)
+        private void OnPong(TimeSpan e)
         {
             if (Debugging)
             {
@@ -367,7 +385,7 @@ namespace Hackbox
 
             if (_socket != null)
             {
-                await _socket.DisconnectAsync();
+                await _socket.Disconnect();
                 _socket = null;
             }
 
@@ -397,7 +415,7 @@ namespace Hackbox
                 new JProperty("data", statePayload)
             );
 
-            _ = _socket.EmitAsync("member.update", obj);
+            _ = _socket.Emit("member.update", obj);
 
             if (Debugging)
             {
@@ -405,12 +423,11 @@ namespace Hackbox
             }
         }
 
-        private void OnHostStateUpdate(SocketIOResponse response)
+        private void OnHostStateUpdate(JObject msgObject)
         {
             HashSet<Member> oldMembers = new HashSet<Member>(Members.Values);
 
-            JObject jsonObject = response.GetValue<JObject>();
-            JObject membersObject = (JObject)jsonObject["members"];
+            JObject membersObject = (JObject)msgObject["members"];
             foreach (JProperty memberProperty in membersObject.Properties())
             {
                 JObject memberData = (JObject)memberProperty.Value;
@@ -440,10 +457,8 @@ namespace Hackbox
             }
         }
 
-        private void OnMemberMessage(SocketIOResponse response)
+        private void OnMemberMessage(JObject msgObject)
         {
-            JObject msgObject = response.GetValue<JObject>();
-
             if (Debugging)
             {
                 Log($"Receiving...\n{msgObject.ToString(Formatting.None)}");

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 namespace Hackbox
@@ -29,8 +27,25 @@ namespace Hackbox
         {
             base.OnInspectorGUI();
 
+            EditorGUILayout.Space();
             EditorGUILayout.LabelField("Room Info", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("Room Code", _obj.RoomCode);
+            if (_obj.Connected)
+            {
+                EditorGUILayout.LabelField("Room Code", _obj.RoomCode);
+                EditorGUILayout.LabelField("Host User ID", _obj.UserID);
+                if (Application.isPlaying && GUILayout.Button("Disconnect"))
+                {
+                    _obj.Disconnect();
+                }
+            }
+            else
+            {
+                EditorGUILayout.LabelField("Disconnected");
+                if (Application.isPlaying && GUILayout.Button("Connect"))
+                {
+                    _obj.Connect();
+                }
+            }
             EditorGUILayout.Space();
             
             EditorGUILayout.LabelField("Members", EditorStyles.boldLabel);
@@ -42,7 +57,7 @@ namespace Hackbox
 
                     EditorGUILayout.LabelField(member.Name, GUILayout.ExpandWidth(true));
                     EditorGUILayout.LabelField(member.UserID);
-                    
+
                     EditorGUILayout.EndHorizontal();
                 }
             }
