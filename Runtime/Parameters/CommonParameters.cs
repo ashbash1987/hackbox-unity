@@ -41,6 +41,10 @@ namespace Hackbox.Parameters
             ["submit"] = typeof(ParameterListParameter),
 
             ["choices"] = typeof(ChoicesParameter),
+
+            ["min"] = typeof(IntParameter),
+            ["max"] = typeof(IntParameter),
+            ["step"] = typeof(IntParameter),
         };
 
         public static readonly Dictionary<string, Type> HeaderParameterLookup = new Dictionary<string, Type>()
