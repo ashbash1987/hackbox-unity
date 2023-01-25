@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Hackbox.UI;
 
@@ -8,6 +7,31 @@ namespace Hackbox.Parameters
 {
     public static class DefaultParameters
     {
+        public static readonly Dictionary<string, Parameter> AllParameterLookup = new Dictionary<string, Parameter>()
+        {
+            ["align"] = new StringParameter() { Value = "start" },
+            ["background"] = new StringParameter() { Value = "black" },
+            ["border"] = new StringParameter() { Value = "2px solid black" },
+            ["borderColor"] = new ColorParameter() { Value = Color.black },
+            ["borderRadius"] = new StringParameter() { Value = "10px" },
+            ["choices"] = new ChoicesParameter() { Value = new List<ChoicesParameter.Choice>() },
+            ["color"] = new ColorParameter() { Value = Color.black },
+            ["event"] = new StringParameter() { Value = "" },
+            ["fontSize"] = new StringParameter() { Value = "20px" },
+            ["height"] = new StringParameter() { Value = "100px" },
+            ["hover"] = new ParameterListParameter() { Value = new ParameterList() },
+            ["label"] = new StringParameter() { Value = "Label" },
+            ["margin"] = new StringParameter() { Value = "10px 0px" },
+            ["multiSelect"] = new BoolParameter() { Value = false },
+            ["padding"] = new StringParameter() { Value = "0px 10px" },
+            ["radius"] = new StringParameter() { Value = "10px" },
+            ["shadow"] = new StringParameter() { Value = "5px 5px #000000" },
+            ["submit"] = new ParameterListParameter() { Value = new ParameterList() },
+            ["text"] = new StringParameter() { Value = "Text" },
+            ["value"] = new StringParameter() { Value = "value" },
+            ["width"] = new StringParameter() { Value = "100%" },
+        };
+
         public static readonly Dictionary<string, Parameter> HeaderParameterLookup = new Dictionary<string, Parameter>()
         {
             ["color"] = new ColorParameter() { Value = Color.black },
@@ -249,6 +273,11 @@ namespace Hackbox.Parameters
         public static Parameter CreateDefaultStyleParameter(string parameterName, object parent, params Parameter[] parameterChain)
         {
             return CreateParameter(parameterName, GetDefaultStyleParameters(parent, parameterChain));
+        }
+
+        public static Parameter CreateDefaultAnyParameter(string parameterName)
+        {
+            return CreateParameter(parameterName, AllParameterLookup);
         }
 
         private static Parameter CreateParameter(string parameterName, Dictionary<string, Parameter> parameterLookup)

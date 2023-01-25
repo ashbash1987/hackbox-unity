@@ -37,7 +37,7 @@ namespace Hackbox.Parameters
                 throw new Exception($"Trying to get parameter {parameterName} but using the wrong parameter type. Expected {parameter.GetType().Name}, asking for {typeof(T).Name}");
             }
 
-            Parameter newParameter = CommonParameters.CreateAnyParameter(parameterName);
+            Parameter newParameter = DefaultParameters.CreateDefaultAnyParameter(parameterName);
             if (newParameter is Parameter<T> newTypedParameter)
             {
                 Parameters.Add(newTypedParameter);
@@ -60,7 +60,7 @@ namespace Hackbox.Parameters
                 throw new Exception($"Trying to get parameter {parameterName} but using the wrong parameter type. Expected {parameter.GetType().Name}, asking for {typeof(T).Name}");
             }
 
-            Parameter newParameter = CommonParameters.CreateAnyParameter(parameterName);
+            Parameter newParameter = DefaultParameters.CreateDefaultAnyParameter(parameterName);
             if (newParameter is T newTypedParameter)
             {
                 Parameters.Add(newTypedParameter);

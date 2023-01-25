@@ -68,7 +68,7 @@ namespace Hackbox.Parameters
                     Parameter parameter = CreateParameter(property, setup.ParameterNames[setup.ParameterIndex]);
                     if (parameter == null)
                     {
-                        parameter = CommonParameters.CreateAnyParameter(setup.ParameterNames[setup.ParameterIndex]);
+                        parameter = DefaultParameters.CreateDefaultAnyParameter(setup.ParameterNames[setup.ParameterIndex]);
                     }
                     setup.List.Parameters.Add(parameter);
                 }
@@ -147,7 +147,7 @@ namespace Hackbox.Parameters
             _setups[property.propertyPath].ParameterNames = GetParameterNames(property)?.ToArray();
             if (_setups[property.propertyPath].ParameterNames == null)
             {
-                _setups[property.propertyPath].ParameterNames = CommonParameters.AllParameterLookup.Keys.ToArray();
+                _setups[property.propertyPath].ParameterNames = DefaultParameters.AllParameterLookup.Keys.ToArray();
             }
         }
 
