@@ -32,8 +32,8 @@ namespace Hackbox.UI
             for (int parameterIndex = 0; parameterIndex < ParameterList.Parameters.Count; ++parameterIndex)
             {
                 Parameter parameter = ParameterList[parameterIndex];
-                if (!CommonParameters.NormalParameterLookup.ContainsKey(parameter.Name) &&
-                    CommonParameters.StyleParameterLookup.ContainsKey(parameter.Name))
+                if (!DefaultParameters.GetDefaultParameters(this).ContainsKey(parameter.Name) &&
+                    DefaultParameters.GetDefaultStyleParameters(this).ContainsKey(parameter.Name))
                 {
                     StyleParameterList.Parameters.Add(parameter);
                     ParameterList.Parameters.Remove(parameter);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
+using Hackbox.UI;
 
 namespace Hackbox.Parameters
 {
@@ -11,19 +12,39 @@ namespace Hackbox.Parameters
     [CustomPropertyDrawer(typeof(ParameterList))]
     public class ParameterListDrawer : PropertyDrawer
     {
-        private readonly Dictionary<string, (ParameterList obj, ReorderableList reorder)> _setups = new Dictionary<string, (ParameterList, ReorderableList)>();
+        private class Setup
+        {
+            public ParameterList List
+            {
+                get;
+                set;
+            }
 
-        private string[] _parameterNames = null;
-        private int _parameterIndex = 0;
+            public ReorderableList Reorder
+            {
+                get;
+                set;
+            }
 
-        protected virtual IEnumerable<string> ParameterNames => CommonParameters.AllParameterKeys;
+            public string[] ParameterNames
+            {
+                get;
+                set;
+            } = null;
 
-        protected virtual Func<string, Parameter> ParameterFactory => CommonParameters.CreateAnyParameter;
+            public int ParameterIndex
+            {
+                get;
+                set;
+            } = 0;
+        }
+
+        private readonly Dictionary<string, Setup> _setups = new Dictionary<string, Setup>();
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             CheckInitialize(property);
-            return _setups[property.propertyPath].reorder.GetHeight();
+            return _setups[property.propertyPath].Reorder.GetHeight();
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -37,16 +58,23 @@ namespace Hackbox.Parameters
             EditorGUI.BeginChangeCheck();
             EditorGUI.BeginProperty(position, label, property);
 
-            (ParameterList obj, ReorderableList reorder) = _setups[property.propertyPath];
+            Setup setup = _setups[property.propertyPath];
 
-            _parameterIndex = EditorGUI.Popup(new Rect(position.x, position.yMax - reorder.footerHeight, EditorGUIUtility.labelWidth, EditorGUIUtility.singleLineHeight), _parameterIndex, _parameterNames);
-            if (GUI.Button(new Rect(position.x + EditorGUIUtility.labelWidth, position.yMax - reorder.footerHeight, 20, EditorGUIUtility.singleLineHeight), "+"))
+            if (setup.ParameterNames != null)
             {
-                Parameter parameter = ParameterFactory(_parameterNames[_parameterIndex]);
-                obj.Parameters.Add(parameter);
+                setup.ParameterIndex = EditorGUI.Popup(new Rect(position.x, position.yMax - setup.Reorder.footerHeight, EditorGUIUtility.labelWidth, EditorGUIUtility.singleLineHeight), setup.ParameterIndex, setup.ParameterNames);
+                if (GUI.Button(new Rect(position.x + EditorGUIUtility.labelWidth, position.yMax - setup.Reorder.footerHeight, 20, EditorGUIUtility.singleLineHeight), "+"))
+                {
+                    Parameter parameter = CreateParameter(property, setup.ParameterNames[setup.ParameterIndex]);
+                    if (parameter == null)
+                    {
+                        parameter = CommonParameters.CreateAnyParameter(setup.ParameterNames[setup.ParameterIndex]);
+                    }
+                    setup.List.Parameters.Add(parameter);
+                }
             }
 
-            reorder.DoList(position);
+            setup.Reorder.DoList(position);
 
             EditorGUI.EndProperty();
 
@@ -57,6 +85,58 @@ namespace Hackbox.Parameters
             }
         }
 
+        protected virtual IEnumerable<string> GetParameterNames(SerializedProperty property)
+        {
+            GetParameterChain(property, out object parent, out Parameter[] parameterChain);
+            Dictionary<string, Parameter> normalParameters = DefaultParameters.GetDefaultParameters(parent, parameterChain);
+            if (normalParameters != null)
+            {
+                return normalParameters.Keys;
+            }
+            Dictionary<string, Parameter> styleParameters = DefaultParameters.GetDefaultStyleParameters(parent, parameterChain);
+            if (styleParameters != null)
+            {
+                return styleParameters.Keys;
+            }
+
+            return null;
+        }
+
+        protected virtual Parameter CreateParameter(SerializedProperty property, string name)
+        {
+            GetParameterChain(property, out object parent, out Parameter[] parameterChain);
+            Parameter normalParameter = DefaultParameters.CreateDefaultParameter(name, parent, parameterChain);
+            if (normalParameter != null)
+            {
+                return normalParameter;
+            }
+
+            Parameter styleParameter = DefaultParameters.CreateDefaultStyleParameter(name, parent, parameterChain);
+            if (styleParameter != null)
+            {
+                return styleParameter;
+            }
+
+            return null;
+        }
+
+        protected void GetParameterChain(SerializedProperty property, out object parent, out Parameter[] parameterChain)
+        {
+            List<Parameter> parameters = new List<Parameter>();
+            object[] parents = PropertyDiscovery.GetAllParents(property);
+            parent = parents.First(x => x is Preset || x is UIComponent || x is ParameterListParameter);
+
+            foreach (object propertyParent in parents)
+            {
+                if (propertyParent is Parameter parentParameter)
+                {
+                    parameters.Add(parentParameter);
+                }
+            }
+
+            parameterChain = parameters.ToArray();
+        }
+
         private void CheckInitialize(SerializedProperty property)
         {
             if (!_setups.ContainsKey(property.propertyPath))
@@ -64,9 +144,10 @@ namespace Hackbox.Parameters
                 Initialize(property);
             }
 
-            if (_parameterNames == null)
+            _setups[property.propertyPath].ParameterNames = GetParameterNames(property)?.ToArray();
+            if (_setups[property.propertyPath].ParameterNames == null)
             {
-                _parameterNames = ParameterNames.OrderBy(x => x).ToArray();
+                _setups[property.propertyPath].ParameterNames = CommonParameters.AllParameterLookup.Keys.ToArray();
             }
         }
 
@@ -79,10 +160,10 @@ namespace Hackbox.Parameters
             }
 
             ReorderableList reorder = new ReorderableList(obj.Parameters, typeof(Parameter), true, true, false, true);
-
-            _setups[property.propertyPath] = (obj, reorder);
-
             reorder.headerHeight = EditorGUIUtility.singleLineHeight;
+
+            _setups[property.propertyPath] = new Setup() { List = obj, Reorder = reorder, ParameterIndex = 0 };
+
             reorder.drawHeaderCallback = (Rect rect) =>
             {
                 EditorGUI.LabelField(rect, property.displayName, EditorStyles.boldLabel);
@@ -118,7 +199,7 @@ namespace Hackbox.Parameters
                 string parameterName = parameterProperty.FindPropertyRelative("Name").stringValue;
 
                 Color color = GUI.color;
-                if (!_parameterNames.Contains(parameterName))
+                if (!_setups[property.propertyPath].ParameterNames.Contains(parameterName))
                 {
                     GUI.color = Color.yellow;
                     GUIContent icon = EditorGUIUtility.IconContent("Warning", "This parameter is not expected in this section.");
@@ -138,32 +219,60 @@ namespace Hackbox.Parameters
     [CustomPropertyDrawer(typeof(StyleParameterListAttribute))]
     public class StyleParameterListDrawer : ParameterListDrawer
     {
-        protected override IEnumerable<string> ParameterNames => CommonParameters.StyleParameterLookup.Keys;
+        protected override IEnumerable<string> GetParameterNames(SerializedProperty property)
+        {
+            GetParameterChain(property, out object parent, out Parameter[] parameterChain);
+            return DefaultParameters.GetDefaultStyleParameters(parent, parameterChain)?.Keys;
+        }
 
-        protected override Func<string, Parameter> ParameterFactory => CommonParameters.CreateStyleParameter;
+        protected override Parameter CreateParameter(SerializedProperty property, string name)
+        {
+            GetParameterChain(property, out object parent, out Parameter[] parameterChain);
+            return DefaultParameters.CreateDefaultStyleParameter(name, parent, parameterChain);
+        }
     }
 
     [CustomPropertyDrawer(typeof(NormalParameterListAttribute))]
     public class NormalParameterListDrawer : ParameterListDrawer
     {
-        protected override IEnumerable<string> ParameterNames => CommonParameters.NormalParameterLookup.Keys;
+        protected override IEnumerable<string> GetParameterNames(SerializedProperty property)
+        {
+            GetParameterChain(property, out object parent, out Parameter[] parameterChain);
+            return DefaultParameters.GetDefaultParameters(parent, parameterChain)?.Keys;
+        }
 
-        protected override Func<string, Parameter> ParameterFactory => CommonParameters.CreateNormalParameter;
+        protected override Parameter CreateParameter(SerializedProperty property, string name)
+        {
+            GetParameterChain(property, out object parent, out Parameter[] parameterChain);
+            return DefaultParameters.CreateDefaultParameter(name, parent, parameterChain);
+        }
     }
 
     [CustomPropertyDrawer(typeof(HeaderParameterListAttribute))]
     public class HeaderParameterListDrawer : ParameterListDrawer
     {
-        protected override IEnumerable<string> ParameterNames => CommonParameters.HeaderParameterLookup.Keys;
+        protected override IEnumerable<string> GetParameterNames(SerializedProperty property)
+        {
+            return DefaultParameters.HeaderParameterLookup.Keys;
+        }
 
-        protected override Func<string, Parameter> ParameterFactory => CommonParameters.CreateHeaderParameter;
+        protected override Parameter CreateParameter(SerializedProperty property, string name)
+        {
+            return DefaultParameters.CreateDefaultHeaderParameter(name);
+        }
     }
 
     [CustomPropertyDrawer(typeof(MainParameterListAttribute))]
     public class MainParameterListDrawer : ParameterListDrawer
     {
-        protected override IEnumerable<string> ParameterNames => CommonParameters.MainParameterLookup.Keys;
+        protected override IEnumerable<string> GetParameterNames(SerializedProperty property)
+        {
+            return DefaultParameters.MainParameterLookup.Keys;
+        }
 
-        protected override Func<string, Parameter> ParameterFactory => CommonParameters.CreateMainParameter;
+        protected override Parameter CreateParameter(SerializedProperty property, string name)
+        {
+            return DefaultParameters.CreateDefaultMainParameter(name);
+        }
     }
 }

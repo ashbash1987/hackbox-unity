@@ -3,11 +3,9 @@ using UnityEditor;
 
 namespace Hackbox.Parameters
 {
-    [CustomPropertyDrawer(typeof(ChoicesParameter))]
-    public class ChoicesParameterDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(StringArrayParameter))]
+    public class StringArrayParameterDrawer : PropertyDrawer
     {
-        private ChoicesParameter _obj = null;
-
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return EditorGUI.GetPropertyHeight(property.FindPropertyRelative("_value"));
@@ -15,20 +13,15 @@ namespace Hackbox.Parameters
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            if (_obj == null)
-            {
-                _obj = (ChoicesParameter)PropertyDiscovery.GetValue(property);
-            }
-
             SerializedObject serializedObject = property.serializedObject;
 
             EditorGUI.BeginChangeCheck();
-            
+
             EditorGUI.BeginProperty(position, label, property);
 
             EditorGUI.indentLevel++;
 
-            SerializedProperty name = property.FindPropertyRelative("Name");            
+            SerializedProperty name = property.FindPropertyRelative("Name");
             SerializedProperty value = property.FindPropertyRelative("_value");
             EditorGUI.PropertyField(position, value, new GUIContent(name.stringValue), true);
 
