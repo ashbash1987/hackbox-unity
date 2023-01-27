@@ -7,7 +7,12 @@ namespace Hackbox.Parameters
     {
         public static readonly Dictionary<string, Type> AllParameterDrawerLookup = new Dictionary<string, Type>()
         {
-            ["background"] = typeof(BackgroundParameterDrawer)
+            ["background"] = typeof(BackgroundParameterDrawer),
+            ["borderRadius"] = typeof(DimensionParameterDrawer),
+            ["fontSize"] = typeof(DimensionParameterDrawer),
+            ["height"] = typeof(DimensionParameterDrawer),
+            ["radius"] = typeof(DimensionParameterDrawer),
+            ["width"] = typeof(DimensionParameterDrawer),
         };
 
         public static BaseParameterDrawer CreateSpecialisedParameterDrawer(Parameter parameter)
