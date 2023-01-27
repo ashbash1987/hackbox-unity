@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -196,7 +195,8 @@ namespace Hackbox.Parameters
                 }
 
                 SerializedProperty parameterProperty = parametersProperty.GetArrayElementAtIndex(index);
-                string parameterName = parameterProperty.FindPropertyRelative("Name").stringValue;
+                SerializedProperty nameProperty = parameterProperty.FindPropertyRelative("Name");
+                string parameterName = nameProperty != null ? nameProperty.stringValue : "";
 
                 Color color = GUI.color;
                 if (!_setups[property.propertyPath].ParameterNames.Contains(parameterName))

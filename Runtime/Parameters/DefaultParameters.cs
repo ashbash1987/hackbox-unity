@@ -293,7 +293,7 @@ namespace Hackbox.Parameters
                 return null;
             }
 
-            return CreateDefaultParameter(parameterName, parameterLookup);
+            return CreateDefaultParameter(parameterName, defaultParameter);
         }
 
         internal static Parameter CreateDefaultParameter(string parameterName, Parameter parameterLookup)
