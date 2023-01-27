@@ -18,7 +18,6 @@ namespace Hackbox
     public class Host : MonoBehaviour
     {
         #region Events
-        [Header("Events")]
         [Tooltip("Called when a room is created.")]
         public RoomCodeEvent OnRoomCreated = new RoomCodeEvent();
         [Tooltip("Called when this host connects to a room.")]
@@ -42,7 +41,8 @@ namespace Hackbox
         #endregion
 
         #region Public Fields
-        [Header("Settings")]
+        [Tooltip("URL of server to connect to. Unless you know what you are doing, leave this as is.")]
+        public string URL = "https://app.hackbox.ca/";
         [Tooltip("A specific host name for this host instance.")]
         public string HostName = null;
         [Tooltip("The host version to connect to. Valid values are 1 or 2.")]
@@ -74,14 +74,13 @@ namespace Hackbox
         #endregion
 
         #region Private Constants
-        private const string URL = "https://app.hackbox.ca/";
         private const string AppName = "Hackbox.ca";
-        private static readonly string SOCKET_URL = URL;
-        private static readonly string ROOMS_URL = $"{URL}rooms/";
         private const string TemporaryFileName = "LastHackboxRoom-{Name}.json";
         #endregion
 
         #region Private Properties
+        private string SocketURL => URL;
+        private string RoomsURL => $"{URL}rooms/";
         private string TemporaryFilePath => Path.Combine(Application.temporaryCachePath, TemporaryFileName.Replace("{Name}", string.IsNullOrEmpty(HostName) ? name : HostName));
         #endregion
 
@@ -250,7 +249,7 @@ namespace Hackbox
             );
 
             Log($"Attempting room creation request to {AppName}...");
-            using (UnityWebRequest request = UnityWebRequest.Put(ROOMS_URL, Encoding.UTF8.GetBytes(postData.ToString())))
+            using (UnityWebRequest request = UnityWebRequest.Put(RoomsURL, Encoding.UTF8.GetBytes(postData.ToString())))
             {
                 request.method = "POST";
                 request.SetRequestHeader("Content-Type", "application/json");
@@ -282,7 +281,7 @@ namespace Hackbox
             };
 
 #if UNITY_EDITOR || UNITY_STANDALONE
-            _socket = new StandaloneSocketIO(SOCKET_URL, 4, queryParameters);
+            _socket = new StandaloneSocketIO(SocketURL, 4, queryParameters);
 #elif UNITY_WEBGL
             _socket = new WebGLSocketIO(SOCKET_URL, 4, queryParameters);
 #endif
