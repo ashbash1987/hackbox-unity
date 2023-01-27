@@ -171,20 +171,33 @@ namespace Hackbox.Parameters
             reorder.footerHeight = EditorGUIUtility.singleLineHeight * 2;
 
             SerializedProperty parametersProperty = property.FindPropertyRelative("Parameters");
+            List<float> heights = new List<float>(Enumerable.Range(0, parametersProperty.arraySize).Select(_ => 0.0f));
 
             reorder.elementHeightCallback = (int index) =>
             {
-                if (index < 0 || index >= parametersProperty.arraySize)
+                while (heights.Count <= index)
                 {
-                    return EditorGUIUtility.singleLineHeight;
+                    heights.Add(0.0f);
                 }
 
-                SerializedProperty parameterProperty = parametersProperty.GetArrayElementAtIndex(index);
-                if (parameterProperty != null)
+                if (index < 0 || index >= parametersProperty.arraySize)
                 {
-                    return EditorGUI.GetPropertyHeight(parameterProperty);
+                    heights[index] = EditorGUIUtility.singleLineHeight;
                 }
-                return EditorGUIUtility.singleLineHeight;
+                else
+                {
+                    SerializedProperty parameterProperty = parametersProperty.GetArrayElementAtIndex(index);
+                    if (parameterProperty != null)
+                    {
+                        heights[index] = EditorGUI.GetPropertyHeight(parameterProperty);
+                    }
+                    else
+                    {
+                        heights[index] = EditorGUIUtility.singleLineHeight;
+                    }
+                }
+
+                return heights[index];
             };
 
             reorder.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
@@ -197,8 +210,11 @@ namespace Hackbox.Parameters
                 SerializedProperty parameterProperty = parametersProperty.GetArrayElementAtIndex(index);
                 SerializedProperty nameProperty = parameterProperty.FindPropertyRelative("Name");
                 string parameterName = nameProperty != null ? nameProperty.stringValue : "";
-
+                               
                 Color color = GUI.color;
+                float normalWidth = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = Mathf.Min(normalWidth, 100);
+
                 if (!_setups[property.propertyPath].ParameterNames.Contains(parameterName))
                 {
                     GUI.color = Color.yellow;
@@ -210,8 +226,25 @@ namespace Hackbox.Parameters
                 }
 
                 EditorGUI.PropertyField(rect, parameterProperty, true);
-
+                EditorGUIUtility.labelWidth = normalWidth;
                 GUI.color = color;
+            };
+
+            reorder.drawElementBackgroundCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            {
+                if (index < 0 || index >= parametersProperty.arraySize)
+                {
+                    return;
+                }
+
+                rect.height = heights[index];
+                Texture2D tex = new Texture2D(1, 1);
+                tex.SetPixel(0, 0, isFocused ? GUI.skin.settings.selectionColor : new Color(0, 0, 0, 0.2f));
+                tex.Apply();
+                if (isFocused || (index % 2) == 1)
+                {
+                    GUI.DrawTexture(rect, tex as Texture);
+                }
             };
         }
     }
