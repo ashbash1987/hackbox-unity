@@ -132,6 +132,10 @@ namespace Hackbox
                 {
                     EditorGUILayout.BeginVertical(_foldoutBox);
                     EditorGUILayout.LabelField($"{member.Name} [{member.UserID}]", EditorStyles.boldLabel, GUILayout.ExpandWidth(true));
+                    if (GUILayout.Button("View State JSON"))
+                    {
+                        JSONViewer.ViewJSON(member.State.GenerateJSON(_obj.HostVersion));
+                    }
                     EditorGUILayout.EndVertical();
                 }
             }
