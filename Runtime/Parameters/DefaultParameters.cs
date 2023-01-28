@@ -22,10 +22,13 @@ namespace Hackbox.Parameters
             ["hover"] = new ParameterListParameter() { Value = new ParameterList() },
             ["label"] = new StringParameter() { Value = "Label" },
             ["margin"] = new StringParameter() { Value = "10px 0px" },
+            ["max"] = new IntParameter() { Value = 100 },
+            ["min"] = new IntParameter() { Value = 0 },
             ["multiSelect"] = new BoolParameter() { Value = false },
             ["padding"] = new StringParameter() { Value = "0px 10px" },
             ["radius"] = new StringParameter() { Value = "10px" },
             ["shadow"] = new StringParameter() { Value = "5px 5px #000000" },
+            ["step"] = new IntParameter() { Value = 1 },
             ["submit"] = new ParameterListParameter() { Value = new ParameterList() },
             ["text"] = new StringParameter() { Value = "Text" },
             ["value"] = new StringParameter() { Value = "value" },
@@ -121,6 +124,19 @@ namespace Hackbox.Parameters
                         else if (parameterChain.Length >= 3 && parameterChain[parameterChain.Length - 1].Name == "hover" && parameterChain[parameterChain.Length - 2].Name == "style" && parameterChain[parameterChain.Length - 3].Name == "submit")
                         {
                             return GetDefaultStyleParameters(parent, parameterChain[parameterChain.Length - 1]);
+                        }
+                        return null;
+
+                    case Preset.PresetType.Range:
+                        if (parameterChain == null || parameterChain.Length == 0)
+                        {
+                            return new Dictionary<string, Parameter>()
+                            {
+                                ["event"] = new StringParameter() { Value = "buzz" },
+                                ["max"] = new IntParameter() { Value = 100 },
+                                ["min"] = new IntParameter() { Value = 0 },
+                                ["step"] = new IntParameter() { Value = 1 }
+                            };
                         }
                         return null;
 
@@ -229,6 +245,21 @@ namespace Hackbox.Parameters
                             Dictionary<string, Parameter> parameters = GetDefaultStyleParameters(parent);
                             parameters.Remove("hover");
                             return parameters;
+                        }
+                        return null;
+
+                    case Preset.PresetType.Range:
+                        if (parameterChain == null || parameterChain.Length == 0)
+                        {
+                            return new Dictionary<string, Parameter>()
+                            {
+                                ["align"] = new StringParameter() { Value = "center" },
+                                ["background"] = new StringParameter() { Value = "white" },
+                                ["border"] = new StringParameter() { Value = "4px solid black" },
+                                ["borderRadius"] = new StringParameter() { Value = "0px" },
+                                ["color"] = new ColorParameter() { Value = Color.black },
+                                ["fontSize"] = new StringParameter() { Value = "30px" }
+                            };
                         }
                         return null;
 
