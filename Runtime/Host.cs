@@ -283,7 +283,7 @@ namespace Hackbox
 #if UNITY_EDITOR || UNITY_STANDALONE
             _socket = new StandaloneSocketIO(SocketURL, 4, queryParameters);
 #elif UNITY_WEBGL
-            _socket = new WebGLSocketIO(SOCKET_URL, 4, queryParameters);
+            _socket = new WebGLSocketIO(SocketURL, 4, queryParameters);
 #endif
 
             _socket.OnConnected += OnConnected;
