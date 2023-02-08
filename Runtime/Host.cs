@@ -11,14 +11,21 @@ using UnityEngine.Events;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace Hackbox
 {
     public class Host : MonoBehaviour
     {
+        #region Enums
+        public enum DebugLevel
+        {
+            Off,
+            Minimal,
+            Full
+        }
+        #endregion
+
         #region Events
-        [Header("Events")]
         [Tooltip("Called when a room is created.")]
         public RoomCodeEvent OnRoomCreated = new RoomCodeEvent();
         [Tooltip("Called when this host connects to a room.")]
@@ -42,15 +49,16 @@ namespace Hackbox
         #endregion
 
         #region Public Fields
-        [Header("Settings")]
+        [Tooltip("URL of server to connect to. Unless you know what you are doing, leave this as is.")]
+        public string URL = "https://app.hackbox.ca/";
         [Tooltip("A specific host name for this host instance.")]
         public string HostName = null;
         [Tooltip("The host version to connect to. Valid values are 1 or 2.")]
         public int HostVersion = 1;
         [Tooltip("If true, then it will reload the previous host setup.")]
         public bool ReloadHost = false;
-        [Tooltip("If true, then additional debugging logging will be shown.")]
-        public bool Debugging = false;
+        [Tooltip("The level of logging that will be shown.")]
+        public DebugLevel Debugging = DebugLevel.Minimal;
         #endregion
 
         #region Public Properties
@@ -74,14 +82,13 @@ namespace Hackbox
         #endregion
 
         #region Private Constants
-        private const string URL = "https://app.hackbox.ca/";
         private const string AppName = "Hackbox.ca";
-        private static readonly string SOCKET_URL = URL;
-        private static readonly string ROOMS_URL = $"{URL}rooms/";
         private const string TemporaryFileName = "LastHackboxRoom-{Name}.json";
         #endregion
 
         #region Private Properties
+        private string SocketURL => URL;
+        private string RoomsURL => $"{URL}rooms/";
         private string TemporaryFilePath => Path.Combine(Application.temporaryCachePath, TemporaryFileName.Replace("{Name}", string.IsNullOrEmpty(HostName) ? name : HostName));
         #endregion
 
@@ -193,19 +200,38 @@ namespace Hackbox
             ThreadSafeActions.Enqueue(action);
         }
 
+        private void VerboseLog(string message)
+        {
+            if (Debugging == DebugLevel.Full)
+            {
+                DoUnityAction(() => Debug.Log(message));
+            }
+        }
+
         private void Log(string message)
         {
-            DoUnityAction(() => Debug.Log(message));
+            if (Debugging >= DebugLevel.Minimal)
+            {
+                DoUnityAction(() => Debug.Log(message));
+            }
         }
 
         private void LogWarn(string message)
         {
-            DoUnityAction(() => Debug.LogWarning(message));
+            if (Debugging >= DebugLevel.Minimal)
+            {
+                DoUnityAction(() => Debug.LogWarning(message));
+            }
         }
 
         private void LogError(string message)
         {
             DoUnityAction(() => Debug.LogError(message));
+        }
+
+        private void LogException(Exception exception)
+        {
+            DoUnityAction(() => Debug.LogException(exception));
         }
 
         private void LoadRoomData()
@@ -225,7 +251,7 @@ namespace Hackbox
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
+                LogException(ex);
             }
 #endif
         }
@@ -250,7 +276,7 @@ namespace Hackbox
             );
 
             Log($"Attempting room creation request to {AppName}...");
-            using (UnityWebRequest request = UnityWebRequest.Put(ROOMS_URL, Encoding.UTF8.GetBytes(postData.ToString())))
+            using (UnityWebRequest request = UnityWebRequest.Put(RoomsURL, Encoding.UTF8.GetBytes(postData.ToString())))
             {
                 request.method = "POST";
                 request.SetRequestHeader("Content-Type", "application/json");
@@ -282,9 +308,9 @@ namespace Hackbox
             };
 
 #if UNITY_EDITOR || UNITY_STANDALONE
-            _socket = new StandaloneSocketIO(SOCKET_URL, 4, queryParameters);
+            _socket = new StandaloneSocketIO(SocketURL, 4, queryParameters);
 #elif UNITY_WEBGL
-            _socket = new WebGLSocketIO(SOCKET_URL, 4, queryParameters);
+            _socket = new WebGLSocketIO(SocketURL, 4, queryParameters);
 #endif
 
             _socket.OnConnected += OnConnected;
@@ -363,18 +389,12 @@ namespace Hackbox
 
         private void OnPing()
         {
-            if (Debugging)
-            {
-                Log($"Ping...");
-            }
+            VerboseLog($"Ping...");
         }
 
         private void OnPong(TimeSpan e)
         {
-            if (Debugging)
-            {
-                Log($"...Pong.");
-            }
+            VerboseLog($"...Pong.");
 
             DoUnityAction(() => OnPingPong.Invoke());           
         }
@@ -417,10 +437,7 @@ namespace Hackbox
 
             _ = _socket.Emit("member.update", obj);
 
-            if (Debugging)
-            {
-                Log($"Emitting...\n{obj.ToString(Formatting.None)}");
-            }
+            VerboseLog($"Emitting...\n{obj.ToString(Formatting.None)}");
         }
 
         private void OnHostStateUpdate(JObject msgObject)
@@ -459,15 +476,12 @@ namespace Hackbox
 
         private void OnMemberMessage(JObject msgObject)
         {
-            if (Debugging)
-            {
-                Log($"Receiving...\n{msgObject.ToString(Formatting.None)}");
-            }
+            VerboseLog($"Receiving...\n{msgObject.ToString(Formatting.None)}");
 
             string from = (string)msgObject["from"];
             if (!Members.TryGetValue(from, out Member fromMember))
             {
-                Debug.LogError($"Received a message from member <i>{from}</i> but there is no known associated Member object!");
+                LogError($"Received a message from member <i>{from}</i> but there is no known associated Member object!");
                 return;
             }
 

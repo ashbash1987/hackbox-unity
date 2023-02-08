@@ -31,7 +31,6 @@ namespace Hackbox.Parameters
             public string Value = "";
             public string[] Keys = new string[0];
 
-            [StyleParameterList]
             public ParameterList StyleParameterList = new ParameterList();
 
             public JObject GenerateJSON(int version)
