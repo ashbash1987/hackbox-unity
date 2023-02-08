@@ -11,12 +11,20 @@ using UnityEngine.Events;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace Hackbox
 {
     public class Host : MonoBehaviour
     {
+        #region Enums
+        public enum DebugLevel
+        {
+            Off,
+            Minimal,
+            Full
+        }
+        #endregion
+
         #region Events
         [Tooltip("Called when a room is created.")]
         public RoomCodeEvent OnRoomCreated = new RoomCodeEvent();
@@ -49,8 +57,8 @@ namespace Hackbox
         public int HostVersion = 1;
         [Tooltip("If true, then it will reload the previous host setup.")]
         public bool ReloadHost = false;
-        [Tooltip("If true, then additional debugging logging will be shown.")]
-        public bool Debugging = false;
+        [Tooltip("The level of logging that will be shown.")]
+        public DebugLevel Debugging = DebugLevel.Minimal;
         #endregion
 
         #region Public Properties
@@ -192,19 +200,38 @@ namespace Hackbox
             ThreadSafeActions.Enqueue(action);
         }
 
+        private void VerboseLog(string message)
+        {
+            if (Debugging == DebugLevel.Full)
+            {
+                DoUnityAction(() => Debug.Log(message));
+            }
+        }
+
         private void Log(string message)
         {
-            DoUnityAction(() => Debug.Log(message));
+            if (Debugging >= DebugLevel.Minimal)
+            {
+                DoUnityAction(() => Debug.Log(message));
+            }
         }
 
         private void LogWarn(string message)
         {
-            DoUnityAction(() => Debug.LogWarning(message));
+            if (Debugging >= DebugLevel.Minimal)
+            {
+                DoUnityAction(() => Debug.LogWarning(message));
+            }
         }
 
         private void LogError(string message)
         {
             DoUnityAction(() => Debug.LogError(message));
+        }
+
+        private void LogException(Exception exception)
+        {
+            DoUnityAction(() => Debug.LogException(exception));
         }
 
         private void LoadRoomData()
@@ -224,7 +251,7 @@ namespace Hackbox
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
+                LogException(ex);
             }
 #endif
         }
@@ -362,18 +389,12 @@ namespace Hackbox
 
         private void OnPing()
         {
-            if (Debugging)
-            {
-                Log($"Ping...");
-            }
+            VerboseLog($"Ping...");
         }
 
         private void OnPong(TimeSpan e)
         {
-            if (Debugging)
-            {
-                Log($"...Pong.");
-            }
+            VerboseLog($"...Pong.");
 
             DoUnityAction(() => OnPingPong.Invoke());           
         }
@@ -416,10 +437,7 @@ namespace Hackbox
 
             _ = _socket.Emit("member.update", obj);
 
-            if (Debugging)
-            {
-                Log($"Emitting...\n{obj.ToString(Formatting.None)}");
-            }
+            VerboseLog($"Emitting...\n{obj.ToString(Formatting.None)}");
         }
 
         private void OnHostStateUpdate(JObject msgObject)
@@ -458,15 +476,12 @@ namespace Hackbox
 
         private void OnMemberMessage(JObject msgObject)
         {
-            if (Debugging)
-            {
-                Log($"Receiving...\n{msgObject.ToString(Formatting.None)}");
-            }
+            VerboseLog($"Receiving...\n{msgObject.ToString(Formatting.None)}");
 
             string from = (string)msgObject["from"];
             if (!Members.TryGetValue(from, out Member fromMember))
             {
-                Debug.LogError($"Received a message from member <i>{from}</i> but there is no known associated Member object!");
+                LogError($"Received a message from member <i>{from}</i> but there is no known associated Member object!");
                 return;
             }
 
