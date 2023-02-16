@@ -1,6 +1,5 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 
 namespace Hackbox
 {
@@ -140,18 +139,11 @@ namespace Hackbox
         {
             UserID = (string)data["id"];
             Name = (string)data["name"];
-            if (data.ContainsKey("twitchData"))
+
+            if (data.ContainsKey("metadata"))
             {
-                JObject twitchData = (JObject)data["twitchData"];
-                if (Twitch == null)
-                {
-                    Twitch = new TwitchIdentity(twitchData);
-                }
-                else
-                {
-                    Twitch.Update(twitchData);
-                }
-            }
+                UpdateMetadata((JObject)data["metadata"]);
+            }            
         }
 
         public override int GetHashCode()
@@ -167,6 +159,22 @@ namespace Hackbox
             }
 
             return false;
+        }
+
+        private void UpdateMetadata(JObject metaData)
+        {
+            if (metaData.ContainsKey("twitch"))
+            {
+                JObject twitchData = (JObject)metaData["twitch"];
+                if (Twitch == null)
+                {
+                    Twitch = new TwitchIdentity(twitchData);
+                }
+                else
+                {
+                    Twitch.Update(twitchData);
+                }
+            }
         }
     }
 }
