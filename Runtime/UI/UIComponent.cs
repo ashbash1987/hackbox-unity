@@ -87,10 +87,25 @@ namespace Hackbox.UI
             {
                 parameter.ApplyValueToJObject(props, version);
             }
-            foreach (Parameter parameter in StyleParameterList.Parameters)
+
+            if (version >= 2)
             {
-                parameter.ApplyValueToJObject(props, version);
+                JObject style = new JObject();
+                foreach (Parameter parameter in StyleParameterList.Parameters)
+                {
+                    parameter.ApplyValueToJObject(style, version);
+                }
+                props["style"] = style;
+
             }
+            else
+            {
+                foreach (Parameter parameter in StyleParameterList.Parameters)
+                {
+                    parameter.ApplyValueToJObject(props, version);
+                }
+            }
+
 
             return props;
         }
