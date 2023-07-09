@@ -53,6 +53,8 @@ namespace Hackbox
         public string URL = "https://app.hackbox.ca/";
         [Tooltip("A specific host name for this host instance.")]
         public string HostName = null;
+        [Tooltip("If true, Twitch authentication is required to join the room.")]
+        public bool TwitchRequired = false;
         [Tooltip("The host version to connect to. Valid values are 1 or 2.")]
         public int HostVersion = 1;
         [Tooltip("If true, then it will reload the previous host setup.")]
@@ -272,7 +274,8 @@ namespace Hackbox
         private IEnumerator GenerateRoom()
         {
             JObject postData = new JObject(
-                new JProperty("hostId", UserID)
+                new JProperty("hostId", UserID),
+                new JProperty("twitchRequired", TwitchRequired)
             );
 
             Log($"Attempting room creation request to {AppName}...");
