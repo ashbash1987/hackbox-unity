@@ -57,6 +57,8 @@ namespace Hackbox
         public int HostVersion = 1;
         [Tooltip("If true, then it will reload the previous host setup.")]
         public bool ReloadHost = false;
+        [Tooltip("If true, then the created room will only allow members with Twitch credentials to join the room.")]
+        public bool TwitchRequired = false;
         [Tooltip("The level of logging that will be shown.")]
         public DebugLevel Debugging = DebugLevel.Minimal;
         #endregion
@@ -272,7 +274,8 @@ namespace Hackbox
         private IEnumerator GenerateRoom()
         {
             JObject postData = new JObject(
-                new JProperty("hostId", UserID)
+                new JProperty("hostId", UserID),
+                new JProperty("twitchRequired", TwitchRequired)
             );
 
             Log($"Attempting room creation request to {AppName}...");
