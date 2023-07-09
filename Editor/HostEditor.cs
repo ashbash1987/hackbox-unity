@@ -95,6 +95,7 @@ namespace Hackbox
             EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.HostName)));
             EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.HostVersion)));
             EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.ReloadHost)));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.TwitchRequired)));
             EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.Debugging)));
         }
 
@@ -105,7 +106,6 @@ namespace Hackbox
                 EditorGUILayout.LabelField("Server", _obj.URL);
                 EditorGUILayout.LabelField("Room Code", _obj.RoomCode);
                 EditorGUILayout.LabelField("Host User ID", _obj.UserID);
-                EditorGUILayout.LabelField("Twitch Required?", _obj.TwitchRequired);
                 GUI.enabled = Application.isPlaying;
                 if (GUILayout.Button("Disconnect"))
                 {
