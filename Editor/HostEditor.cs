@@ -96,6 +96,7 @@ namespace Hackbox
             EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.HostVersion)));
             EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.ReloadHost)));
             EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.Debugging)));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.TwitchRequired)));
         }
 
         private void DrawRoomStateGroup()
