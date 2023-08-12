@@ -82,30 +82,41 @@ namespace Hackbox.UI
 
         private JObject GenerateProps(int version)
         {
-            JObject props = new JObject();
+            //There's some strange lingering issue with the slicing of style properties, so let's do it here to make sure all is styled correctly
+            JObject props = Preset?.GenerateProps(version) ?? new JObject();
+
             foreach (Parameter parameter in ParameterList.Parameters)
             {
                 parameter.ApplyValueToJObject(props, version);
             }
 
-            if (version >= 2)
+            switch (version)
             {
-                JObject style = new JObject();
-                foreach (Parameter parameter in StyleParameterList.Parameters)
-                {
-                    parameter.ApplyValueToJObject(style, version);
-                }
-                props["style"] = style;
+                case 1:
+                    foreach (Parameter parameter in StyleParameterList.Parameters)
+                    {
+                        parameter.ApplyValueToJObject(props, version);
+                    }
+                    break;
 
+                default:
+                    JObject style = null;
+                    if (props.TryGetValue("style", out JToken styleToken))
+                    {
+                        style = styleToken as JObject;
+                    }
+                    if (style == null)
+                    {
+                        style = new JObject();
+                        props["style"] = style;
+                    }
+                    
+                    foreach (Parameter parameter in StyleParameterList.Parameters)
+                    {
+                        parameter.ApplyValueToJObject(style, version);
+                    }                    
+                    break;
             }
-            else
-            {
-                foreach (Parameter parameter in StyleParameterList.Parameters)
-                {
-                    parameter.ApplyValueToJObject(props, version);
-                }
-            }
-
 
             return props;
         }

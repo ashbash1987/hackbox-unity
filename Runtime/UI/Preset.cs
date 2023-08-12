@@ -51,7 +51,7 @@ namespace Hackbox.UI
             return _obj;
         }
 
-        private JObject GenerateProps(int version)
+        public JObject GenerateProps(int version)
         {
             JObject props = new JObject();
 
