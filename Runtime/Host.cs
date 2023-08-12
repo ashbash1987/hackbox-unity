@@ -284,11 +284,24 @@ namespace Hackbox
                 request.method = "POST";
                 request.SetRequestHeader("Content-Type", "application/json");
                 yield return request.SendWebRequest();
+
+#if UNITY_2020_1_OR_NEWER
+                switch (request.result)
+                {
+                    case UnityWebRequest.Result.Success:
+                        break;
+
+                    default:
+                        Log($"Failed to request a room: {request.error}");
+                        yield break;
+                }
+#else
                 if (request.isHttpError || request.isNetworkError)
                 {
                     Log($"Failed to request a room: {request.error}");
                     yield break;
                 }
+#endif
 
                 JObject response = JObject.Parse(request.downloadHandler.text);
                 if (response["ok"].Value<bool>())
@@ -504,6 +517,6 @@ namespace Hackbox
                 }
             });
         }
-        #endregion
+#endregion
     }
 }
