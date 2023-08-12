@@ -27,5 +27,8 @@ namespace Hackbox
                 }
             }
         }
+
+        //Can just pass a StateAsset object in as an argument for a State by allowing implicit conversion
+        public static implicit operator State(StateAsset stateAsset) => stateAsset.State;
     }
 }
