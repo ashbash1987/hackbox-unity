@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Hackbox.Parameters
 {
     [Serializable]
-    public sealed class ParameterList
+    public sealed class ParameterList : IParameterList
     {
         public ParameterList()
         {
@@ -24,21 +24,21 @@ namespace Hackbox.Parameters
         public Parameter this[int parameterIndex] => Parameters[parameterIndex];
         public Parameter this[string parameterName] => Parameters.Find(x => x.Name == parameterName);
 
-        public Parameter<T> GetGenericParameter<T>(string parameterName)
+        public Parameter<ValueT> GetGenericParameter<ValueT>(string parameterName)
         {
             Parameter parameter = this[parameterName];
-            if (parameter is Parameter<T> typedParameter)
+            if (parameter is Parameter<ValueT> typedParameter)
             {
                 return typedParameter;
             }
 
             if (parameter != null)
             {
-                throw new Exception($"Trying to get parameter {parameterName} but using the wrong parameter type. Expected {parameter.GetType().Name}, asking for {typeof(T).Name}");
+                throw new Exception($"Trying to get parameter {parameterName} but using the wrong parameter type. Expected {parameter.GetType().Name}, asking for {typeof(ValueT).Name}");
             }
 
             Parameter newParameter = DefaultParameters.CreateDefaultAnyParameter(parameterName);
-            if (newParameter is Parameter<T> newTypedParameter)
+            if (newParameter is Parameter<ValueT> newTypedParameter)
             {
                 Parameters.Add(newTypedParameter);
                 return newTypedParameter;
@@ -47,21 +47,21 @@ namespace Hackbox.Parameters
             return null;
         }
 
-        public T GetParameter<T>(string parameterName) where T: Parameter, new()
+        public ParamT GetParameter<ParamT>(string parameterName) where ParamT: Parameter, new()
         {
             Parameter parameter = this[parameterName];
-            if (parameter is T typedParameter)
+            if (parameter is ParamT typedParameter)
             {
                 return typedParameter;
             }
 
             if (parameter != null)
             {
-                throw new Exception($"Trying to get parameter {parameterName} but using the wrong parameter type. Expected {parameter.GetType().Name}, asking for {typeof(T).Name}");
+                throw new Exception($"Trying to get parameter {parameterName} but using the wrong parameter type. Expected {parameter.GetType().Name}, asking for {typeof(ParamT).Name}");
             }
 
             Parameter newParameter = DefaultParameters.CreateDefaultAnyParameter(parameterName);
-            if (newParameter is T newTypedParameter)
+            if (newParameter is ParamT newTypedParameter)
             {
                 Parameters.Add(newTypedParameter);
                 return newTypedParameter;
@@ -70,9 +70,14 @@ namespace Hackbox.Parameters
             return null;
         }
 
-        public void SetParameterValue<T>(string parameterName, T value)
+        public ValueT GetParameterValue<ValueT>(string parameterName)
         {
-            GetGenericParameter<T>(parameterName).Value = value;
+            return GetGenericParameter<ValueT>(parameterName).Value;
+        }
+
+        public void SetParameterValue<ValueT>(string parameterName, ValueT value)
+        {
+            GetGenericParameter<ValueT>(parameterName).Value = value;
         }
     }
 }

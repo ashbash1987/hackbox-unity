@@ -5,7 +5,7 @@ using Hackbox.Parameters;
 namespace Hackbox.UI
 {
     [Serializable]
-    public class UIComponent
+    public class UIComponent: IUIElement
     {
         public UIComponent()
         {
@@ -51,22 +51,47 @@ namespace Hackbox.UI
             }
         }
 
-        public Parameter<T> GetGenericParameter<T>(string parameterName)
+        public Parameter<ValueT> GetGenericParameter<ValueT>(string parameterName)
         {
-            return ParameterList.GetGenericParameter<T>(parameterName);
+            return ParameterList.GetGenericParameter<ValueT>(parameterName);
         }
 
-        public T GetParameter<T>(string parameterName) where T: Parameter, new()
+        public ParamT GetParameter<ParamT>(string parameterName) where ParamT : Parameter, new()
         {
-            return ParameterList.GetParameter<T>(parameterName);
+            return ParameterList.GetParameter<ParamT>(parameterName);
         }
 
-        public void SetParameterValue<T>(string parameterName, T value)
+        public ValueT GetParameterValue<ValueT>(string parameterName)
         {
-            ParameterList.SetParameterValue<T>(parameterName, value);
+            return GetGenericParameter<ValueT>(parameterName).Value;
         }
 
-        public JObject GenerateJSON(int version)
+        public void SetParameterValue<ValueT>(string parameterName, ValueT value)
+        {
+            ParameterList.SetParameterValue<ValueT>(parameterName, value);
+        }
+
+        public Parameter<ValueT> GetGenericStyleParameter<ValueT>(string parameterName)
+        {
+            return StyleParameterList.GetGenericParameter<ValueT>(parameterName);
+        }
+
+        public ParamT GetStyleParameter<ParamT>(string parameterName) where ParamT : Parameter, new()
+        {
+            return StyleParameterList.GetParameter<ParamT>(parameterName);
+        }
+
+        public ValueT GetStyleParameterValue<ValueT>(string parameterName)
+        {
+            return GetGenericStyleParameter<ValueT>(parameterName).Value;
+        }
+
+        public void SetStyleParameterValue<ValueT>(string parameterName, ValueT value)
+        {
+            StyleParameterList.SetParameterValue<ValueT>(parameterName, value);
+        }
+
+        internal JObject GenerateJSON(int version)
         {
             _obj["type"] = Preset.name;
 
@@ -80,7 +105,7 @@ namespace Hackbox.UI
             return _obj;
         }
 
-        private JObject GenerateProps(int version)
+        internal JObject GenerateProps(int version)
         {
             //There's some strange lingering issue with the slicing of style properties, so let's do it here to make sure all is styled correctly
             JObject props = Preset?.GenerateProps(version) ?? new JObject();

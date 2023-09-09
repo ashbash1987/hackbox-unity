@@ -1,4 +1,4 @@
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace Hackbox.UI
@@ -15,7 +15,7 @@ namespace Hackbox.UI
 
         private JObject _obj = new JObject();
 
-        public JObject GenerateJSON(int version)
+        internal JObject GenerateJSON(int version)
         {
             JObject header = new JObject();
             header["color"] = HeaderColor.ToHTMLString();

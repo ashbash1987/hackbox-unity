@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
-using UnityEngine;
-using UnityEngine.Serialization;
+﻿using UnityEngine;
+using Newtonsoft.Json.Linq;
 using Hackbox.Parameters;
 
 namespace Hackbox.UI
 {
     [CreateAssetMenu(menuName = "Hackbox/Preset")]
-    public class Preset : ScriptableObject
+    public class Preset : ScriptableObject, IUIElement
     {
         public enum PresetType
         {
@@ -24,6 +23,8 @@ namespace Hackbox.UI
         public ParameterList StyleParameterList = new ParameterList();
         [NormalParameterList]
         public ParameterList ParameterList = new ParameterList();
+
+        public Parameter this[string parameterName] => ParameterList[parameterName] ?? StyleParameterList[parameterName];
 
         private JObject _obj = new JObject();
 
@@ -43,7 +44,47 @@ namespace Hackbox.UI
             }
         }
 
-        public JObject GenerateJSON(int version)
+        public Parameter<ValueT> GetGenericParameter<ValueT>(string parameterName)
+        {
+            return ParameterList.GetGenericParameter<ValueT>(parameterName);
+        }
+
+        public ParamT GetParameter<ParamT>(string parameterName) where ParamT : Parameter, new()
+        {
+            return ParameterList.GetParameter<ParamT>(parameterName);
+        }
+
+        public ValueT GetParameterValue<ValueT>(string parameterName)
+        {
+            return GetGenericParameter<ValueT>(parameterName).Value;
+        }
+
+        public void SetParameterValue<ValueT>(string parameterName, ValueT value)
+        {
+            ParameterList.SetParameterValue<ValueT>(parameterName, value);
+        }
+
+        public Parameter<ValueT> GetGenericStyleParameter<ValueT>(string parameterName)
+        {
+            return StyleParameterList.GetGenericParameter<ValueT>(parameterName);
+        }
+
+        public ParamT GetStyleParameter<ParamT>(string parameterName) where ParamT : Parameter, new()
+        {
+            return StyleParameterList.GetParameter<ParamT>(parameterName);
+        }
+
+        public ValueT GetStyleParameterValue<ValueT>(string parameterName)
+        {
+            return GetGenericStyleParameter<ValueT>(parameterName).Value;
+        }
+
+        public void SetStyleParameterValue<ValueT>(string parameterName, ValueT value)
+        {
+            StyleParameterList.SetParameterValue<ValueT>(parameterName, value);
+        }
+
+        internal JObject GenerateJSON(int version)
         {
             _obj["type"] = Type.ToString();
             _obj["props"] = GenerateProps(version);
@@ -51,7 +92,7 @@ namespace Hackbox.UI
             return _obj;
         }
 
-        public JObject GenerateProps(int version)
+        internal JObject GenerateProps(int version)
         {
             JObject props = new JObject();
 

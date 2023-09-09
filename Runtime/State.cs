@@ -43,11 +43,41 @@ namespace Hackbox
             get => Components.Find(x => x.Name.Equals(componentName));
         }
 
+        public Parameter this[int componentIndex, string parameterName]
+        {
+            get => this[componentIndex][parameterName];
+        }
+
+        public Parameter this[string componentName, string parameterName]
+        {
+            get => this[componentName][parameterName];
+        }
+
         private JObject _obj = new JObject();
 
-        public void SetHeaderParameter<T>(string parameterName, T value)
+        public Parameter<ValueT> GetGenericHeaderParameter<ValueT>(string parameterName)
         {
-            HeaderParameterList.SetParameterValue<T>(parameterName, value);
+            return HeaderParameterList.GetGenericParameter<ValueT>(parameterName);
+        }
+
+        public ParamT GetHeaderParameter<ParamT>(string parameterName) where ParamT : Parameter, new()
+        {
+            return HeaderParameterList.GetParameter<ParamT>(parameterName);
+        }
+
+        public ValueT GetHeaderParameterValue<ValueT>(string parameterName)
+        {
+            return GetGenericHeaderParameter<ValueT>(parameterName).Value;
+        }
+
+        public void SetHeaderParameter<ValueT>(string parameterName, ValueT value)
+        {
+            HeaderParameterList.SetParameterValue<ValueT>(parameterName, value);
+        }
+
+        public string GetHeaderText()
+        {
+            return GetHeaderParameterValue<string>("text");
         }
 
         public void SetHeaderText(string text)
@@ -65,34 +95,94 @@ namespace Hackbox
             return this[componentName];
         }
 
-        public Parameter<T> GetComponentGenericParameter<T>(int componentIndex, string parameterName)
+        public Parameter<ValueT> GetComponentGenericParameter<ValueT>(int componentIndex, string parameterName)
         {
-            return this[componentIndex].GetGenericParameter<T>(parameterName);
+            return this[componentIndex].GetGenericParameter<ValueT>(parameterName);
         }
 
-        public Parameter<T> GetComponentGenericParameter<T>(string componentName, string parameterName)
+        public Parameter<ValueT> GetComponentGenericParameter<ValueT>(string componentName, string parameterName)
         {
-            return this[componentName].GetGenericParameter<T>(parameterName);
+            return this[componentName].GetGenericParameter<ValueT>(parameterName);
         }
 
-        public T GetComponentParameter<T>(int componentIndex, string parameterName) where T: Parameter, new()
+        public ParamT GetComponentParameter<ParamT>(int componentIndex, string parameterName) where ParamT: Parameter, new()
         {
-            return this[componentIndex].GetParameter<T>(parameterName);
+            return this[componentIndex].GetParameter<ParamT>(parameterName);
         }
 
-        public T GetComponentParameter<T>(string componentName, string parameterName) where T : Parameter, new()
+        public ParamT GetComponentParameter<ParamT>(string componentName, string parameterName) where ParamT : Parameter, new()
         {
-            return this[componentName].GetParameter<T>(parameterName);
+            return this[componentName].GetParameter<ParamT>(parameterName);
         }
 
-        public void SetComponentParameterValue<T>(int componentIndex, string parameterName, T value)
+        public ValueT GetComponentParameterValue<ValueT>(int componentIndex, string parameterName)
         {
-            this[componentIndex].SetParameterValue<T>(parameterName, value);
+            return this[componentIndex].GetParameterValue<ValueT>(parameterName);
         }
 
-        public void SetComponentParameterValue<T>(string componentName, string parameterName, T value)
+        public ValueT GetComponentParameterValue<ValueT>(string componentName, string parameterName)
         {
-            this[componentName].SetParameterValue<T>(parameterName, value);
+            return this[componentName].GetParameterValue<ValueT>(parameterName);
+        }
+
+        public void SetComponentParameterValue<ValueT>(int componentIndex, string parameterName, ValueT value)
+        {
+            this[componentIndex].SetParameterValue<ValueT>(parameterName, value);
+        }
+
+        public void SetComponentParameterValue<ValueT>(string componentName, string parameterName, ValueT value)
+        {
+            this[componentName].SetParameterValue<ValueT>(parameterName, value);
+        }
+
+        public Parameter<ValueT> GetComponentGenericStyleParameter<ValueT>(int componentIndex, string parameterName)
+        {
+            return this[componentIndex].GetGenericStyleParameter<ValueT>(parameterName);
+        }
+
+        public Parameter<ValueT> GetComponentGenericStyleParameter<ValueT>(string componentName, string parameterName)
+        {
+            return this[componentName].GetGenericStyleParameter<ValueT>(parameterName);
+        }
+
+        public ParamT GetComponentStyleParameter<ParamT>(int componentIndex, string parameterName) where ParamT : Parameter, new()
+        {
+            return this[componentIndex].GetStyleParameter<ParamT>(parameterName);
+        }
+
+        public ParamT GetComponentStyleParameter<ParamT>(string componentName, string parameterName) where ParamT : Parameter, new()
+        {
+            return this[componentName].GetStyleParameter<ParamT>(parameterName);
+        }
+
+        public ValueT GetComponentStyleParameterValue<ValueT>(int componentIndex, string parameterName)
+        {
+            return this[componentIndex].GetStyleParameterValue<ValueT>(parameterName);
+        }
+
+        public ValueT GetComponentStyleParameterValue<ValueT>(string componentName, string parameterName)
+        {
+            return this[componentName].GetStyleParameterValue<ValueT>(parameterName);
+        }
+
+        public void SetComponentStyleParameterValue<ValueT>(int componentIndex, string parameterName, ValueT value)
+        {
+            this[componentIndex].SetStyleParameterValue<ValueT>(parameterName, value);
+        }
+
+        public void SetComponentStyleParameterValue<ValueT>(string componentName, string parameterName, ValueT value)
+        {
+            this[componentName].SetStyleParameterValue<ValueT>(parameterName, value);
+        }
+
+        public string GetComponentText(int componentIndex)
+        {
+            return GetComponentParameterValue<string>(componentIndex, "text");
+        }
+
+        public string GetComponentText(string componentName)
+        {
+            return GetComponentParameterValue<string>(componentName, "text");
         }
 
         public void SetComponentText(int componentIndex, string text)
@@ -105,6 +195,16 @@ namespace Hackbox
             SetComponentParameterValue(componentName, "text", text);
         }
 
+        public string GetComponentLabel(int componentIndex)
+        {
+            return GetComponentParameterValue<string>(componentIndex, "label");
+        }
+
+        public string GetComponentLabel(string componentName)
+        {
+            return GetComponentParameterValue<string>(componentName, "label");
+        }
+
         public void SetComponentLabel(int componentIndex, string label)
         {
             SetComponentParameterValue(componentIndex, "label", label);
@@ -113,6 +213,16 @@ namespace Hackbox
         public void SetComponentLabel(string componentName, string label)
         {
             SetComponentParameterValue(componentName, "label", label);
+        }
+
+        public string GetComponentValue(int componentIndex)
+        {
+            return GetComponentParameterValue<string>(componentIndex, "value");
+        }
+
+        public string GetComponentValue(string componentName)
+        {
+            return GetComponentParameterValue<string>(componentName, "value");
         }
 
         public void SetComponentValue(int componentIndex, string value)

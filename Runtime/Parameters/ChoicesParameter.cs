@@ -33,7 +33,7 @@ namespace Hackbox.Parameters
 
             public ParameterList StyleParameterList = new ParameterList();
 
-            public JObject GenerateJSON(int version)
+            internal JObject GenerateJSON(int version)
             {
                 JObject choiceObject = new JObject();
 
