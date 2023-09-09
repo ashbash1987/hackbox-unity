@@ -1,6 +1,8 @@
+using System.Collections;
+
 namespace Hackbox.Parameters
 {
-    public interface IStyleParameterList
+    public interface IStyleParameterList : IEnumerable
     {
         Parameter<ValueT> GetGenericStyleParameter<ValueT>(string parameterName);
         ParamT GetStyleParameter<ParamT>(string parameterName) where ParamT : Parameter, new();

@@ -29,6 +29,11 @@ namespace Hackbox.Parameters
         {            
         }
 
+        public Parameter(T value)
+        {
+            Value = value;
+        }
+
         public virtual T Value
         {
             get;

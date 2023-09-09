@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,6 +25,35 @@ namespace Hackbox.Parameters
         public Parameter this[int parameterIndex] => Parameters[parameterIndex];
         public Parameter this[string parameterName] => Parameters.Find(x => x.Name == parameterName);
 
+        #region IEnumerable Interface & Collection Initialiser Implementation
+        public IEnumerator GetEnumerator()
+        {
+            return Parameters.GetEnumerator();
+        }
+
+        public void Add<T>(string parameterName, T value)
+        {
+            if (value is Parameter parameter)
+            {
+                int existingIndex = Parameters.FindIndex(x => x.Name == parameterName);
+                parameter.Name = parameterName;
+                if (existingIndex >= 0)
+                {
+                    Parameters[existingIndex] = parameter;
+                }
+                else
+                {
+                    Parameters.Add(parameter);
+                }
+            }
+            else
+            {
+                SetParameterValue<T>(parameterName, value);
+            }
+        }
+        #endregion
+
+        #region Public Methods
         public Parameter<ValueT> GetGenericParameter<ValueT>(string parameterName)
         {
             Parameter parameter = this[parameterName];
@@ -79,5 +109,6 @@ namespace Hackbox.Parameters
         {
             GetGenericParameter<ValueT>(parameterName).Value = value;
         }
+        #endregion
     }
 }

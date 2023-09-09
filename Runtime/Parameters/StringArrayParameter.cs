@@ -12,6 +12,12 @@ namespace Hackbox.Parameters
         {
         }
 
+        public StringArrayParameter(string[] value) :
+            base()
+        {
+            Value = value;
+        }
+
         public StringArrayParameter(StringArrayParameter from) :
             base(from)
         {

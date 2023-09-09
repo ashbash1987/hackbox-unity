@@ -7,12 +7,18 @@ namespace Hackbox.Parameters
     [Serializable]
     public class ColorParameter : Parameter<Color>
     {
-        public ColorParameter():
+        public ColorParameter() :
             base()
         {
         }
 
-        public ColorParameter(ColorParameter from):
+        public ColorParameter(Color value) :
+            base()
+        {
+            Value = value;
+        }
+
+        public ColorParameter(ColorParameter from) :
             base(from)
         {
             Value = from.Value;

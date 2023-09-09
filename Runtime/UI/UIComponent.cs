@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Newtonsoft.Json.Linq;
 using Hackbox.Parameters;
 
@@ -9,6 +10,17 @@ namespace Hackbox.UI
     {
         public UIComponent()
         {
+        }
+
+        public UIComponent(Preset preset)
+        {
+            Preset = preset;
+        }
+
+        public UIComponent(string name, Preset preset)
+        {
+            Name = name;
+            Preset = preset;
         }
 
         public UIComponent(UIComponent from)
@@ -30,7 +42,14 @@ namespace Hackbox.UI
         [NormalParameterList]
         public ParameterList ParameterList = new ParameterList();
 
-        public Parameter this[string parameterName] => ParameterList[parameterName] ?? StyleParameterList[parameterName];
+        public Parameter this[string parameterName]
+        {
+            get => ParameterList[parameterName] ?? StyleParameterList[parameterName];
+            set
+            {
+                Add(parameterName, value);
+            }
+        }
 
         private JObject _obj = new JObject();
 
@@ -51,6 +70,32 @@ namespace Hackbox.UI
             }
         }
 
+        #region IEnumerable Interface & Collection Initialiser Implementation
+        public IEnumerator GetEnumerator()
+        {
+            yield return StyleParameterList.GetEnumerator();
+            yield return ParameterList.GetEnumerator();
+        }
+
+        public void Add(Parameter parameter)
+        {
+            Add(parameter.Name, parameter);
+        }
+
+        public void Add<T>(string parameterName, T value)
+        {
+            if (DefaultParameters.GetDefaultStyleParameters(this, null).ContainsKey(parameterName))
+            {
+                StyleParameterList.Add<T>(parameterName, value);
+            }
+            else
+            {
+                ParameterList.Add<T>(parameterName, value);
+            }
+        }
+        #endregion
+
+        #region Public Methods
         public Parameter<ValueT> GetGenericParameter<ValueT>(string parameterName)
         {
             return ParameterList.GetGenericParameter<ValueT>(parameterName);
@@ -90,7 +135,9 @@ namespace Hackbox.UI
         {
             StyleParameterList.SetParameterValue<ValueT>(parameterName, value);
         }
+        #endregion
 
+        #region Internal Methods
         internal JObject GenerateJSON(int version)
         {
             _obj["type"] = Preset.name;
@@ -145,5 +192,6 @@ namespace Hackbox.UI
 
             return props;
         }
+        #endregion
     }
 }

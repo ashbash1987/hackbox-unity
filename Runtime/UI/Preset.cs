@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using Newtonsoft.Json.Linq;
 using Hackbox.Parameters;
 
@@ -24,7 +25,14 @@ namespace Hackbox.UI
         [NormalParameterList]
         public ParameterList ParameterList = new ParameterList();
 
-        public Parameter this[string parameterName] => ParameterList[parameterName] ?? StyleParameterList[parameterName];
+        public Parameter this[string parameterName]
+        {
+            get => ParameterList[parameterName] ?? StyleParameterList[parameterName];
+            set
+            {
+                Add(parameterName, value);
+            }
+        }
 
         private JObject _obj = new JObject();
 
@@ -44,6 +52,44 @@ namespace Hackbox.UI
             }
         }
 
+        #region IEnumerable Interface & Collection Initialiser Implementation
+        public IEnumerator GetEnumerator()
+        {
+            yield return StyleParameterList.GetEnumerator();
+            yield return ParameterList.GetEnumerator();            
+        }
+
+        public void Add<T>(string parameterName, T value)
+        {
+            if (DefaultParameters.GetDefaultStyleParameters(this, null).ContainsKey(parameterName))
+            {
+                StyleParameterList.Add<T>(parameterName, value);
+            }
+            else
+            {
+                ParameterList.Add<T>(parameterName, value);
+            }
+        }
+        #endregion
+
+        #region Equatable Implementation
+        public override int GetHashCode()
+        {
+            return GetInstanceID();
+        }
+
+        public override bool Equals(object other)
+        {
+            if (other is Preset otherPreset)
+            {
+                return GetInstanceID() == otherPreset.GetInstanceID();
+            }
+
+            return base.Equals(other);
+        }
+        #endregion
+
+        #region Public Methods
         public Parameter<ValueT> GetGenericParameter<ValueT>(string parameterName)
         {
             return ParameterList.GetGenericParameter<ValueT>(parameterName);
@@ -83,7 +129,9 @@ namespace Hackbox.UI
         {
             StyleParameterList.SetParameterValue<ValueT>(parameterName, value);
         }
+        #endregion
 
+        #region Internal Methods
         internal JObject GenerateJSON(int version)
         {
             _obj["type"] = Type.ToString();
@@ -123,20 +171,6 @@ namespace Hackbox.UI
 
             return props;
         }
-
-        public override int GetHashCode()
-        {
-            return GetInstanceID();
-        }
-
-        public override bool Equals(object other)
-        {
-            if (other is Preset otherPreset)
-            {
-                return GetInstanceID() == otherPreset.GetInstanceID();
-            }
-
-            return base.Equals(other);
-        }
+        #endregion
     }
 }

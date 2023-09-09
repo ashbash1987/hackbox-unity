@@ -12,6 +12,12 @@ namespace Hackbox.Parameters
         {
         }
 
+        public ParameterListParameter(ParameterList value) :
+            base()
+        {
+            Value = value;
+        }
+
         public ParameterListParameter(ParameterListParameter from):
             base(from)
         {

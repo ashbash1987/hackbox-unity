@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Hackbox.UI;
@@ -8,7 +9,7 @@ using Hackbox.Parameters;
 namespace Hackbox
 {
     [Serializable]
-    public class State
+    public class State : IEnumerable
     {
         public State()
         {
@@ -41,20 +42,53 @@ namespace Hackbox
         public UIComponent this[string componentName]
         {
             get => Components.Find(x => x.Name.Equals(componentName));
+            set
+            {
+                int existingIndex = Components.FindIndex(x => x.Name.Equals(componentName));
+                value.Name = componentName;
+                if (existingIndex >= 0)
+                {
+                    Components[existingIndex] = value;
+                }
+                else
+                {
+                    Components.Add(value);
+                }
+            }
         }
 
         public Parameter this[int componentIndex, string parameterName]
         {
             get => this[componentIndex][parameterName];
+            set => this[componentIndex].Add(parameterName, value);
         }
 
         public Parameter this[string componentName, string parameterName]
         {
             get => this[componentName][parameterName];
+            set => this[componentName].Add(parameterName, value);
         }
 
         private JObject _obj = new JObject();
 
+        #region IEnumerable Interface & Collection Initialiser Implementation
+        public IEnumerator GetEnumerator()
+        {
+            return Components.GetEnumerator();
+        }
+
+        public void Add(UIComponent component)
+        {
+            Components.Add(component);
+        }
+
+        public void Add(string componentName, UIComponent component)
+        {
+            this[componentName] = component;
+        }
+        #endregion
+
+        #region Public Methods
         public Parameter<ValueT> GetGenericHeaderParameter<ValueT>(string parameterName)
         {
             return HeaderParameterList.GetGenericParameter<ValueT>(parameterName);
@@ -234,6 +268,7 @@ namespace Hackbox
         {
             SetComponentParameterValue(componentName, "value", value);
         }
+        #endregion
 
         public JObject GenerateJSON(int version)
         {

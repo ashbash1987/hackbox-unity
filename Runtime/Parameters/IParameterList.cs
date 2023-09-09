@@ -1,6 +1,8 @@
+using System.Collections;
+
 namespace Hackbox.Parameters
 {
-    public interface IParameterList
+    public interface IParameterList : IEnumerable
     {
         Parameter this[string parameterName]
         {

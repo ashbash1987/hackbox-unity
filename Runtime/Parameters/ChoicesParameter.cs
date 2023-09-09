@@ -72,6 +72,12 @@ namespace Hackbox.Parameters
             Value = new ChoiceList();
         }
 
+        public ChoicesParameter(ChoiceList value) :
+            base()
+        {
+            Value = value;
+        }
+
         public ChoicesParameter(ChoicesParameter from):
             base(from)
         {

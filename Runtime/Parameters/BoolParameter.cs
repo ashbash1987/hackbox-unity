@@ -7,12 +7,18 @@ namespace Hackbox.Parameters
     [Serializable]
     public class BoolParameter : Parameter<bool>
     {
-        public BoolParameter():
+        public BoolParameter() :
             base()
         {
         }
 
-        public BoolParameter(BoolParameter from):
+        public BoolParameter(bool value) :
+            base()
+        {
+            Value = value;
+        }
+
+        public BoolParameter(BoolParameter from) :
             base(from)
         {
             Value = from.Value;
