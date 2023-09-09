@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace Hackbox.UI
@@ -7,8 +7,10 @@ namespace Hackbox.UI
     public class Theme : ScriptableObject
     {
         public Color HeaderColor = Color.black;
+        [BackgroundString]
         public string HeaderBackground = "#ffffff";
         public Color MainColor = Color.white;
+        [BackgroundString]
         public string MainBackground = "#0000ff";
 
         private JObject _obj = new JObject();
