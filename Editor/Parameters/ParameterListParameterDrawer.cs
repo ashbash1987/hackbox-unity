@@ -7,10 +7,16 @@ namespace Hackbox.Parameters
     public class ParameterListParameterDrawer : BaseParameterDrawer
     {
         private ParameterListParameter _obj = null;
+        private bool _foldout = false;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return EditorGUI.GetPropertyHeight(GetValue(property)) + EditorGUIUtility.singleLineHeight;
+            if (_foldout)
+            {
+                return EditorGUI.GetPropertyHeight(GetValue(property)) + EditorGUIUtility.singleLineHeight;
+            }
+
+            return EditorGUIUtility.singleLineHeight;
         }
 
         protected override void OnParameterGUI(Rect position, SerializedProperty property, string name, SerializedProperty value)
@@ -20,8 +26,13 @@ namespace Hackbox.Parameters
                 _obj = (ParameterListParameter)PropertyDiscovery.GetValue(property);
             }
 
-            EditorGUI.LabelField(new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight), new GUIContent(name));
-            EditorGUI.PropertyField(new Rect(position.x, position.y + EditorGUIUtility.singleLineHeight, position.width, position.height - EditorGUIUtility.singleLineHeight), value, new GUIContent(), true);
+            EditorGUI.indentLevel++;
+            _foldout = EditorGUI.Foldout(new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight), _foldout, new GUIContent(name));
+            if (_foldout)
+            {
+                EditorGUI.PropertyField(new Rect(position.x, position.y + EditorGUIUtility.singleLineHeight, position.width, position.height - EditorGUIUtility.singleLineHeight), value, new GUIContent(), true);
+            }
+            EditorGUI.indentLevel--;
         }
     }
 }
