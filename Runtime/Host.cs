@@ -54,7 +54,7 @@ namespace Hackbox
         [Tooltip("A specific host name for this host instance.")]
         public string HostName = null;
         [Tooltip("The host version to connect to. Valid values are 1 or 2.")]
-        public int HostVersion = 1;
+        public int HostVersion = 2;
         [Tooltip("If true, then it will reload the previous host setup.")]
         public bool ReloadHost = false;
         [Tooltip("If true, then the created room will only allow members with Twitch credentials to join the room.")]
