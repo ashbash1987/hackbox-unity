@@ -17,6 +17,7 @@ namespace Hackbox.Parameters
             ["choices"] = new ChoicesParameter() { Value = new List<ChoicesParameter.Choice>() },
             ["color"] = new ColorParameter() { Value = Color.black },
             ["event"] = new StringParameter() { Value = "" },
+            ["fontFamily"] = new StringParameter() { Value = "" },
             ["fontSize"] = new StringParameter() { Value = "20px" },
             ["height"] = new StringParameter() { Value = "100px" },
             ["hover"] = new ParameterListParameter() { Value = new ParameterList() },
@@ -172,7 +173,8 @@ namespace Hackbox.Parameters
                                 ["align"] = new StringParameter() { Value = "center" },
                                 ["background"] = new StringParameter() { Value = "white" },
                                 ["border"] = new StringParameter() { Value = "4px solid black" },
-                                ["color"] = new ColorParameter() { Value = Color.black }
+                                ["color"] = new ColorParameter() { Value = Color.black },
+                                ["fontFamily"] = new StringParameter() { Value = "" }
                             };
                         }
                         return null;
@@ -187,6 +189,7 @@ namespace Hackbox.Parameters
                                 ["border"] = new StringParameter() { Value = "4px solid black" },
                                 ["borderRadius"] = new StringParameter() { Value = "0px" },
                                 ["color"] = new ColorParameter() { Value = Color.black },
+                                ["fontFamily"] = new StringParameter() { Value = "" },
                                 ["fontSize"] = new StringParameter() { Value = "30px" }
                             };
                         }
@@ -201,6 +204,7 @@ namespace Hackbox.Parameters
                                 ["background"] = new StringParameter() { Value = "white" },
                                 ["border"] = new StringParameter() { Value = "4px solid black" },
                                 ["color"] = new ColorParameter() { Value = Color.black },
+                                ["fontFamily"] = new StringParameter() { Value = "" },
                                 ["fontSize"] = new StringParameter() { Value = "70px" },
                                 ["height"] = new StringParameter() { Value = "300px" },
                                 ["radius"] = new StringParameter() { Value = "70px" },
@@ -228,6 +232,7 @@ namespace Hackbox.Parameters
                                 ["border"] = new StringParameter() { Value = "4px solid black" },
                                 ["borderRadius"] = new StringParameter() { Value = "10px" },
                                 ["color"] = new ColorParameter() { Value = Color.black },
+                                ["fontFamily"] = new StringParameter() { Value = "" },
                                 ["fontSize"] = new StringParameter() { Value = "20px" },
                                 ["padding"] = new StringParameter() { Value = "0 20px" },
                                 ["margin"] = new StringParameter() { Value = "10px 0px" },
@@ -258,6 +263,7 @@ namespace Hackbox.Parameters
                                 ["border"] = new StringParameter() { Value = "4px solid black" },
                                 ["borderRadius"] = new StringParameter() { Value = "0px" },
                                 ["color"] = new ColorParameter() { Value = Color.black },
+                                ["fontFamily"] = new StringParameter() { Value = "" },
                                 ["fontSize"] = new StringParameter() { Value = "30px" }
                             };
                         }
