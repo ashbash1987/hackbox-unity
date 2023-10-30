@@ -12,8 +12,16 @@ namespace Hackbox.Parameters
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            SerializedObject serializedObject = BeginProperty(position, property, label);
-            OnParameterGUI(position, property, GetName(property), GetValue(property));
+            string name = GetName(property);
+            SerializedObject serializedObject = BeginProperty(position, property, label, name);
+
+            string tooltip = "";
+            if (DefaultParameters.AllParameterInfo.TryGetValue(name, out DefaultParameters.ParameterInfoEntry parameterInfo))
+            {
+                tooltip = parameterInfo.HelpText;
+            }
+
+            OnParameterGUI(position, property, name, tooltip, GetValue(property));
             EndProperty(serializedObject);
         }
     }

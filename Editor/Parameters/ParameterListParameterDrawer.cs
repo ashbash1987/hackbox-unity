@@ -19,7 +19,7 @@ namespace Hackbox.Parameters
             return EditorGUIUtility.singleLineHeight;
         }
 
-        protected override void OnParameterGUI(Rect position, SerializedProperty property, string name, SerializedProperty value)
+        protected override void OnParameterGUI(Rect position, SerializedProperty property, string name, string tooltip, SerializedProperty value)
         {
             if (_obj == null)
             {
@@ -27,10 +27,10 @@ namespace Hackbox.Parameters
             }
 
             EditorGUI.indentLevel++;
-            _foldout = EditorGUI.Foldout(new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight), _foldout, new GUIContent(name));
+            _foldout = EditorGUI.Foldout(new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight), _foldout, new GUIContent(name, tooltip));
             if (_foldout)
             {
-                EditorGUI.PropertyField(new Rect(position.x, position.y + EditorGUIUtility.singleLineHeight, position.width, position.height - EditorGUIUtility.singleLineHeight), value, new GUIContent(), true);
+                EditorGUI.PropertyField(new Rect(position.x, position.y + EditorGUIUtility.singleLineHeight, position.width, position.height - EditorGUIUtility.singleLineHeight), value, new GUIContent("", tooltip), true);
             }
             EditorGUI.indentLevel--;
         }

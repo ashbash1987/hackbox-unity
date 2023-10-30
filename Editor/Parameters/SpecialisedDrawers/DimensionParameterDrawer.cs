@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
@@ -14,17 +11,24 @@ namespace Hackbox.Parameters
             "%",
             "px",
             "em",
+            "fr",
             "rem",
             "vw",
             "vh",
             "vmin",
-            "vmax"
+            "vmax",
+            "custom"
         };
 
-        protected override void OnParameterGUI(Rect position, SerializedProperty property, string name, SerializedProperty value)
+        protected override void OnParameterGUI(Rect position, SerializedProperty property, string name, string tooltip, SerializedProperty value)
         {
             Regex regex = new Regex(@"(?<value>[\d.]+)\s*(?<unit>%|px|em|rem|vw|vh|vmin|vmax)");
             Match match = regex.Match(value.stringValue);
+
+            Rect unitPosition = position;
+            unitPosition.x += unitPosition.width - 40;
+            unitPosition.width = 40;
+            position.width -= 40;
 
             if (match.Success)
             {
@@ -32,19 +36,18 @@ namespace Hackbox.Parameters
                 string dimensionUnit = match.Groups["unit"].Value;
                 int dimensionUnitIndex = ArrayUtility.IndexOf(UNITS, dimensionUnit);
 
-                Rect unitPosition = position;
-                unitPosition.x += unitPosition.width - 40;
-                unitPosition.width = 40;
-                position.width -= 40;
-
-                dimensionValue = EditorGUI.FloatField(position, name, dimensionValue);
+                dimensionValue = EditorGUI.FloatField(position, new GUIContent(name, tooltip), dimensionValue);
                 dimensionUnit = UNITS[EditorGUI.Popup(unitPosition, dimensionUnitIndex, UNITS)];
 
-                value.stringValue = $"{dimensionValue}{dimensionUnit}";
+                value.stringValue = dimensionUnit != "custom" ? $"{dimensionValue}{dimensionUnit}" : dimensionValue.ToString();
             }
             else
             {
-                value.stringValue = EditorGUI.TextField(position, value.stringValue);
+                string dimensionValue = EditorGUI.TextField(position, new GUIContent(name, tooltip), value.stringValue);
+                int dimensionUnitIndex = EditorGUI.Popup(unitPosition, ArrayUtility.IndexOf(UNITS, "custom"), UNITS);
+                string dimensionUnit = UNITS[EditorGUI.Popup(unitPosition, dimensionUnitIndex, UNITS)];
+
+                value.stringValue = dimensionUnit != "custom" ? $"{dimensionValue}{dimensionUnit}" : dimensionValue.ToString();
             }
         }
     }

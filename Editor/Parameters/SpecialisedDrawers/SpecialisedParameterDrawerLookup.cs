@@ -10,7 +10,13 @@ namespace Hackbox.Parameters
             ["background"] = typeof(BackgroundParameterDrawer),
             ["borderRadius"] = typeof(DimensionParameterDrawer),
             ["fontSize"] = typeof(DimensionParameterDrawer),
+            ["gridGap"] = typeof(DimensionParameterDrawer),
+            ["gridRowHeight"] = typeof(DimensionParameterDrawer),
             ["height"] = typeof(DimensionParameterDrawer),
+            ["minHeight"] = typeof(DimensionParameterDrawer),
+            ["maxHeight"] = typeof(DimensionParameterDrawer),
+            ["minWidth"] = typeof(DimensionParameterDrawer),
+            ["maxWidth"] = typeof(DimensionParameterDrawer),
             ["radius"] = typeof(DimensionParameterDrawer),
             ["width"] = typeof(DimensionParameterDrawer),
         };

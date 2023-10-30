@@ -8,15 +8,28 @@ namespace Hackbox.UI
     public class Theme : ScriptableObject
     {
         [Header("Header")]
+        [Tooltip("Color of the text of the header section.")]
         public Color HeaderColor = Color.black;
         [BackgroundString]
+        [Tooltip("The background of the header section.")]
         public string HeaderBackground = "#ffffff";
+        [Tooltip("The minimum height of the header section.")]
+        public string HeaderMinHeight = "50px";
+        [Tooltip("The maximum height of the header section.")]
+        public string HeaderMaxHeight = "50px";
+        [Tooltip("The header section font family.")]
         public string HeaderFontFamily = "";
 
         [Header("Main")]
+        [Tooltip("Color of the text of the main section.")]
         public Color MainColor = Color.white;
         [BackgroundString]
+        [Tooltip("The background of the main section.")]
         public string MainBackground = "#0000ff";
+        [Tooltip("The minimum width of the main section.")]
+        public string MainMinWidth = "300px";
+        [Tooltip("The maximum width of the main section.")]
+        public string MainMaxWidth = "350px";
 
         [Header("Fonts")]
         public List<string> Fonts = new List<string>();
@@ -28,6 +41,8 @@ namespace Hackbox.UI
             JObject header = new JObject();
             header["color"] = HeaderColor.ToHTMLString();
             header["background"] = HeaderBackground;
+            header["minHeight"] = HeaderMinHeight;
+            header["maxHeight"] = HeaderMaxHeight;
             if (!string.IsNullOrEmpty(HeaderFontFamily))
             {
                 header["fontFamily"] = HeaderFontFamily;
@@ -37,6 +52,8 @@ namespace Hackbox.UI
             JObject main = new JObject();
             main["color"] = MainColor.ToHTMLString();
             main["background"] = MainBackground;
+            main["minWidth"] = MainMinWidth;
+            main["maxWidth"] = MainMaxWidth;
             _obj["main"] = main;
 
             if (Fonts != null && Fonts.Count > 0)

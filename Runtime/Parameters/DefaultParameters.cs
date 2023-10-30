@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Hackbox.UI;
 
@@ -7,46 +8,68 @@ namespace Hackbox.Parameters
 {
     public static class DefaultParameters
     {
-        public static readonly Dictionary<string, Parameter> AllParameterLookup = new Dictionary<string, Parameter>()
+        public class ParameterInfoEntry
         {
-            ["align"] = new StringParameter() { Value = "start" },
-            ["background"] = new StringParameter() { Value = "black" },
-            ["border"] = new StringParameter() { Value = "2px solid black" },
-            ["borderColor"] = new ColorParameter() { Value = Color.black },
-            ["borderRadius"] = new StringParameter() { Value = "10px" },
-            ["choices"] = new ChoicesParameter() { Value = new List<ChoicesParameter.Choice>() },
-            ["color"] = new ColorParameter() { Value = Color.black },
-            ["event"] = new StringParameter() { Value = "" },
-            ["fontFamily"] = new StringParameter() { Value = "" },
-            ["fontSize"] = new StringParameter() { Value = "20px" },
-            ["height"] = new StringParameter() { Value = "100px" },
-            ["hover"] = new ParameterListParameter() { Value = new ParameterList() },
-            ["label"] = new StringParameter() { Value = "Label" },
-            ["margin"] = new StringParameter() { Value = "10px 0px" },
-            ["max"] = new IntParameter() { Value = 100 },
-            ["min"] = new IntParameter() { Value = 0 },
-            ["multiSelect"] = new BoolParameter() { Value = false },
-            ["padding"] = new StringParameter() { Value = "0px 10px" },
-            ["radius"] = new StringParameter() { Value = "10px" },
-            ["shadow"] = new StringParameter() { Value = "5px 5px #000000" },
-            ["step"] = new IntParameter() { Value = 1 },
-            ["submit"] = new ParameterListParameter() { Value = new ParameterList() },
-            ["text"] = new StringParameter() { Value = "Text" },
-            ["value"] = new StringParameter() { Value = "value" },
-            ["width"] = new StringParameter() { Value = "100%" },
+            public ParameterInfoEntry(Parameter parameter, string helpText = "")
+            {
+                Parameter = parameter;
+                HelpText = helpText;
+            }
+
+            public readonly Parameter Parameter;
+            public readonly string HelpText;
+        }
+
+        public static readonly Dictionary<string, ParameterInfoEntry> AllParameterInfo = new Dictionary<string, ParameterInfoEntry>()
+        {
+            ["align"] = new ParameterInfoEntry(new StringParameter() { Value = "start" }, "The alignment relative to others."),
+            ["background"] = new ParameterInfoEntry(new StringParameter() { Value = "black" }, "The background (e.g. color, image)."),
+            ["border"] = new ParameterInfoEntry(new StringParameter() { Value = "2px solid black" }, "The border."),
+            ["borderColor"] = new ParameterInfoEntry(new ColorParameter() { Value = Color.black }, "The color of the border."),
+            ["borderRadius"] = new ParameterInfoEntry(new StringParameter() { Value = "10px" }, "The radius of the border."),
+            ["choices"] = new ParameterInfoEntry(new ChoicesParameter() { Value = new List<ChoicesParameter.Choice>() }, "The choices for a choice component."),
+            ["color"] = new ParameterInfoEntry(new ColorParameter() { Value = Color.black }, "The main/text color."),
+            ["event"] = new ParameterInfoEntry(new StringParameter() { Value = "" }, "The event name raised when submitting."),
+            ["fontFamily"] = new ParameterInfoEntry(new StringParameter() { Value = "" }, "The font family of the label."),
+            ["fontSize"] = new ParameterInfoEntry(new StringParameter() { Value = "20px" }, "The size of the font of the label."),
+            ["grid"] = new ParameterInfoEntry(new BoolParameter() { Value = false }, "If set to true, aligns the child elements in a grid."),
+            ["gridColumns"] = new ParameterInfoEntry(new IntParameter() { Value = 2 }, "The number of columns wide for the grid layout."),
+            ["gridGap"] = new ParameterInfoEntry(new StringParameter() { Value = "10px" }, "The gap between cells in the grid layout."),
+            ["gridRowHeight"] = new ParameterInfoEntry(new StringParameter() { Value = "1fr" }, "The height of each cell in the grid layout."),
+            ["height"] = new ParameterInfoEntry(new StringParameter() { Value = "100px" }, "The height."),
+            ["hover"] = new ParameterInfoEntry(new ParameterListParameter() { Value = new ParameterList() }, "Styling specific to when the element is being hovered."),
+            ["label"] = new ParameterInfoEntry(new StringParameter() { Value = "Label" }, "The text that appears on the element."),
+            ["margin"] = new ParameterInfoEntry(new StringParameter() { Value = "10px 0px" }, "The gap outside the border of the element."),
+            ["max"] = new ParameterInfoEntry(new IntParameter() { Value = 100 }, "The maximum value."),
+            ["min"] = new ParameterInfoEntry(new IntParameter() { Value = 0 }, "The minimum value."),
+            ["multiSelect"] = new ParameterInfoEntry(new BoolParameter() { Value = false }, "If set to true, allows multiple selection."),
+            ["padding"] = new ParameterInfoEntry(new StringParameter() { Value = "0px 10px" }, "The gap between the border and the contents of the element."),
+            ["radius"] = new ParameterInfoEntry(new StringParameter() { Value = "10px" }, "The radius of the border."),
+            ["shadow"] = new ParameterInfoEntry(new StringParameter() { Value = "5px 5px #000000" }, "The shadow of the element."),
+            ["step"] = new ParameterInfoEntry(new IntParameter() { Value = 1 }, "The step increment."),
+            ["submit"] = new ParameterInfoEntry(new ParameterListParameter() { Value = new ParameterList() }, "Defines the submit button."),
+            ["text"] = new ParameterInfoEntry(new StringParameter() { Value = "Text" }, "The text that appears on the element."),
+            ["value"] = new ParameterInfoEntry(new StringParameter() { Value = "value" }, "The value of the element returned in events."),
+            ["width"] = new ParameterInfoEntry(new StringParameter() { Value = "100%" }, "The width."),
         };
+
+        public static readonly Dictionary<string, Parameter> AllParameterLookup = new Dictionary<string, Parameter>(AllParameterInfo.Select(x => new KeyValuePair<string, Parameter>(x.Key, x.Value.Parameter)));
 
         public static readonly Dictionary<string, Parameter> HeaderParameterLookup = new Dictionary<string, Parameter>()
         {
-            ["color"] = new ColorParameter() { Value = Color.black },
             ["background"] = new StringParameter() { Value = "black" },
+            ["color"] = new ColorParameter() { Value = Color.black },
+            ["minHeight"] = new StringParameter() { Value = "50px" },
+            ["maxHeight"] = new StringParameter() { Value = "50px" },
             ["text"] = new StringParameter() { Value = "" }
         };
 
         public static readonly Dictionary<string, Parameter> MainParameterLookup = new Dictionary<string, Parameter>()
         {
+            ["align"] = new StringParameter() { Value = "start" },
             ["background"] = new StringParameter() { Value = "black" },
-            ["align"] = new StringParameter() { Value = "start" }
+            ["minWidth"] = new StringParameter() { Value = "300px" },
+            ["maxWidth"] = new StringParameter() { Value = "350px" }
         };
 
         public static Dictionary<string, Parameter> GetDefaultParameters(object parent, params Parameter[] parameterChain)
@@ -173,8 +196,13 @@ namespace Hackbox.Parameters
                                 ["align"] = new StringParameter() { Value = "center" },
                                 ["background"] = new StringParameter() { Value = "white" },
                                 ["border"] = new StringParameter() { Value = "4px solid black" },
+                                ["borderRadius"] = new StringParameter() { Value = "10px" },
                                 ["color"] = new ColorParameter() { Value = Color.black },
-                                ["fontFamily"] = new StringParameter() { Value = "" }
+                                ["fontFamily"] = new StringParameter() { Value = "sans-serif" },
+                                ["fontSize"] = new StringParameter() { Value = "16px" },
+                                ["margin"] = new StringParameter() { Value = "10px 0px" },
+                                ["padding"] = new StringParameter() { Value = "10px" },
+                                ["width"] = new StringParameter() { Value = "auto" },
                             };
                         }
                         return null;
@@ -186,11 +214,14 @@ namespace Hackbox.Parameters
                             {
                                 ["align"] = new StringParameter() { Value = "center" },
                                 ["background"] = new StringParameter() { Value = "white" },
-                                ["border"] = new StringParameter() { Value = "4px solid black" },
+                                ["border"] = new StringParameter() { Value = "2px solid black" },
                                 ["borderRadius"] = new StringParameter() { Value = "0px" },
                                 ["color"] = new ColorParameter() { Value = Color.black },
-                                ["fontFamily"] = new StringParameter() { Value = "" },
-                                ["fontSize"] = new StringParameter() { Value = "30px" }
+                                ["fontFamily"] = new StringParameter() { Value = "sans-serif" },
+                                ["fontSize"] = new StringParameter() { Value = "30px" },
+                                ["margin"] = new StringParameter() { Value = "10px 0" },
+                                ["padding"] = new StringParameter() { Value = "10px" },
+                                ["width"] = new StringParameter() { Value = "100%" }
                             };
                         }
                         return null;
@@ -228,12 +259,16 @@ namespace Hackbox.Parameters
                             return new Dictionary<string, Parameter>()
                             {
                                 ["align"] = new StringParameter() { Value = "center" },
-                                ["background"] = new StringParameter() { Value = "white" },
-                                ["border"] = new StringParameter() { Value = "4px solid black" },
+                                ["background"] = new StringParameter() { Value = "#AAAAAA" },
+                                ["border"] = new StringParameter() { Value = "2px solid black" },
                                 ["borderRadius"] = new StringParameter() { Value = "10px" },
                                 ["color"] = new ColorParameter() { Value = Color.black },
-                                ["fontFamily"] = new StringParameter() { Value = "" },
+                                ["fontFamily"] = new StringParameter() { Value = "sans-serif" },
                                 ["fontSize"] = new StringParameter() { Value = "20px" },
+                                ["grid"] = new BoolParameter() { Value = false },
+                                ["gridColumns"] = new IntParameter() { Value = 2 },
+                                ["gridGap"] = new StringParameter() { Value = "10px" },
+                                ["gridRowHeight"] = new StringParameter() { Value = "1fr" },
                                 ["padding"] = new StringParameter() { Value = "0 20px" },
                                 ["margin"] = new StringParameter() { Value = "10px 0px" },
                                 ["width"] = new StringParameter() { Value = "100%" },
@@ -243,11 +278,20 @@ namespace Hackbox.Parameters
                         }
                         else if (parameterChain[parameterChain.Length - 1].Name == "choices")
                         {
-                            return GetDefaultStyleParameters(parent);
+                            Dictionary<string, Parameter> parameters = GetDefaultStyleParameters(parent);
+                            parameters.Remove("grid");
+                            parameters.Remove("gridColumns");
+                            parameters.Remove("gridGap");
+                            parameters.Remove("gridRowHeight");
+                            return parameters;
                         }
                         else if (parameterChain[parameterChain.Length - 1].Name == "hover")
                         {
                             Dictionary<string, Parameter> parameters = GetDefaultStyleParameters(parent);
+                            parameters.Remove("grid");
+                            parameters.Remove("gridColumns");
+                            parameters.Remove("gridGap");
+                            parameters.Remove("gridRowHeight");
                             parameters.Remove("hover");
                             return parameters;
                         }
@@ -264,7 +308,10 @@ namespace Hackbox.Parameters
                                 ["borderRadius"] = new StringParameter() { Value = "0px" },
                                 ["color"] = new ColorParameter() { Value = Color.black },
                                 ["fontFamily"] = new StringParameter() { Value = "" },
-                                ["fontSize"] = new StringParameter() { Value = "30px" }
+                                ["fontSize"] = new StringParameter() { Value = "16px" },
+                                ["padding"] = new StringParameter() { Value = "10px" },
+                                ["margin"] = new StringParameter() { Value = "10px 0" },
+                                ["width"] = new StringParameter() { Value = "100%" }
                             };
                         }
                         return null;

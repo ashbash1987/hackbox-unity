@@ -2,6 +2,7 @@
 using System.Collections;
 using Newtonsoft.Json.Linq;
 using Hackbox.Parameters;
+using UnityEngine;
 
 namespace Hackbox.UI
 {
@@ -32,8 +33,11 @@ namespace Hackbox.UI
             ParameterList = new ParameterList(from.ParameterList);
         }
 
+        [Tooltip("Name of the component. Only used in Unity.")]
         public string Name = "";
+        [Tooltip("Key of the component. Use this to persist the state of a component between state changes.")]
         public string Key = "";
+        [Tooltip("The preset this component is based on.")]
         public Preset Preset = null;
 
         [StyleParameterList]

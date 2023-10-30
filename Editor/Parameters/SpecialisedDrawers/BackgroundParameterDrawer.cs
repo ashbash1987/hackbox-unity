@@ -12,14 +12,14 @@ namespace Hackbox.Parameters
             return EditorGUIUtility.singleLineHeight * 2;
         }
 
-        protected override void OnParameterGUI(Rect position, SerializedProperty property, string name, SerializedProperty value)
+        protected override void OnParameterGUI(Rect position, SerializedProperty property, string name, string tooltip, SerializedProperty value)
         {
             if (_mode == null)
             {
                 _mode = BackgroundStringDrawer.DetermineMode(value.stringValue);
             }
 
-            _mode = (BackgroundStringDrawer.Mode)EditorGUI.EnumPopup(new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight), name, _mode);
+            _mode = (BackgroundStringDrawer.Mode)EditorGUI.EnumPopup(new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight), new GUIContent(name, tooltip), _mode);
             position.y += EditorGUIUtility.singleLineHeight;
             position.height -= EditorGUIUtility.singleLineHeight;
 

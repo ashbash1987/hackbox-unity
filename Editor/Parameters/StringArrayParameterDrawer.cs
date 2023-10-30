@@ -11,10 +11,10 @@ namespace Hackbox.Parameters
             return EditorGUI.GetPropertyHeight(GetValue(property));
         }
 
-        protected override void OnParameterGUI(Rect position, SerializedProperty property, string name, SerializedProperty value)
+        protected override void OnParameterGUI(Rect position, SerializedProperty property, string name, string tooltip, SerializedProperty value)
         {
             EditorGUI.indentLevel++;
-            EditorGUI.PropertyField(position, value, new GUIContent(name), true);
+            EditorGUI.PropertyField(position, value, new GUIContent(name, tooltip), true);
             EditorGUI.indentLevel--;
         }
     }

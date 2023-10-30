@@ -27,8 +27,11 @@ namespace Hackbox.Parameters
                 StyleParameterList = new ParameterList(other.StyleParameterList);
             }
 
+            [Tooltip("The text that is shown to the user in the choice button.")]
             public string Label = "";
+            [Tooltip("The value that is returned if the user selects this choice button.")]
             public string Value = "";
+            [Tooltip("The keys on a keyboard that can be pressed to select this choice button.")]
             public string[] Keys = new string[0];
 
             public ParameterList StyleParameterList = new ParameterList();

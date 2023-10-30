@@ -28,12 +28,20 @@ namespace Hackbox.Parameters
                 return;
             }
 
-            SerializedObject serializedObject = BeginProperty(position, property, label);
-            OnParameterGUI(position, property, GetName(property), GetValue(property));
+            string name = GetName(property);
+            SerializedObject serializedObject = BeginProperty(position, property, label, name);
+
+            string tooltip = "";
+            if (DefaultParameters.AllParameterInfo.TryGetValue(name, out DefaultParameters.ParameterInfoEntry parameterInfo))
+            {
+                tooltip = parameterInfo.HelpText;
+            }
+
+            OnParameterGUI(position, property, name, tooltip, GetValue(property));
             EndProperty(serializedObject);
         }
 
-        protected abstract void OnParameterGUI(Rect position, SerializedProperty property, string name, SerializedProperty value);
+        protected abstract void OnParameterGUI(Rect position, SerializedProperty property, string name, string tooltip, SerializedProperty value);
 
         protected string GetName(SerializedProperty property)
         {
@@ -45,7 +53,7 @@ namespace Hackbox.Parameters
             return property.FindPropertyRelative("_value");
         }
 
-        protected SerializedObject BeginProperty(Rect position, SerializedProperty property, GUIContent label)
+        protected SerializedObject BeginProperty(Rect position, SerializedProperty property, GUIContent label, string name)
         {
             SerializedObject serializedObject = property.serializedObject;
             EditorGUI.BeginChangeCheck();
