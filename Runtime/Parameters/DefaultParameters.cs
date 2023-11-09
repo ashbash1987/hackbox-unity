@@ -287,13 +287,11 @@ namespace Hackbox.Parameters
                         }
                         else if (parameterChain[parameterChain.Length - 1].Name == "hover")
                         {
-                            Dictionary<string, Parameter> parameters = GetDefaultStyleParameters(parent);
-                            parameters.Remove("grid");
-                            parameters.Remove("gridColumns");
-                            parameters.Remove("gridGap");
-                            parameters.Remove("gridRowHeight");
-                            parameters.Remove("hover");
-                            return parameters;
+                            return new Dictionary<string, Parameter>()
+                            {
+                                ["background"] = new StringParameter() { Value = "#AAAAAA" },
+                                ["color"] = new ColorParameter() { Value = Color.black },
+                            };
                         }
                         return null;
 
