@@ -12,12 +12,20 @@ var LibraryWebSocket =
 		socket.protocol = protocol;
 
 		socket.on('connect', function() { Module.dynCall_v(onConnect); });
-		socket.on('disconnect', function() { Module.dynCall_v(onDisconnect); });
+		socket.on('disconnect', function(reason, details)
+		{
+			var bufferLength = lengthBytesUTF8(reason) + 1;
+			var buffer = _malloc(bufferLength);
+			stringToUTF8(reason, buffer, bufferLength);
+
+			Module.dynCall_vi(onDisconnect, buffer);			
+		});
 		socket.on('connect_error', function(error)
 		{ 
 			var bufferLength = lengthBytesUTF8(error) + 1;
 			var buffer = _malloc(bufferLength);
 			stringToUTF8(error, buffer, bufferLength);
+
 			Module.dynCall_vi(onError, buffer);
 		});
 
@@ -26,6 +34,7 @@ var LibraryWebSocket =
 			var bufferLength = lengthBytesUTF8(error) + 1;
 			var buffer = _malloc(bufferLength);
 			stringToUTF8(error, buffer, bufferLength);
+
 			Module.dynCall_vi(onError, buffer);
 		});
 
