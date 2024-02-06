@@ -76,27 +76,35 @@ namespace Hackbox
             EditorGUILayout.EndVertical();
         }
 
+        private void DrawSimpleProperty(string name)
+        {
+            EditorGUILayout.PropertyField(serializedObject.FindProperty(name));
+        }
+
         private void DrawEventGroup()
         {
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.OnRoomCreated)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.OnRoomConnected)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.OnRoomDisconnected)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.OnRoomReconnecting)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.OnRoomReconnectFailed)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.OnMemberJoined)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.OnMemberKicked)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.OnMessage)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.OnPingPong)));
+            DrawSimpleProperty(nameof(Host.OnRoomCreated));
+            DrawSimpleProperty(nameof(Host.OnRoomConnected));
+            DrawSimpleProperty(nameof(Host.OnRoomDisconnected));
+            DrawSimpleProperty(nameof(Host.OnRoomReconnecting));
+            DrawSimpleProperty(nameof(Host.OnRoomReconnectFailed));
+            DrawSimpleProperty(nameof(Host.OnMemberJoined));
+            DrawSimpleProperty(nameof(Host.OnMemberKicked));
+            DrawSimpleProperty(nameof(Host.OnMessage));
+            DrawSimpleProperty(nameof(Host.OnPingPong));
         }
 
         private void DrawSettingsGroup()
         {
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.URL)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.HostName)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.HostVersion)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.ReloadHost)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.TwitchRequired)));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(Host.Debugging)));
+            DrawSimpleProperty(nameof(Host.URL));
+            DrawSimpleProperty(nameof(Host.HostName));
+            DrawSimpleProperty(nameof(Host.HostVersion));
+            DrawSimpleProperty(nameof(Host.ReloadHost));
+            DrawSimpleProperty(nameof(Host.TwitchRequired));
+            DrawSimpleProperty(nameof(Host.ConnectOnStart));
+            DrawSimpleProperty(nameof(Host.ReconnectOnEnable));
+            DrawSimpleProperty(nameof(Host.DisconnectOnDisable));
+            DrawSimpleProperty(nameof(Host.Debugging));
         }
 
         private void DrawRoomStateGroup()

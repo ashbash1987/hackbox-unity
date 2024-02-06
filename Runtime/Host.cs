@@ -59,6 +59,12 @@ namespace Hackbox
         public bool ReloadHost = false;
         [Tooltip("If true, then the created room will only allow members with Twitch credentials to join the room.")]
         public bool TwitchRequired = false;
+        [Tooltip("If true, will connect on the Start lifecycle event of this component. Defaults to true.")]
+        public bool ConnectOnStart = true;
+        [Tooltip("If true, will re-connect on the Enable lifecycle event of this component. Defaults to true.")]
+        public bool ReconnectOnEnable = true;
+        [Tooltip("If true, will disconnect on the Disable lifecycle event of this component. Defaults to false.")]
+        public bool DisconnectOnDisable = false;
         [Tooltip("The level of logging that will be shown.")]
         public DebugLevel Debugging = DebugLevel.Minimal;
         #endregion
@@ -108,7 +114,26 @@ namespace Hackbox
 
         protected virtual void Start()
         {
-            Connect();
+            if (!Connected && ConnectOnStart)
+            {
+                Connect();
+            }
+        }
+
+        protected virtual void OnEnable()
+        {
+            if (!Connected && ReconnectOnEnable)
+            {
+                Connect();
+            }
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (Connected && DisconnectOnDisable)
+            {
+                Disconnect();
+            }
         }
 
         protected virtual void Update()
@@ -124,7 +149,10 @@ namespace Hackbox
 
         protected virtual void OnDestroy()
         {
-            Disconnect();
+            if (Connected)
+            {
+                Disconnect();
+            }
         }
         #endregion
 
