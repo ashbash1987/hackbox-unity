@@ -22,7 +22,7 @@ namespace Hackbox.Parameters
 
         protected override void OnParameterGUI(Rect position, SerializedProperty property, string name, string tooltip, SerializedProperty value)
         {
-            Regex regex = new Regex(@"(?<value>[\d.]+)\s*(?<unit>%|px|em|rem|vw|vh|vmin|vmax)$");
+            Regex regex = new Regex(@"^(?<value>[\d.]+)\s*(?<unit>%|px|em|rem|vw|vh|vmin|vmax)$");
             Match match = regex.Match(value.stringValue);
 
             Rect unitPosition = position;
