@@ -129,6 +129,12 @@ namespace Hackbox
             return this[componentName];
         }
 
+        public bool TryGetComponent(string componentName, out UIComponent component)
+        {
+            component = Components.Find(x => x.Name.Equals(componentName));
+            return component != null;
+        }
+
         public Parameter<ValueT> GetComponentGenericParameter<ValueT>(int componentIndex, string parameterName)
         {
             return this[componentIndex].GetGenericParameter<ValueT>(parameterName);
