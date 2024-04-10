@@ -44,6 +44,7 @@ namespace Hackbox.Parameters
             ["min"] = new ParameterInfoEntry(new IntParameter() { Name = "min", Value = 0 }, "The minimum value."),
             ["multiSelect"] = new ParameterInfoEntry(new BoolParameter() { Name = "multiSelect", Value = false }, "If set to true, allows multiple selection."),
             ["padding"] = new ParameterInfoEntry(new StringParameter() { Name = "padding", Value = "0px 10px" }, "The gap between the border and the contents of the element."),
+            ["persistent"] = new ParameterInfoEntry(new BoolParameter() { Name = "persistent", Value = false }, "If set to true, the text box will remain active and clear out its contents."),
             ["radius"] = new ParameterInfoEntry(new StringParameter() { Name = "radius", Value = "10px" }, "The radius of the border."),
             ["shadow"] = new ParameterInfoEntry(new StringParameter() { Name = "shadow", Value = "5px 5px #000000" }, "The shadow of the element."),
             ["step"] = new ParameterInfoEntry(new IntParameter() { Name = "step", Value = 1 }, "The step increment."),
@@ -93,7 +94,8 @@ namespace Hackbox.Parameters
                         {
                             return new Dictionary<string, Parameter>()
                             {
-                                ["event"] = new StringParameter() { Value = "text" }
+                                ["event"] = new StringParameter() { Value = "text" },
+                                ["persistent"] = new BoolParameter() { Value = false }
                             };
                         }
                         return null;
