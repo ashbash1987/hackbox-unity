@@ -104,7 +104,7 @@ namespace Hackbox
             }
 
             color = EditorGUI.ColorField(position, color);
-            return $"#{ColorUtility.ToHtmlStringRGBA(color)}";
+            return color.ToHTMLStringWithAlpha();
         }
         #endregion
 
@@ -193,7 +193,7 @@ namespace Hackbox
             outputBuilder.Append(string.Join(", ", gradient.colorKeys.Select(x => x.time).Concat(gradient.alphaKeys.Select(x => x.time)).Distinct().OrderBy(x => x).Select(x =>
             {
                 Color keyColor = gradient.Evaluate(x);
-                return $"#{ColorUtility.ToHtmlStringRGBA(keyColor)} {x * 100}%";
+                return $"{keyColor.ToHTMLStringWithAlpha()} {x * 100}%";
             })));
             outputBuilder.Append(")");
 
@@ -281,7 +281,7 @@ namespace Hackbox
             outputBuilder.Append(string.Join(", ", gradient.colorKeys.Select(x => x.time).Concat(gradient.alphaKeys.Select(x => x.time)).Distinct().OrderBy(x => x).Select(x =>
             {
                 Color keyColor = gradient.Evaluate(x);
-                return $"#{ColorUtility.ToHtmlStringRGBA(keyColor)} {x * 100}%";
+                return $"{keyColor.ToHTMLStringWithAlpha()} {x * 100}%";
             })));
             outputBuilder.Append(")");
 
