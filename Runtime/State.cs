@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using Newtonsoft.Json.Linq;
 using Hackbox.UI;
 using Hackbox.Parameters;
@@ -13,6 +14,11 @@ namespace Hackbox
     {
         public State()
         {
+        }
+
+        public State(Theme theme)
+        {
+            Theme = theme;
         }
 
         public State(State from)
@@ -69,6 +75,24 @@ namespace Hackbox
             set => this[componentName].Add(parameterName, value);
         }
 
+        public string HeaderText
+        {
+            get => GetHeaderParameterValue<string>("text");
+            set => SetHeaderParameter("text", value);
+        }
+
+        public Color HeaderColor
+        {
+            get => GetHeaderParameterValue<Color>("color");
+            set => SetHeaderParameter("color", value);
+        }
+
+        public string HeaderBackground
+        {
+            get => GetHeaderParameterValue<string>("background");
+            set => SetHeaderParameter("background", value);
+        }
+
         private JObject _obj = new JObject();
 
         #region IEnumerable Interface & Collection Initialiser Implementation
@@ -86,9 +110,29 @@ namespace Hackbox
         {
             this[componentName] = component;
         }
+
+        public bool Remove(UIComponent component)
+        {
+            return Components.Remove(component);
+        }
+
+        public bool Remove(string componentName)
+        {
+            return Components.Remove(this[componentName]);
+        }
+
+        public void RemoveAt(int componentIndex)
+        {
+            Components.RemoveAt(componentIndex);
+        }
         #endregion
 
         #region Public Methods
+        public static State Create(Theme theme)
+        {
+            return new State() { Theme = theme };
+        }
+
         public Parameter<ValueT> GetGenericHeaderParameter<ValueT>(string parameterName)
         {
             return HeaderParameterList.GetGenericParameter<ValueT>(parameterName);
@@ -111,12 +155,12 @@ namespace Hackbox
 
         public string GetHeaderText()
         {
-            return GetHeaderParameterValue<string>("text");
+            return HeaderText;
         }
 
         public void SetHeaderText(string text)
         {
-            SetHeaderParameter<string>("text", text);
+            HeaderText = text;
         }
 
         public UIComponent GetComponent(int componentIndex)
@@ -274,7 +318,6 @@ namespace Hackbox
         {
             SetComponentParameterValue(componentName, "value", value);
         }
-        #endregion
 
         public JObject GenerateJSON(int version)
         {
@@ -310,7 +353,9 @@ namespace Hackbox
 
             return _obj;
         }
+        #endregion
 
+        #region Private Methods
         private JObject GeneratePresets(int version)
         {
             JObject presets = new JObject();
@@ -321,5 +366,6 @@ namespace Hackbox
 
             return presets;
         }
+        #endregion
     }
 }
