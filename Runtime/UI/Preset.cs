@@ -90,6 +90,14 @@ namespace Hackbox.UI
         #endregion
 
         #region Public Methods
+        public static Preset Create(string name, PresetType type)
+        {
+            Preset preset = ScriptableObject.CreateInstance<Preset>();
+            preset.name = name;
+            preset.Type = type;
+            return preset;
+        }
+
         public Parameter<ValueT> GetGenericParameter<ValueT>(string parameterName)
         {
             return ParameterList.GetGenericParameter<ValueT>(parameterName);
