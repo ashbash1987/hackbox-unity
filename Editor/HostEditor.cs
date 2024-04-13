@@ -17,6 +17,8 @@ namespace Hackbox
         private bool _roomStateFoldout = true;
         private bool _memberStateFoldout = true;
 
+        private Vector2 _eventsScroll = Vector2.zero;
+
         private void OnEnable()
         {
             _obj = target as Host;
@@ -83,6 +85,7 @@ namespace Hackbox
 
         private void DrawEventGroup()
         {
+            _eventsScroll = EditorGUILayout.BeginScrollView(_eventsScroll, false, true, GUILayout.ExpandWidth(true), GUILayout.Height(300));
             DrawSimpleProperty(nameof(Host.OnRoomCreated));
             DrawSimpleProperty(nameof(Host.OnRoomConnected));
             DrawSimpleProperty(nameof(Host.OnRoomDisconnected));
@@ -92,6 +95,7 @@ namespace Hackbox
             DrawSimpleProperty(nameof(Host.OnMemberKicked));
             DrawSimpleProperty(nameof(Host.OnMessage));
             DrawSimpleProperty(nameof(Host.OnPingPong));
+            EditorGUILayout.EndScrollView();
         }
 
         private void DrawSettingsGroup()
