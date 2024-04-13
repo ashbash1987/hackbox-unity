@@ -100,6 +100,42 @@ namespace Hackbox.UI
         #endregion
 
         #region Public Methods
+        public static UIComponent Create(string name, Preset preset, string key)
+        {
+            return new UIComponent()
+            {
+                Name = name,
+                Preset = preset,
+                Key = key
+            };
+        }
+
+        public static UIComponent Create(string name, Preset preset)
+        {
+            return new UIComponent()
+            {
+                Name = name,
+                Preset = preset
+            };
+        }
+
+        public static UIComponent Create(Preset preset, string key)
+        {
+            return new UIComponent()
+            {
+                Preset = preset,
+                Key = key
+            };
+        }
+
+        public static UIComponent Create(Preset preset)
+        {
+            return new UIComponent()
+            {
+                Preset = preset
+            };
+        }
+
         public Parameter<ValueT> GetGenericParameter<ValueT>(string parameterName)
         {
             return ParameterList.GetGenericParameter<ValueT>(parameterName);
