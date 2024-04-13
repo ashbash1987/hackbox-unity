@@ -8,5 +8,10 @@ namespace Hackbox
         {
             return $"#{ColorUtility.ToHtmlStringRGB(color)}";
         }
+
+        public static string ToHTMLStringWithAlpha(this Color color)
+        {
+            return $"#{ColorUtility.ToHtmlStringRGBA(color)}";
+        }
     }
 }
