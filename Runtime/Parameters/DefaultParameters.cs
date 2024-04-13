@@ -271,8 +271,8 @@ namespace Hackbox.Parameters
                                 ["gridColumns"] = new IntParameter() { Value = 2 },
                                 ["gridGap"] = new StringParameter() { Value = "10px" },
                                 ["gridRowHeight"] = new StringParameter() { Value = "1fr" },
-                                ["padding"] = new StringParameter() { Value = "0 20px" },
                                 ["margin"] = new StringParameter() { Value = "10px 0px" },
+                                ["padding"] = new StringParameter() { Value = "0 20px" },
                                 ["width"] = new StringParameter() { Value = "100%" },
 
                                 ["hover"] = new ParameterListParameter() { Value = new ParameterList() }
@@ -309,8 +309,8 @@ namespace Hackbox.Parameters
                                 ["color"] = new ColorParameter() { Value = Color.black },
                                 ["fontFamily"] = new StringParameter() { Value = "" },
                                 ["fontSize"] = new StringParameter() { Value = "16px" },
-                                ["padding"] = new StringParameter() { Value = "10px" },
                                 ["margin"] = new StringParameter() { Value = "10px 0" },
+                                ["padding"] = new StringParameter() { Value = "10px" },
                                 ["width"] = new StringParameter() { Value = "100%" }
                             };
                         }
