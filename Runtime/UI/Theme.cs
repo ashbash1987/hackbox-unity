@@ -34,8 +34,44 @@ namespace Hackbox.UI
         [Header("Fonts")]
         public List<string> Fonts = new List<string>();
 
+        public Color? HeaderBackgroundColor
+        {
+            get
+            {
+                if (ColorUtility.TryParseHtmlString(HeaderBackground, out Color color))
+                {
+                    return color;
+                }
+                return null;
+            }
+            set => HeaderBackground = value?.ToHTMLStringWithAlpha();
+        }
+
+        public Color? MainBackgroundColor
+        {
+            get
+            {
+                if (ColorUtility.TryParseHtmlString(MainBackground, out Color color))
+                {
+                    return color;
+                }
+                return null;
+            }
+            set => MainBackground = value?.ToHTMLStringWithAlpha();
+        }
+
         private JObject _obj = new JObject();
 
+        #region Public Methods
+        public static Theme Create(string name)
+        {
+            Theme theme = ScriptableObject.CreateInstance<Theme>();
+            theme.name = name;
+            return theme;
+        }
+        #endregion
+
+        #region Internal Methods
         internal JObject GenerateJSON(int version)
         {
             JObject header = new JObject();
@@ -70,5 +106,6 @@ namespace Hackbox.UI
 
             return _obj;
         }
+        #endregion
     }
 }
