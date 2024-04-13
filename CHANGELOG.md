@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.9.1] - 2024-04-13
+
+### Added
+- Add `Create` methods to Theme, Preset, UIComponent, and State to avoid having to use ScriptableObject.CreateInstance<T>() each time. (The `State.Create()` isn't strictly needed as it doesn't derive from ScriptableObject, but it's implemented to maintain a consistent creation method naming scheme.)
+- Add `HeaderBackgroundColor` and `MainBackgroundColor` properties to Theme to make it easier to set the backgrounds to solid colors.
+- Add `HeaderText`, `HeaderColor` and `HeaderBackground` properties to State to make it easier to initialise/set those parameters. `GetHeaderText()` and `SetHeaderText()` methods will remain to maintain backwards compatibility.
+
+### Changed
+- Compressed the event foldout in the Host inspector into a scrollview.
+
 ## [v0.9.0] - 2024-04-10
 
 ### Added
