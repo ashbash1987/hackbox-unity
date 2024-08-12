@@ -95,7 +95,11 @@ namespace Hackbox.Parameters
                             return new Dictionary<string, Parameter>()
                             {
                                 ["event"] = new StringParameter() { Value = "text" },
-                                ["persistent"] = new BoolParameter() { Value = false }
+                                ["persistent"] = new BoolParameter() { Value = false },
+                                ["type"] = new StringParameter() { Value = "text" },
+                                ["max"] = new IntParameter() { Value = 100 },
+                                ["min"] = new IntParameter() { Value = 0 },
+                                ["step"] = new IntParameter() { Value = 1 }
                             };
                         }
                         return null;
