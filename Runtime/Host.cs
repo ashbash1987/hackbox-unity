@@ -42,10 +42,13 @@ namespace Hackbox
         public MemberEvent OnMemberKicked = new MemberEvent();
         [Tooltip("Called when a member sends a message in the room.")]
         public MessageEvent OnMessage = new MessageEvent();
+        [Tooltip("Called when a member sends a value change in the room.")]
+        public MessageEvent OnValueChange = new MessageEvent();
         [Tooltip("Called when a ping/pong event occurs for this host.")]
         public UnityEvent OnPingPong = new UnityEvent();
 
         public readonly MessageEventCollection MessageEvents = new MessageEventCollection();
+        public readonly MessageEventCollection ValueChangeEvents = new MessageEventCollection();
         #endregion
 
         #region Public Fields
@@ -104,6 +107,7 @@ namespace Hackbox
         private readonly ConcurrentDictionary<string, Member> Members = new ConcurrentDictionary<string, Member>();
         private readonly ConcurrentQueue<Action> ThreadSafeActions = new ConcurrentQueue<Action>();
         private ISocketIO _socket = null;
+        private bool _socketManuallyClosing = false;
         #endregion
 
         #region Unity Events
@@ -138,12 +142,19 @@ namespace Hackbox
 
         protected virtual void Update()
         {
-            while (!ThreadSafeActions.IsEmpty)
+            try
             {
-                if (ThreadSafeActions.TryDequeue(out Action action))
+                while (!ThreadSafeActions.IsEmpty)
                 {
-                    action?.Invoke();
+                    if (ThreadSafeActions.TryDequeue(out Action action))
+                    {
+                        action?.Invoke();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
             }
         }
 
@@ -211,28 +222,49 @@ namespace Hackbox
 
         public void UpdateMemberState(Member member, State state)
         {
-            member.State = state;
-            SendMemberUpdate(new JValue(member.UserID), state.GenerateJSON(HostVersion));
+            try
+            {
+                member.State = state;
+                SendMemberUpdate(new JValue(member.UserID), state.GenerateJSON(HostVersion));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
 
         public void UpdateMemberStates(IEnumerable<Member> members, State state)
         {
-            foreach (Member member in members)
+            try
             {
-                member.State = state;
-            }
+                foreach (Member member in members)
+                {
+                    member.State = state;
+                }
 
-            SendMemberUpdate(new JArray(members.Select(x => x.UserID).ToArray()), state.GenerateJSON(HostVersion));
+                SendMemberUpdate(new JArray(members.Select(x => x.UserID).ToArray()), state.GenerateJSON(HostVersion));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
  
         public void UpdateAllMemberStates(State state)
         {
-            foreach (Member member in AllMembers)
+            try
             {
-                member.State = state;
-            }
+                foreach (Member member in AllMembers)
+                {
+                    member.State = state;
+                }
 
-            SendMemberUpdate(new JArray(AllMembers.Select(x => x.UserID).ToArray()), state.GenerateJSON(HostVersion));
+                SendMemberUpdate(new JArray(AllMembers.Select(x => x.UserID).ToArray()), state.GenerateJSON(HostVersion));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
         #endregion
 
@@ -301,13 +333,20 @@ namespace Hackbox
         private void Save()
         {
 #if UNITY_EDITOR || UNITY_STANDALONE
-            JObject jData = JObject.FromObject(new
+            try
             {
-                roomCode = RoomCode,
-                userID = UserID
-            });
+                JObject jData = JObject.FromObject(new
+                {
+                    roomCode = RoomCode,
+                    userID = UserID
+                });
 
-            File.WriteAllText(TemporaryFilePath, jData.ToString());
+                File.WriteAllText(TemporaryFilePath, jData.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
 #endif
         }
 
@@ -449,12 +488,20 @@ namespace Hackbox
                 ["roomCode"] = RoomCode
             };
 
+            _socketManuallyClosing = false;            
+
 #if UNITY_EDITOR || UNITY_STANDALONE
             _socket = new StandaloneSocketIO(SocketURL, 4, queryParameters);
 #elif UNITY_WEBGL
             _socket = new WebGLSocketIO(SocketURL, 4, queryParameters);
 #endif
+            ListenForEvents();
 
+            await _socket.Connect();
+        }
+
+        private void ListenForEvents()
+        {
             _socket.OnConnected += OnConnected;
             _socket.OnError += OnError;
             _socket.OnDisconnected += OnDisconnected;
@@ -463,20 +510,44 @@ namespace Hackbox
             _socket.OnReconnectFailed += OnReconnectFailed;
             _socket.OnPing += OnPing;
             _socket.OnPong += OnPong;
+        }
 
-            await _socket.Connect();
+        private void UnlistenForEvents()
+        {
+            _socket.OnConnected -= OnConnected;
+            _socket.OnError -= OnError;
+            _socket.OnDisconnected -= OnDisconnected;
+            _socket.OnReconnectAttempt -= OnReconnectAttempt;
+            _socket.OnReconnected -= OnReconnected;
+            _socket.OnReconnectFailed -= OnReconnectFailed;
+            _socket.OnPing -= OnPing;
+            _socket.OnPong -= OnPong;
         }
 
         private void OnConnected()
         {
-            Log($"Connected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i>.");
-            DoUnityAction(() =>
+            try
             {
-                OnRoomConnected.Invoke(RoomCode);
-            });
+                if (_socket == null)
+                {
+                    LogError("Get OnConnected event, but socket has not been initialised!");
+                    return;
+                }
 
-            _socket.On("state.host", OnHostStateUpdate);
-            _socket.On("msg", OnMemberMessage);
+                Log($"Connected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i>.");
+                DoUnityAction(() =>
+                {
+                    OnRoomConnected.Invoke(RoomCode);
+                });
+
+                _socket.On("state.host", OnHostStateUpdate);
+                _socket.On("msg", OnMemberMessage);
+                _socket.On("change", OnMemberValueChange);
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
         }
 
         private void OnError(string error)
@@ -490,6 +561,11 @@ namespace Hackbox
             DoUnityAction(() =>
             {
                 OnRoomDisconnected.Invoke(RoomCode);
+
+                if (!_socketManuallyClosing)
+                {
+                    Connect();
+                }
             });
         }
 
@@ -544,10 +620,12 @@ namespace Hackbox
         private async Task EndSocket()
         {
             Log($"Closing socket connection to {AppName}...");
+            _socketManuallyClosing = true;
 
             if (_socket != null)
             {
                 await _socket.Disconnect();
+                UnlistenForEvents();
                 _socket = null;
             }
 
@@ -584,65 +662,114 @@ namespace Hackbox
 
         private void OnHostStateUpdate(JObject msgObject)
         {
-            HashSet<Member> oldMembers = new HashSet<Member>(Members.Values);
-
-            JObject membersObject = (JObject)msgObject["members"];
-            foreach (JProperty memberProperty in membersObject.Properties())
+            try
             {
-                JObject memberData = (JObject)memberProperty.Value;
-                string userID = memberProperty.Name;
-                if (Members.TryGetValue(userID, out Member member))
-                {
-                    member.Update(memberData);
-                    oldMembers.Remove(member);
-                }
-                else
-                {
-                    Member newMember = new Member(memberData);
-                    Members[newMember.UserID] = newMember;
+                HashSet<Member> oldMembers = new HashSet<Member>(Members.Values);
 
-                    Log($"Member <b>{newMember.Name}</b> <i>{newMember.UserID}</i> connected to room <b>{RoomCode}</b>.");
-                    DoUnityAction(() => OnMemberJoined.Invoke(newMember));
+                JObject membersObject = (JObject)msgObject["members"];
+                foreach (JProperty memberProperty in membersObject.Properties())
+                {
+                    JObject memberData = (JObject)memberProperty.Value;
+                    string userID = memberProperty.Name;
+                    if (Members.TryGetValue(userID, out Member member))
+                    {
+                        member.Update(memberData);
+                        oldMembers.Remove(member);
+                    }
+                    else
+                    {
+                        Member newMember = new Member(memberData);
+                        Members[newMember.UserID] = newMember;
+
+                        Log($"Member <b>{newMember.Name}</b> <i>{newMember.UserID}</i> connected to room <b>{RoomCode}</b>.");
+                        DoUnityAction(() => OnMemberJoined.Invoke(newMember));
+                    }
+                }
+
+                foreach (Member oldMember in oldMembers)
+                {
+                    Log($"<b>{oldMember.Name}</b> has been kicked from room <b>{RoomCode}</b>.");
+                    if (Members.TryRemove(oldMember.UserID, out _))
+                    {
+                        DoUnityAction(() => OnMemberKicked.Invoke(oldMember));
+                    }
                 }
             }
-
-            foreach (Member oldMember in oldMembers)
+            catch (Exception ex)
             {
-                Log($"<b>{oldMember.Name}</b> has been kicked from room <b>{RoomCode}</b>.");
-                if (Members.TryRemove(oldMember.UserID, out _))
-                {
-                    DoUnityAction(() => OnMemberKicked.Invoke(oldMember));
-                }
+                LogException(ex);
             }
         }
 
         private void OnMemberMessage(JObject msgObject)
         {
-            VerboseLog($"Receiving...\n{msgObject.ToString(Formatting.None)}");
-
-            string from = (string)msgObject["from"];
-            if (!Members.TryGetValue(from, out Member fromMember))
+            try
             {
-                LogError($"Received a message from member <i>{from}</i> but there is no known associated Member object!");
-                return;
-            }
+                VerboseLog($"Receiving...\n{msgObject.ToString(Formatting.None)}");
 
-            string id = (string)msgObject["id"];
-            long timestamp = (long)msgObject["timestamp"];
-
-            Message message = new Message(fromMember, id, DateTimeOffset.FromUnixTimeMilliseconds(timestamp), (JObject)msgObject["message"]);
-            Log($"<i>{fromMember.Name}</i> {message}");
-            DoUnityAction(() =>
-            {
-                OnMessage.Invoke(message);
-                fromMember.OnMessage.Invoke(message);
-                if (!string.IsNullOrEmpty(message.Event))
+                string from = (string)msgObject["from"];
+                if (!Members.TryGetValue(from, out Member fromMember))
                 {
-                    MessageEvents.Invoke(message.Event, message);
-                    fromMember.MessageEvents.Invoke(message.Event, message);
+                    LogError($"Received a message from member <i>{from}</i> but there is no known associated Member object!");
+                    return;
                 }
-            });
+
+                string id = (string)msgObject["id"];
+                long timestamp = (long)msgObject["timestamp"];
+
+                Message message = new Message(fromMember, id, DateTimeOffset.FromUnixTimeMilliseconds(timestamp), (JObject)msgObject["message"]);
+                Log($"<i>{fromMember.Name}</i> {message}");
+                DoUnityAction(() =>
+                {
+                    OnMessage.Invoke(message);
+                    fromMember.OnMessage.Invoke(message);
+                    if (!string.IsNullOrEmpty(message.Event))
+                    {
+                        MessageEvents.Invoke(message.Event, message);
+                        fromMember.MessageEvents.Invoke(message.Event, message);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
         }
-#endregion
+
+        private void OnMemberValueChange(JObject msgObject)
+        {
+            try
+            {
+                VerboseLog($"Receiving...\n{msgObject.ToString(Formatting.None)}");
+
+                string from = (string)msgObject["from"];
+                if (!Members.TryGetValue(from, out Member fromMember))
+                {
+                    LogError($"Received a value change from member <i>{from}</i> but there is no known associated Member object!");
+                    return;
+                }
+
+                string id = (string)msgObject["id"];
+                long timestamp = (long)msgObject["timestamp"];
+
+                Message message = new Message(fromMember, id, DateTimeOffset.FromUnixTimeMilliseconds(timestamp), (JObject)msgObject["message"]);
+                Log($"<i>{fromMember.Name}</i> {message}");
+                DoUnityAction(() =>
+                {
+                    OnValueChange.Invoke(message);
+                    fromMember.OnValueChange.Invoke(message);
+                    if (!string.IsNullOrEmpty(message.Event))
+                    {
+                        ValueChangeEvents.Invoke(message.Event, message);
+                        fromMember.ValueChangeEvents.Invoke(message.Event, message);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
+        }
+        #endregion
     }
 }

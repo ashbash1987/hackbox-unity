@@ -108,8 +108,10 @@ namespace Hackbox
         }
 
         public MessageEvent OnMessage = new MessageEvent();
+        public MessageEvent OnValueChange = new MessageEvent();
 
         public readonly MessageEventCollection MessageEvents = new MessageEventCollection();
+        public readonly MessageEventCollection ValueChangeEvents = new MessageEventCollection();
 
         public string UserID
         {
