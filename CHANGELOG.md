@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.10.0] - 2024-08-12
+
+### Added
+- Add handling of `change` member events (they occur as the user makes changes to a component, debounced by some interval). Use `OnValueChange` or `ValueChangeEvents` to listen for these value change events.
+
+### Changed
+- Updated the parameter defaults for TextInput preset to allow specifying a `type` of `number` for constricting to numeric input only (and also allow `min`/`max`/`step` parameters).
+- More exception handling code in place to more reliably catch unexpected behaviour should it happen.
+
 ## [v0.9.1] - 2024-04-13
 
 ### Added
