@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.11.0] - 2024-08-27
+
+### Added
+- Add `ConnectExisting` to Host to allow connecting to an existing room on Hackbox with a given room code and host user ID.
+
 ## [v0.10.0] - 2024-08-12
 
 ### Added
