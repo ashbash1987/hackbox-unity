@@ -201,6 +201,33 @@ namespace Hackbox
             StartCoroutine(Sequence());
         }
 
+        public void ConnectExisting(string roomCode, string userID)
+        {
+            if (string.IsNullOrEmpty(roomCode) || string.IsNullOrEmpty(userID))
+            {
+                Connect();
+                return;
+            }
+
+            IEnumerator Sequence()
+            {
+                RoomCode = roomCode;
+                UserID = userID;
+
+                yield return CheckRoomExists();
+
+                if (string.IsNullOrEmpty(RoomCode))
+                {
+                    yield break;
+                }
+
+                Save();
+                _ = RestartSocket();
+            }
+
+            StartCoroutine(Sequence());
+        }
+
         public void Disconnect()
         {
             _ = EndSocket();
