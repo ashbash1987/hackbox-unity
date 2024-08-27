@@ -182,10 +182,6 @@ namespace Hackbox
                     if (!string.IsNullOrEmpty(RoomCode))
                     {
                         yield return CheckRoomExists();
-                        if (!string.IsNullOrEmpty(RoomCode))
-                        {
-                            yield return CheckRoomOwnership();
-                        }
                     }
                 }
 
@@ -385,47 +381,6 @@ namespace Hackbox
                 else
                 {
                     LogError($"Room <b>{RoomCode}</b> does not exist. Resetting stored room code and host user ID.");
-                    RoomCode = null;
-                    UserID = Guid.NewGuid().ToString();
-                }
-            }
-        }
-
-        private IEnumerator CheckRoomOwnership()
-        {
-            Log($"Checking room <b>{RoomCode}</b> is owned by host <i>{UserID}</i> at {AppName}...");
-            using (UnityWebRequest request = UnityWebRequest.Get($"{RoomsURL}{RoomCode}/auth-host/{UserID}"))
-            {
-                request.SetRequestHeader("Content-Type", "application/json");
-                yield return request.SendWebRequest();
-
-#if UNITY_2020_1_OR_NEWER
-                switch (request.result)
-                {
-                    case UnityWebRequest.Result.Success:
-                        break;
-
-                    default:
-                        LogError($"Failed to check a room: {request.error}");
-                        yield break;
-                }
-#else
-                if (request.isHttpError || request.isNetworkError)
-                {
-                    LogError($"Failed to check a room: {request.error}");
-                    yield break;
-                }
-#endif
-
-                JObject response = JObject.Parse(request.downloadHandler.text);
-                bool authed = response["authed"].Value<bool>();
-                if (authed)
-                {
-                    Log($"Room <b>{RoomCode}</b> is owned by <i>{UserID}</i>.");
-                }
-                else
-                {
-                    LogError($"Room <b>{RoomCode}</b> is not owned by <i>{UserID}</i>. Resetting stored room code and host user ID.");
                     RoomCode = null;
                     UserID = Guid.NewGuid().ToString();
                 }
