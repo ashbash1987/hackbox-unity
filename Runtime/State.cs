@@ -93,6 +93,18 @@ namespace Hackbox
             set => SetHeaderParameter("background", value);
         }
 
+        public string MainAlignment
+        {
+            get => GetMainParameterValue<string>("align");
+            set => SetMainParameter("align", value);
+        }
+
+        public string MainBackground
+        {
+            get => GetMainParameterValue<string>("background");
+            set => SetMainParameter("background", value);
+        }
+
         private JObject _obj = new JObject();
 
         #region IEnumerable Interface & Collection Initialiser Implementation
@@ -161,6 +173,26 @@ namespace Hackbox
         public void SetHeaderText(string text)
         {
             HeaderText = text;
+        }
+
+        public Parameter<ValueT> GetGenericMainParameter<ValueT>(string parameterName)
+        {
+            return MainParameterList.GetGenericParameter<ValueT>(parameterName);
+        }
+
+        public ParamT GetMainParameter<ParamT>(string parameterName) where ParamT : Parameter, new()
+        {
+            return MainParameterList.GetParameter<ParamT>(parameterName);
+        }
+
+        public ValueT GetMainParameterValue<ValueT>(string parameterName)
+        {
+            return GetGenericMainParameter<ValueT>(parameterName).Value;
+        }
+
+        public void SetMainParameter<ValueT>(string parameterName, ValueT value)
+        {
+            MainParameterList.SetParameterValue<ValueT>(parameterName, value);
         }
 
         public UIComponent GetComponent(int componentIndex)
