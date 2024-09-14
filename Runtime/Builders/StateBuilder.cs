@@ -212,6 +212,11 @@ namespace Hackbox.Builders
             return AddChoicesComponent(newComponent, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
         }
 
+        public StateBuilder AddChoicesComponent(Preset preset, string eventName, string[] choiceLabels, string[] choiceValues, string name = null, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
+        {
+            return AddChoicesComponent(preset, eventName, choiceLabels.Zip(choiceValues, (label, value) => (label, value)).ToArray(), name, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
+        }
+
         public StateBuilder AddChoicesComponent(Preset preset, string eventName, (string label, string value, string[] keys)[] choices, string name = null, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
         {
             Debug.Assert(preset.Type == Preset.PresetType.Choices);
@@ -223,6 +228,11 @@ namespace Hackbox.Builders
             };
 
             return AddChoicesComponent(newComponent, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
+        }
+
+        public StateBuilder AddChoicesComponent(Preset preset, string eventName, string[] choiceLabels, string[] choiceValues, string[][] choiceKeys, string name = null, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
+        {
+            return AddChoicesComponent(preset, eventName, choiceLabels.Zip(choiceValues, (label, value) => (label, value)).Zip(choiceKeys, (labelValue, keys) => (labelValue.label, labelValue.value, keys)).ToArray(), name, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
         }
 
         public StateBuilder AddRangeComponent(Preset preset, int min, int max, int step, string name = null, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)

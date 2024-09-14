@@ -48,12 +48,22 @@ namespace Hackbox.Builders
             return SetChoices(multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
         }
 
+        public PresetBuilder SetChoices(string[] choiceLabels, string[] choiceValues, bool multiSelect = false, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
+        {
+            return SetChoices(choiceLabels.Zip(choiceValues, (label, value) => (label, value)).ToArray(), multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
+        }
+
         public PresetBuilder SetChoices((string label, string value, string[] keys)[] choices, bool multiSelect = false, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
         {
             Debug.Assert(PresetType == Preset.PresetType.Choices);
 
             ParameterListBuilder.SetChoices(choices.Select(x => new ChoicesParameter.Choice() { Label = x.label, Value = x.value, Keys = x.keys }).ToList());
             return SetChoices(multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
+        }
+
+        public PresetBuilder SetChoices(string[] choiceLabels, string[] choiceValues, string[][] choiceKeys, bool multiSelect = false, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
+        {
+            return SetChoices(choiceLabels.Zip(choiceValues, (label, value) => (label, value)).Zip(choiceKeys, (labelValue, keys) => (labelValue.label, labelValue.value, keys)).ToArray(), multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
         }
 
         public PresetBuilder SetEvent(string eventName)
