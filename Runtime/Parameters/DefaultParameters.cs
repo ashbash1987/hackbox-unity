@@ -25,7 +25,6 @@ namespace Hackbox.Parameters
             ["align"] = new ParameterInfoEntry(new StringParameter() { Name = "align", Value = "start" }, "The alignment relative to others."),
             ["background"] = new ParameterInfoEntry(new StringParameter() { Name = "background", Value = "black" }, "The background (e.g. color, image)."),
             ["border"] = new ParameterInfoEntry(new StringParameter() { Name = "border", Value = "2px solid black" }, "The border."),
-            ["borderColor"] = new ParameterInfoEntry(new ColorParameter() { Name = "borderColor", Value = Color.black }, "The color of the border."),
             ["borderRadius"] = new ParameterInfoEntry(new StringParameter() { Name = "borderRadius", Value = "10px" }, "The radius of the border."),
             ["choices"] = new ParameterInfoEntry(new ChoicesParameter() { Name = "choices", Value = new List<ChoicesParameter.Choice>() }, "The choices for a choice component."),
             ["color"] = new ParameterInfoEntry(new ColorParameter() { Name = "color", Value = Color.black }, "The main/text color."),
@@ -50,8 +49,12 @@ namespace Hackbox.Parameters
             ["step"] = new ParameterInfoEntry(new IntParameter() { Name = "step", Value = 1 }, "The step increment."),
             ["submit"] = new ParameterInfoEntry(new ParameterListParameter() { Name = "submit", Value = new ParameterList() }, "Defines the submit button."),
             ["text"] = new ParameterInfoEntry(new StringParameter() { Name = "text", Value = "Text" }, "The text that appears on the element."),
+            ["type"] = new ParameterInfoEntry(new StringParameter() { Name = "type", Value = "text" }, "The type of the input."),
             ["value"] = new ParameterInfoEntry(new StringParameter() { Name = "value", Value = "value" }, "The value of the element returned in events."),
             ["width"] = new ParameterInfoEntry(new StringParameter() { Name = "width", Value = "100%" }, "The width."),
+
+            //Deprecated
+            ["borderColor"] = new ParameterInfoEntry(new ColorParameter() { Name = "borderColor", Value = Color.black }, "The color of the border."),
         };
 
         public static readonly Dictionary<string, Parameter> AllParameterLookup = AllParameterInfo.Select(x => x.Value.Parameter).ToDictionary(x => x.Name);
