@@ -68,12 +68,16 @@ namespace Hackbox.Builders
 
         public PresetBuilder SetMinimum(int minimumValue)
         {
+            Debug.Assert(PresetType == Preset.PresetType.Range);
+
             ParameterListBuilder.SetMinimum(minimumValue);
             return this;
         }
 
         public PresetBuilder SetMaximum(int maximumValue)
         {
+            Debug.Assert(PresetType == Preset.PresetType.Range);
+
             ParameterListBuilder.SetMaximum(maximumValue);
             return this;
         }
@@ -99,7 +103,7 @@ namespace Hackbox.Builders
             Debug.Assert(PresetType == Preset.PresetType.Range);
 
             ParameterListBuilder.SetRange(minimumValue, maximumValue);
-            return SetMaximum(maximumValue);
+            return this;
         }
 
         public PresetBuilder SetStep(int step)
