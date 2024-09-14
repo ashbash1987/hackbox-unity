@@ -10,6 +10,8 @@ namespace Hackbox.Builders
         public PresetBuilder(string name, Preset.PresetType presetType)
         {
             Preset = Preset.Create(name, presetType);
+            Preset.ParameterList = ParameterListBuilder;
+            Preset.StyleParameterList = StyleParameterListBuilder;
         }
 
         public Preset Preset
@@ -291,9 +293,6 @@ namespace Hackbox.Builders
 
         public static implicit operator Preset(PresetBuilder builder)
         {
-            builder.Preset.ParameterList = builder.ParameterListBuilder;
-            builder.Preset.StyleParameterList = builder.StyleParameterListBuilder;
-
             return builder.Preset;
         }
         #endregion

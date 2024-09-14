@@ -31,6 +31,8 @@ namespace Hackbox
 
         public static string Image(string altText, string link) => $"![{altText}]({link})";
 
+        public static string Multiline(params string[] lines) => string.Join(LineBreak, lines);
+
         public static string Table(string[] headers, string[,] data)
         {
             StringBuilder sb = new StringBuilder();
