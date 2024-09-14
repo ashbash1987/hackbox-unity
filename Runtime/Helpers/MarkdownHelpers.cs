@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Hackbox
 {
-    public static class MarkdownHelpers
+    public static class Markdown
     {
         public static string H1(string text) => $"# {text}\n";
 
