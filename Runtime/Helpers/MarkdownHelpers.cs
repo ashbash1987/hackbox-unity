@@ -6,7 +6,7 @@ namespace Hackbox
     /// <summary>
     /// Helper class for generating Markdown formatted strings.
     /// </summary>
-    public static class Markdown
+    public static class MarkdownHelpers
     {
         /// <summary>
         /// Generates a Markdown H1 header.
