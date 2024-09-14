@@ -1,3 +1,5 @@
+using System.Linq;
+using Hackbox.Parameters;
 using Hackbox.UI;
 using UnityEngine;
 
@@ -8,8 +10,6 @@ namespace Hackbox.Builders
         public PresetBuilder(string name, Preset.PresetType presetType)
         {
             Preset = Preset.Create(name, presetType);
-            Preset.ParameterList = ParameterListBuilder;
-            Preset.StyleParameterList = StyleParameterListBuilder;
         }
 
         public Preset Preset
@@ -17,6 +17,8 @@ namespace Hackbox.Builders
             get;
             private set;
         }
+
+        private Preset.PresetType PresetType => Preset.Type;
 
         private readonly ParameterListBuilder ParameterListBuilder = new ParameterListBuilder();
         private readonly StyleParameterListBuilder StyleParameterListBuilder = new StyleParameterListBuilder();
@@ -28,39 +30,111 @@ namespace Hackbox.Builders
         }
 
         #region Parameters
-        public PresetBuilder SetEvent(string eventName = "event")
+        public PresetBuilder SetChoices(string[] choices, bool multiSelect = false, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
+        {
+            Debug.Assert(PresetType == Preset.PresetType.Choices);
+
+            ParameterListBuilder.SetChoices(choices.Select(x => new ChoicesParameter.Choice() { Label = x, Value = x }).ToList());
+            return SetChoices(multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
+        }
+
+        public PresetBuilder SetChoices((string label, string value)[] choices, bool multiSelect = false, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
+        {
+            Debug.Assert(PresetType == Preset.PresetType.Choices);
+
+            ParameterListBuilder.SetChoices(choices.Select(x => new ChoicesParameter.Choice() { Label = x.label, Value = x.value }).ToList());
+            return SetChoices(multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
+        }
+
+        public PresetBuilder SetChoices((string label, string value, string[] keys)[] choices, bool multiSelect = false, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
+        {
+            Debug.Assert(PresetType == Preset.PresetType.Choices);
+
+            ParameterListBuilder.SetChoices(choices.Select(x => new ChoicesParameter.Choice() { Label = x.label, Value = x.value, Keys = x.keys }).ToList());
+            return SetChoices(multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
+        }
+
+        public PresetBuilder SetEvent(string eventName)
         {
             ParameterListBuilder.SetEvent(eventName);
             return this;
         }
 
-        public PresetBuilder SetKey(string key = "key")
-        {
-            ParameterListBuilder.SetKey(key);
-            return this;
-        }
-
-        public PresetBuilder SetLabel(string label = "Sample text")
+        public PresetBuilder SetLabel(string label)
         {
             ParameterListBuilder.SetLabel(label);
             return this;
         }
 
-        public PresetBuilder SetPersistent(bool persistent = false)
+        public PresetBuilder SetMinimum(int minimumValue)
         {
+            ParameterListBuilder.SetMinimum(minimumValue);
+            return this;
+        }
+
+        public PresetBuilder SetMaximum(int maximumValue)
+        {
+            ParameterListBuilder.SetMaximum(maximumValue);
+            return this;
+        }
+
+        public PresetBuilder SetMultiSelect(bool multiSelect)
+        {
+            Debug.Assert(PresetType == Preset.PresetType.Choices);
+
+            ParameterListBuilder.SetMultiSelect(multiSelect);
+            return this;
+        }
+
+        public PresetBuilder SetPersistent(bool persistent)
+        {
+            Debug.Assert(PresetType == Preset.PresetType.TextInput);
+
             ParameterListBuilder.SetPersistent(persistent);
             return this;
         }
 
-        public PresetBuilder SetText(string text = "Sample text")
+        public PresetBuilder SetRange(int minimumValue, int maximumValue)
+        {
+            Debug.Assert(PresetType == Preset.PresetType.Range);
+
+            ParameterListBuilder.SetRange(minimumValue, maximumValue);
+            return SetMaximum(maximumValue);
+        }
+
+        public PresetBuilder SetStep(int step)
+        {
+            Debug.Assert(PresetType == Preset.PresetType.Range);
+
+            ParameterListBuilder.SetStep(step);
+            return this;
+        }
+
+        public PresetBuilder SetSubmit(ParameterList parameterList)
+        {
+            Debug.Assert(PresetType == Preset.PresetType.Choices);
+
+            ParameterListBuilder.SetSubmit(parameterList);
+            return this;
+        }
+
+        public PresetBuilder SetText(string text)
         {
             ParameterListBuilder.SetText(text);
+            return this;
+        }
+
+        public PresetBuilder SetType(string type)
+        {
+            Debug.Assert(PresetType == Preset.PresetType.TextInput);
+
+            ParameterListBuilder.SetType(type);
             return this;
         }
         #endregion
 
         #region Style Parameters
-        public PresetBuilder SetAlignment(string alignment = "start")
+        public PresetBuilder SetAlignment(string alignment)
         {
             StyleParameterListBuilder.SetAlignment(alignment);
             return this;
@@ -90,7 +164,7 @@ namespace Hackbox.Builders
             return this;
         }
 
-        public PresetBuilder SetBorder(string border = "2px solid black")
+        public PresetBuilder SetBorder(string border)
         {
             StyleParameterListBuilder.SetBorder(border);
             return this;
@@ -102,13 +176,13 @@ namespace Hackbox.Builders
             return this;
         }
 
-        public PresetBuilder SetBorderRadius(string borderRadius = "10px")
+        public PresetBuilder SetBorderRadius(string borderRadius)
         {
             StyleParameterListBuilder.SetBorderRadius(borderRadius);
             return this;
         }
 
-        public PresetBuilder SetBorderRadius(float radius = 10.0f, string dimensionUnit = "px")
+        public PresetBuilder SetBorderRadius(float radius, string dimensionUnit = "px")
         {
             StyleParameterListBuilder.SetBorderRadius(radius, dimensionUnit);
             return this;
@@ -126,43 +200,55 @@ namespace Hackbox.Builders
             return this;
         }
 
-        public PresetBuilder SetFontSize(string fontSize = "20px")
+        public PresetBuilder SetFontSize(string fontSize)
         {
             StyleParameterListBuilder.SetFontSize(fontSize);
             return this;
         }
 
-        public PresetBuilder SetFontSize(float size = 20.0f, string dimensionUnit = "px")
+        public PresetBuilder SetFontSize(float size, string dimensionUnit = "px")
         {
             StyleParameterListBuilder.SetFontSize(size, dimensionUnit);
             return this;
         }
 
-        public PresetBuilder SetGrid(bool grid = false, int gridColumns = 1, string gridGap = "10px", string gridRowHeight = "1fr")
+        public PresetBuilder SetGrid(bool grid, int gridColumns = 1, string gridGap = "10px", string gridRowHeight = "1fr")
         {
+            Debug.Assert(PresetType == Preset.PresetType.Choices);
+
             StyleParameterListBuilder.SetGrid(grid, gridColumns, gridGap, gridRowHeight);
             return this;
         }
 
-        public PresetBuilder SetGrid(bool grid = false, int gridColumns = 1, float gridGap = 10.0f, string gridGapDimensionUnit = "px", float gridRowHeight = 1.0f, string gridRowHeightDimensionUnit = "fr")
+        public PresetBuilder SetGrid(bool grid, int gridColumns = 1, float gridGap = 10.0f, string gridGapDimensionUnit = "px", float gridRowHeight = 1.0f, string gridRowHeightDimensionUnit = "fr")
         {
+            Debug.Assert(PresetType == Preset.PresetType.Choices);
+
             StyleParameterListBuilder.SetGrid(grid, gridColumns, gridGap, gridGapDimensionUnit, gridRowHeight, gridRowHeightDimensionUnit);
             return this;
         }
 
-        public PresetBuilder SetHeight(string height = "100px")
+        public PresetBuilder SetHeight(string height)
         {
             StyleParameterListBuilder.SetHeight(height);
             return this;
         }
 
-        public PresetBuilder SetHeight(float height = 100.0f, string dimensionUnit = "px")
+        public PresetBuilder SetHeight(float height, string dimensionUnit = "px")
         {
             StyleParameterListBuilder.SetHeight(height, dimensionUnit);
             return this;
         }
 
-        public PresetBuilder SetMargin(string margin = "10px 0px")
+        public PresetBuilder SetHover(ParameterList parameterList)
+        {
+            Debug.Assert(PresetType == Preset.PresetType.Choices);
+
+            StyleParameterListBuilder.SetHover(parameterList);
+            return this;
+        }
+
+        public PresetBuilder SetMargin(string margin)
         {
             StyleParameterListBuilder.SetMargin(margin);
             return this;
@@ -174,7 +260,7 @@ namespace Hackbox.Builders
             return this;
         }
 
-        public PresetBuilder SetPadding(string padding = "0px 10px")
+        public PresetBuilder SetPadding(string padding)
         {
             StyleParameterListBuilder.SetPadding(padding);
             return this;
@@ -186,20 +272,48 @@ namespace Hackbox.Builders
             return this;
         }
 
-        public PresetBuilder SetWidth(string width = "100%")
+        public PresetBuilder SetWidth(string width)
         {
             StyleParameterListBuilder.SetWidth(width);
             return this;
         }
 
-        public PresetBuilder SetWidth(float width = 100.0f, string dimensionUnit = "%")
+        public PresetBuilder SetWidth(float width, string dimensionUnit = "%")
         {
             StyleParameterListBuilder.SetWidth(width, dimensionUnit);
             return this;
         }
         #endregion
 
-        public static implicit operator Preset(PresetBuilder builder) => builder.Preset;
+        public static implicit operator Preset(PresetBuilder builder)
+        {
+            builder.Preset.ParameterList = builder.ParameterListBuilder;
+            builder.Preset.StyleParameterList = builder.StyleParameterListBuilder;
+
+            return builder.Preset;
+        }
+        #endregion
+
+        #region Private Methods
+        private PresetBuilder SetChoices(bool multiSelect, string submitLabel, ParameterList hoverStyleParameterList, ParameterList submitStyleParameterList)
+        {
+            if (multiSelect)
+            {
+                ParameterListBuilder.SetMultiSelect(multiSelect);
+
+                if (!string.IsNullOrEmpty(submitLabel) || submitStyleParameterList != null)
+                {
+                    ParameterListBuilder.SetSubmit(ParameterListBuilder.Create().SetLabel(submitLabel).SetStyle(submitStyleParameterList));
+                }
+            }
+
+            if (hoverStyleParameterList != null)
+            {
+                StyleParameterListBuilder.SetHover(hoverStyleParameterList);
+            }
+
+            return this;
+        }
         #endregion
     }
 }

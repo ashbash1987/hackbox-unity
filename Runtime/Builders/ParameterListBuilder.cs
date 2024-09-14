@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Hackbox.Parameters;
 
 namespace Hackbox.Builders
@@ -21,27 +22,57 @@ namespace Hackbox.Builders
             return new ParameterListBuilder();
         }
 
-        public ParameterListBuilder SetEvent(string eventName = "event")
+        public ParameterListBuilder SetChoices(List<ChoicesParameter.Choice> choices)
+        {
+            ParameterList.SetParameterValue("choices", choices);
+            return this;
+        }
+
+        public ParameterListBuilder SetEvent(string eventName)
         {
             ParameterList.SetParameterValue("event", eventName);
             return this;
         }
 
-        public ParameterListBuilder SetKey(string key = "key")
-        {
-            ParameterList.SetParameterValue("key", key);
-            return this;
-        }
-
-        public ParameterListBuilder SetLabel(string label = "Sample text")
+        public ParameterListBuilder SetLabel(string label)
         {
             ParameterList.SetParameterValue("label", label);
             return this;
         }
 
-        public ParameterListBuilder SetPersistent(bool persistent = false)
+        public ParameterListBuilder SetMinimum(int minimumValue)
+        {
+            ParameterList.SetParameterValue("min", minimumValue);
+            return this;
+        }
+
+        public ParameterListBuilder SetMaximum(int maximumValue)
+        {
+            ParameterList.SetParameterValue("max", maximumValue);
+            return this;
+        }
+
+        public ParameterListBuilder SetMultiSelect(bool multiSelect)
+        {
+            ParameterList.SetParameterValue("multiSelect", multiSelect);
+            return this;
+        }
+
+        public ParameterListBuilder SetRange(int minimumValue, int maximumValue)
+        {
+            SetMinimum(minimumValue);
+            return SetMaximum(maximumValue);
+        }
+
+        public ParameterListBuilder SetPersistent(bool persistent)
         {
             ParameterList.SetParameterValue("persistent", persistent);
+            return this;
+        }
+
+        public ParameterListBuilder SetStep(int step)
+        {
+            ParameterList.SetParameterValue("step", step);
             return this;
         }
 
@@ -51,15 +82,21 @@ namespace Hackbox.Builders
             return this;
         }
 
-        public ParameterListBuilder SetText(string text = "Sample text")
+        public ParameterListBuilder SetSubmit(ParameterList parameterList)
+        {
+            ParameterList.SetParameterValue("submit", parameterList);
+            return this;
+        }
+
+        public ParameterListBuilder SetText(string text)
         {
             ParameterList.SetParameterValue("text", text);
             return this;
         }
 
-        public ParameterListBuilder SetSubmit(ParameterList parameterList)
+        public ParameterListBuilder SetType(string type)
         {
-            ParameterList.SetParameterValue("submit", parameterList);
+            ParameterList.SetParameterValue("type", type);
             return this;
         }
 

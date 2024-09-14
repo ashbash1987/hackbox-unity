@@ -23,7 +23,7 @@ namespace Hackbox.Builders
             return new StyleParameterListBuilder();
         }
 
-        public StyleParameterListBuilder SetAlignment(string alignment = "start")
+        public StyleParameterListBuilder SetAlignment(string alignment)
         {
             ParameterList.SetParameterValue("align", alignment);
             return this;
@@ -50,7 +50,7 @@ namespace Hackbox.Builders
             return SetBackground(gradient.ToRadialGradientString(positioning));
         }
 
-        public StyleParameterListBuilder SetBorder(string border = "2px solid black")
+        public StyleParameterListBuilder SetBorder(string border)
         {
             ParameterList.SetParameterValue("border", border);
             return this;
@@ -61,13 +61,14 @@ namespace Hackbox.Builders
             return SetBorder($"{width}{dimensionUnit} {style} {color.ToColorString()}");
         }
 
-        public StyleParameterListBuilder SetBorderRadius(string borderRadius = "10px")
+        public StyleParameterListBuilder SetBorderRadius(string borderRadius)
         {
+            ParameterList.SetParameterValue("radius", borderRadius);
             ParameterList.SetParameterValue("borderRadius", borderRadius);
             return this;
         }
 
-        public StyleParameterListBuilder SetBorderRadius(float radius = 10.0f, string dimensionUnit = "px")
+        public StyleParameterListBuilder SetBorderRadius(float radius, string dimensionUnit = "px")
         {
             return SetBorderRadius($"{radius}{dimensionUnit}");
         }
@@ -84,18 +85,18 @@ namespace Hackbox.Builders
             return this;
         }
 
-        public StyleParameterListBuilder SetFontSize(string fontSize = "20px")
+        public StyleParameterListBuilder SetFontSize(string fontSize)
         {
             ParameterList.SetParameterValue("fontSize", fontSize);
             return this;
         }
 
-        public StyleParameterListBuilder SetFontSize(float size = 20.0f, string dimensionUnit = "px")
+        public StyleParameterListBuilder SetFontSize(float size, string dimensionUnit = "px")
         {
             return SetFontSize($"{size}{dimensionUnit}");
         }
 
-        public StyleParameterListBuilder SetGrid(bool grid = false, int gridColumns = 1, string gridGap = "10px", string gridRowHeight = "1fr")
+        public StyleParameterListBuilder SetGrid(bool grid, int gridColumns = 1, string gridGap = "10px", string gridRowHeight = "1fr")
         {
             ParameterList.SetParameterValue("grid", grid);
             if (grid)
@@ -107,18 +108,18 @@ namespace Hackbox.Builders
             return this;
         }
 
-        public StyleParameterListBuilder SetGrid(bool grid = false, int gridColumns = 1, float gridGap = 10.0f, string gridGapDimensionUnit = "px", float gridRowHeight = 1.0f, string gridRowHeightDimensionUnit = "fr")
+        public StyleParameterListBuilder SetGrid(bool grid, int gridColumns = 1, float gridGap = 10.0f, string gridGapDimensionUnit = "px", float gridRowHeight = 1.0f, string gridRowHeightDimensionUnit = "fr")
         {
             return SetGrid(grid, gridColumns, $"{gridGap}{gridGapDimensionUnit}", $"{gridRowHeight}{gridRowHeightDimensionUnit}");
         }
 
-        public StyleParameterListBuilder SetHeight(string height = "100px")
+        public StyleParameterListBuilder SetHeight(string height)
         {
             ParameterList.SetParameterValue("height", height);
             return this;
         }
 
-        public StyleParameterListBuilder SetHeight(float height = 100.0f, string dimensionUnit = "px")
+        public StyleParameterListBuilder SetHeight(float height, string dimensionUnit = "px")
         {
             return SetHeight($"{height}{dimensionUnit}");
         }
@@ -129,7 +130,7 @@ namespace Hackbox.Builders
             return this;
         }
 
-        public StyleParameterListBuilder SetMargin(string margin = "10px 0px")
+        public StyleParameterListBuilder SetMargin(string margin)
         {
             ParameterList.SetParameterValue("margin", margin);
             return this;
@@ -140,7 +141,7 @@ namespace Hackbox.Builders
             return SetMargin(string.Join(" ", margins.Select(x => $"{x.margin}{x.dimensionUnit}")));
         }
 
-        public StyleParameterListBuilder SetPadding(string padding = "0px 10px")
+        public StyleParameterListBuilder SetPadding(string padding)
         {
             ParameterList.SetParameterValue("padding", padding);
             return this;
@@ -151,13 +152,19 @@ namespace Hackbox.Builders
             return SetPadding(string.Join(" ", paddings.Select(x => $"{x.padding}{x.dimensionUnit}")));
         }
 
-        public StyleParameterListBuilder SetWidth(string width = "100%")
+        public StyleParameterListBuilder SetShadow(string shadow)
+        {
+            ParameterList.SetParameterValue("shadow", shadow);
+            return this;
+        }
+
+        public StyleParameterListBuilder SetWidth(string width)
         {
             ParameterList.SetParameterValue("width", width);
             return this;
         }
 
-        public StyleParameterListBuilder SetWidth(float width = 100.0f, string dimensionUnit = "%")
+        public StyleParameterListBuilder SetWidth(float width, string dimensionUnit = "%")
         {
             return SetWidth($"{width}{dimensionUnit}");
         }

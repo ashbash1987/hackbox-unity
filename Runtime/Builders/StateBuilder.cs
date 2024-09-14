@@ -185,44 +185,21 @@ namespace Hackbox.Builders
             return AddComponent(newComponent, key, styleOverrides, componentAction);
         }
 
-        public StateBuilder AddChoicesComponent(Preset preset, string[] choices, string name = null, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)
-        {
-            Debug.Assert(preset.Type == Preset.PresetType.Choices);
-
-            UIComponent newComponent = new UIComponent(name, preset)
-            {
-                ["choices"] = new ChoicesParameter(choices.Select(x => new ChoicesParameter.Choice() { Label = x, Value = x }).ToList())
-            };
-
-            return AddComponent(newComponent, key, styleOverrides, componentAction);
-        }
-
-        public StateBuilder AddChoicesComponent(Preset preset, string eventName, string[] choices, string name = null, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)
+        public StateBuilder AddChoicesComponent(Preset preset, string eventName, string[] choices, string name = null, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
         {
             Debug.Assert(preset.Type == Preset.PresetType.Choices);
 
             UIComponent newComponent = new UIComponent(name, preset)
             {
                 ["choices"] = new ChoicesParameter(choices.Select(x => new ChoicesParameter.Choice() { Label = x, Value = x }).ToList()),
-                ["event"] = new StringParameter(eventName)
+                ["event"] = new StringParameter(eventName),
+                ["multiSelect"] = new BoolParameter(multiSelect)
             };
 
-            return AddComponent(newComponent, key, styleOverrides, componentAction);
+            return AddChoicesComponent(newComponent, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
         }
 
-        public StateBuilder AddChoicesComponent(Preset preset, (string label, string value)[] choices, string name = null, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)
-        {
-            Debug.Assert(preset.Type == Preset.PresetType.Choices);
-
-            UIComponent newComponent = new UIComponent(name, preset)
-            {
-                ["choices"] = new ChoicesParameter(choices.Select(x => new ChoicesParameter.Choice() { Label = x.label, Value = x.value }).ToList())
-            };
-
-            return AddComponent(newComponent, key, styleOverrides, componentAction);
-        }
-
-        public StateBuilder AddChoicesComponent(Preset preset, string eventName, (string label, string value)[] choices, string name = null, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)
+        public StateBuilder AddChoicesComponent(Preset preset, string eventName, (string label, string value)[] choices, string name = null, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
         {
             Debug.Assert(preset.Type == Preset.PresetType.Choices);
 
@@ -232,22 +209,10 @@ namespace Hackbox.Builders
                 ["event"] = new StringParameter(eventName)
             };
 
-            return AddComponent(newComponent, key, styleOverrides, componentAction);
+            return AddChoicesComponent(newComponent, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
         }
 
-        public StateBuilder AddChoicesComponent(Preset preset, (string label, string value, string[] keys)[] choices, string name = null, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)
-        {
-            Debug.Assert(preset.Type == Preset.PresetType.Choices);
-
-            UIComponent newComponent = new UIComponent(name, preset)
-            {
-                ["choices"] = new ChoicesParameter(choices.Select(x => new ChoicesParameter.Choice() { Label = x.label, Value = x.value, Keys = x.keys }).ToList())
-            };
-
-            return AddComponent(newComponent, key, styleOverrides, componentAction);
-        }
-
-        public StateBuilder AddChoicesComponent(Preset preset, string eventName, (string label, string value, string[] keys)[] choices, string name = null, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)
+        public StateBuilder AddChoicesComponent(Preset preset, string eventName, (string label, string value, string[] keys)[] choices, string name = null, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
         {
             Debug.Assert(preset.Type == Preset.PresetType.Choices);
 
@@ -257,7 +222,7 @@ namespace Hackbox.Builders
                 ["event"] = new StringParameter(eventName)
             };
 
-            return AddComponent(newComponent, key, styleOverrides, componentAction);
+            return AddChoicesComponent(newComponent, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
         }
 
         public StateBuilder AddRangeComponent(Preset preset, int min, int max, int step, string name = null, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)
@@ -309,14 +274,19 @@ namespace Hackbox.Builders
             return AddButtonComponent(Preset.Create(name, Preset.PresetType.Button), eventName, label, value, name, key, styleOverrides, componentAction);
         }
 
-        public StateBuilder AddChoicesComponent(string eventName, string[] choices, string name, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)
+        public StateBuilder AddChoicesComponent(string eventName, string[] choices, string name, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
         {
-            return AddChoicesComponent(Preset.Create(name, Preset.PresetType.Choices), eventName, choices, name, key, styleOverrides, componentAction);
+            return AddChoicesComponent(Preset.Create(name, Preset.PresetType.Choices), eventName, choices, name, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
         }
 
-        public StateBuilder AddChoicesComponent(string eventName, (string label, string value)[] choices, string name, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)
+        public StateBuilder AddChoicesComponent(string eventName, (string label, string value)[] choices, string name, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
         {
-            return AddChoicesComponent(Preset.Create(name, Preset.PresetType.Choices), eventName, choices, name, key, styleOverrides, componentAction);
+            return AddChoicesComponent(Preset.Create(name, Preset.PresetType.Choices), eventName, choices, name, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
+        }
+
+        public StateBuilder AddChoicesComponent(string eventName, (string label, string value, string[] keys)[] choices, string name, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
+        {
+            return AddChoicesComponent(Preset.Create(name, Preset.PresetType.Choices), eventName, choices, name, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
         }
 
         public StateBuilder AddRangeComponent(string eventName, int min, int max, int step, string name, string key = null, ParameterList styleOverrides = null, Action<UIComponent> componentAction = null)
@@ -333,7 +303,7 @@ namespace Hackbox.Builders
         {
             if (!string.IsNullOrEmpty(key))
             {
-                component["key"] = new StringParameter(key);
+                component.Key = key;
             }
 
             if (styleOverrides != null)
@@ -345,6 +315,24 @@ namespace Hackbox.Builders
             State.Add(component);
 
             return this;
+        }
+
+        private StateBuilder AddChoicesComponent(UIComponent component, string key, bool multiSelect, string submitLabel, ParameterList styleOverrides, ParameterList hoverStyleOverrides, ParameterList submitStyleOverrides, Action<UIComponent> componentAction)
+        {
+            if (multiSelect)
+            {
+                if (!string.IsNullOrEmpty(submitLabel))
+                {
+                    component["submit"] = new ParameterListParameter(ParameterListBuilder.Create().SetLabel("submitLabel").SetStyle(submitStyleOverrides));
+                }
+            }
+
+            if (hoverStyleOverrides != null)
+            {
+                component["hover"] = new ParameterListParameter(hoverStyleOverrides);
+            }
+
+            return AddComponent(component, key, styleOverrides, componentAction);
         }
         #endregion
     }
