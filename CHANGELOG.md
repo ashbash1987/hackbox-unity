@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.12.0] - 2024-09-15
+
+### Added
+- The Sort component is now supported since the last official version change - essentially a Choices component where the player must drag and drop the options into a sorted order before submitting. Thanks to [theoryofgame](https://github.com/theoryofgame) for adding this support!
+- New `Hackbox.Builders` namespace with some convenience builder-style classes to much more quickly and reliably configure Presets, Components, and States in code. All lower-level code remains intact - this namespace just provides a more friendly higher-level interface to the system.
+- Added very basic image-based background property mode in the Editor. Should be more friendly now to specify a image with a URL to use as the background for the State or Components.
+
 ## [v0.11.0] - 2024-08-27
 
 ### Added
