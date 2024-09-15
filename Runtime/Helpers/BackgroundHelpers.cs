@@ -143,5 +143,33 @@ namespace Hackbox
             return outputBuilder.ToString();
         }
         #endregion
+
+        #region Images
+        public static bool TryParseImage(this string value, out string url, out string scalingAndPositioning)
+        {
+            Regex regex = new Regex(@"url\((?<url>[^)]+)\) (?<scalingAndPositioning>[^)]+)");
+            Match match = regex.Match(value);
+
+            if (match.Success)
+            {
+                url = match.Groups["url"].Value.Replace("\"", "").Replace("'", "");
+                scalingAndPositioning = match.Groups["scalingAndPositioning"].Value;
+
+                return true;
+            }
+            else
+            {
+                url = string.Empty;
+                scalingAndPositioning = string.Empty;
+
+                return false;
+            }
+        }
+
+        public static string ToImageString(this string url, string scalingAndPositioning = "no-repeat center / cover")
+        {
+            return $"url(\"{url}\") {scalingAndPositioning}";
+        }
+        #endregion
     }
 }

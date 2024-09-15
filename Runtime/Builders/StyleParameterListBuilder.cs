@@ -91,6 +91,17 @@ namespace Hackbox.Builders
         }
 
         /// <summary>
+        /// Sets the 'background' parameter using an image.
+        /// </summary>
+        /// <param name="url">The URL of the image.</param>
+        /// <param name="scalingAndPositioning">The scaling and positioning of the image.</param>
+        /// <returns>The current instance of <see cref="StyleParameterListBuilder"/>.</returns>
+        public StyleParameterListBuilder SetBackgroundImage(string url, string scalingAndPositioning = "no-repeat center / cover")
+        {
+            return SetBackground(url.ToImageString(scalingAndPositioning));
+        }
+
+        /// <summary>
         /// Sets the 'border' parameter.
         /// </summary>
         /// <param name="border">The border to set.</param>

@@ -11,6 +11,7 @@ namespace Hackbox
             Color,
             LinearGradient,
             RadialGradient,
+            Image,
             Custom
         }
 
@@ -56,6 +57,9 @@ namespace Hackbox
                 case Mode.RadialGradient:
                     return OnRadialGradientModeGUI(position, value);
 
+                case Mode.Image:
+                    return OnImageModeGUI(position, value);
+
                 default:
                     return OnCustomModeGUI(position, value);
             }
@@ -74,6 +78,10 @@ namespace Hackbox
             if (value.TryParseLinearGradient(out _, out _))
             {
                 return Mode.RadialGradient;
+            }
+            if (value.TryParseImage(out _, out _))
+            {
+                return Mode.Image;
             }
 
             return Mode.Custom;
@@ -167,6 +175,27 @@ namespace Hackbox
             positioning = EditorGUI.TextField(positioningPosition, positioning);
 
             return gradient.ToRadialGradientString(positioning);
+        }
+        #endregion
+
+        #region Image Mode
+        internal static string OnImageModeGUI(Rect position, string value)
+        {
+            if (!value.TryParseImage(out string url, out string scalingAndPositioning))
+            {
+                url = "";
+                scalingAndPositioning = "no-repeat center / cover";
+            }
+
+            Rect positioningPosition = position;
+            positioningPosition.x += positioningPosition.width - 100;
+            positioningPosition.width = 100;
+            position.width -= 100;
+
+            url = EditorGUI.TextField(position, url);
+            scalingAndPositioning = EditorGUI.TextField(positioningPosition, scalingAndPositioning);
+
+            return url.ToImageString(scalingAndPositioning);
         }
         #endregion
 

@@ -96,6 +96,17 @@ namespace Hackbox.Builders
         }
 
         /// <summary>
+        /// Sets the header background to an image.
+        /// </summary>
+        /// <param name="url">The URL of the image.</param>
+        /// <param name="scalingAndPositioning">The scaling and positioning of the image.</param>
+        /// <returns>The current instance of <see cref="StateBuilder"/>.</returns>
+        public StateBuilder SetHeaderBackgroundImage(string url, string scalingAndPositioning = "no-repeat center / cover")
+        {
+            return SetHeaderBackground(url.ToImageString(scalingAndPositioning));
+        }
+
+        /// <summary>
         /// Sets the header text of the state.
         /// </summary>
         /// <param name="text">The text to set for the header.</param>
@@ -204,6 +215,17 @@ namespace Hackbox.Builders
         public StateBuilder SetMainBackgroundRadialGradient(Gradient gradient, string positioning = "circle at center")
         {
             return SetMainBackground(gradient.ToRadialGradientString(positioning));
+        }
+
+        /// <summary>
+        /// Sets the background of the main content to an image.
+        /// </summary>
+        /// <param name="url">The URL of the image.</param>
+        /// <param name="scalingAndPositioning">The scaling and positioning of the image.</param>
+        /// <returns>The current instance of <see cref="StateBuilder"/>.</returns>
+        public StateBuilder SetMainBackgroundImage(string url, string scalingAndPositioning = "no-repeat center / cover")
+        {
+            return SetMainBackground(url.ToImageString(scalingAndPositioning));
         }
 
         /// <summary>

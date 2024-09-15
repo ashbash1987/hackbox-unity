@@ -62,7 +62,7 @@ namespace Hackbox.Builders
         }
 
         /// <summary>  
-        /// Sets the header background color of the theme.  
+        /// Sets the header background using a solid color.  
         /// </summary>  
         /// <param name="backgroundColor">The background color to set.</param>  
         /// <returns>The current <see cref="ThemeBuilder"/> instance.</returns>  
@@ -72,7 +72,7 @@ namespace Hackbox.Builders
         }
 
         /// <summary>  
-        /// Sets the header background linear gradient of the theme.  
+        /// Sets the header background using a linear gradient.  
         /// </summary>  
         /// <param name="gradient">The gradient to set.</param>  
         /// <param name="gradientAngle">The angle of the gradient.</param>  
@@ -83,7 +83,7 @@ namespace Hackbox.Builders
         }
 
         /// <summary>  
-        /// Sets the header background radial gradient of the theme.  
+        /// Sets the header background using a radial gradient.  
         /// </summary>  
         /// <param name="gradient">The gradient to set.</param>  
         /// <param name="positioning">The positioning of the gradient.</param>  
@@ -91,6 +91,17 @@ namespace Hackbox.Builders
         public ThemeBuilder SetHeaderBackgroundRadialGradient(Gradient gradient, string positioning = "circle at center")
         {
             return SetHeaderBackground(gradient.ToRadialGradientString(positioning));
+        }
+
+        /// <summary>
+        /// Sets the header background using an image.
+        /// </summary>
+        /// <param name="url">The URL of the image.</param>
+        /// <param name="scalingAndPositioning">The scaling and positioning of the image.</param>
+        /// <returns>The current instance of <see cref="ThemeBuilder"/>.</returns>
+        public ThemeBuilder SetHeaderBackgroundImage(string url, string scalingAndPositioning = "no-repeat center / cover")
+        {
+            return SetHeaderBackground(url.ToImageString(scalingAndPositioning));
         }
 
         /// <summary>  
@@ -173,7 +184,7 @@ namespace Hackbox.Builders
         }
 
         /// <summary>  
-        /// Sets the main background color of the theme.  
+        /// Sets the main background using a solid color.
         /// </summary>  
         /// <param name="backgroundColor">The background color to set.</param>  
         /// <returns>The current <see cref="ThemeBuilder"/> instance.</returns>  
@@ -183,7 +194,7 @@ namespace Hackbox.Builders
         }
 
         /// <summary>  
-        /// Sets the main background linear gradient of the theme.  
+        /// Sets the main background using a linear gradient.
         /// </summary>  
         /// <param name="gradient">The gradient to set.</param>  
         /// <param name="gradientAngle">The angle of the gradient.</param>  
@@ -194,7 +205,7 @@ namespace Hackbox.Builders
         }
 
         /// <summary>  
-        /// Sets the main background radial gradient of the theme.  
+        /// Sets the main background using a radial gradient.
         /// </summary>  
         /// <param name="gradient">The gradient to set.</param>  
         /// <param name="positioning">The positioning of the gradient.</param>  
@@ -202,6 +213,17 @@ namespace Hackbox.Builders
         public ThemeBuilder SetMainBackgroundRadialGradient(Gradient gradient, string positioning = "circle at center")
         {
             return SetMainBackground(gradient.ToRadialGradientString(positioning));
+        }
+
+        /// <summary>
+        /// Sets the main background using an image.
+        /// </summary>
+        /// <param name="url">The URL of the image.</param>
+        /// <param name="scalingAndPositioning">The scaling and positioning of the image.</param>
+        /// <returns>The current instance of <see cref="ThemeBuilder"/>.</returns>
+        public ThemeBuilder SetMainBackgroundImage(string url, string scalingAndPositioning = "no-repeat center / cover")
+        {
+            return SetMainBackground(url.ToImageString(scalingAndPositioning));
         }
 
         /// <summary>  
