@@ -88,6 +88,8 @@ namespace Hackbox
             private set;
         }
 
+        public string JoinRoomURL => $"{URL}?room={RoomCode}";
+
         public Member[] AllMembers => Members.Values.ToArray();
         public bool HasMembers => Members.Any();
         #endregion
