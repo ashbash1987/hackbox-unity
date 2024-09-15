@@ -63,7 +63,7 @@ namespace Hackbox.Builders
         /// <returns>The current instance of <see cref="PresetBuilder"/>.</returns>
         public PresetBuilder SetChoices(string[] choices, bool multiSelect = false, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
         {
-            Debug.Assert(PresetType == Preset.PresetType.Choices);
+            Debug.Assert(PresetType == Preset.PresetType.Choices || PresetType == Preset.PresetType.Sort);
 
             ParameterListBuilder.SetChoices(choices.Select(x => new ChoicesParameter.Choice() { Label = x, Value = x }).ToList());
             return SetChoices(multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
@@ -80,7 +80,7 @@ namespace Hackbox.Builders
         /// <returns>The current instance of <see cref="PresetBuilder"/>.</returns>
         public PresetBuilder SetChoices((string label, string value)[] choices, bool multiSelect = false, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
         {
-            Debug.Assert(PresetType == Preset.PresetType.Choices);
+            Debug.Assert(PresetType == Preset.PresetType.Choices || PresetType == Preset.PresetType.Sort);
 
             ParameterListBuilder.SetChoices(choices.Select(x => new ChoicesParameter.Choice() { Label = x.label, Value = x.value }).ToList());
             return SetChoices(multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
@@ -112,7 +112,7 @@ namespace Hackbox.Builders
         /// <returns>The current instance of <see cref="PresetBuilder"/>.</returns>
         public PresetBuilder SetChoices((string label, string value, string[] keys)[] choices, bool multiSelect = false, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
         {
-            Debug.Assert(PresetType == Preset.PresetType.Choices);
+            Debug.Assert(PresetType == Preset.PresetType.Choices || PresetType == Preset.PresetType.Sort);
 
             ParameterListBuilder.SetChoices(choices.Select(x => new ChoicesParameter.Choice() { Label = x.label, Value = x.value, Keys = x.keys }).ToList());
             return SetChoices(multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
@@ -132,6 +132,46 @@ namespace Hackbox.Builders
         public PresetBuilder SetChoices(string[] choiceLabels, string[] choiceValues, string[][] choiceKeys, bool multiSelect = false, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
         {
             return SetChoices(choiceLabels.Zip(choiceValues, (label, value) => (label, value)).Zip(choiceKeys, (labelValue, keys) => (labelValue.label, labelValue.value, keys)).ToArray(), multiSelect, submitLabel, hoverStyleParameterList, submitStyleParameterList);
+        }
+
+        /// <summary>
+        /// Sets the sort options for the preset.
+        /// </summary>
+        /// <param name="sortOptions">An array of sort option labels.</param>
+        /// <param name="submitLabel">The label for the submit button.</param>
+        /// <param name="hoverStyleParameterList">The style parameters for hover state.</param>
+        /// <param name="submitStyleParameterList">The style parameters for submit button.</param>
+        /// <returns>The current instance of <see cref="PresetBuilder"/>.</returns>
+        public PresetBuilder SetSortOptions(string[] sortOptions, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
+        {
+            return SetChoices(sortOptions, false, submitLabel, hoverStyleParameterList, submitStyleParameterList);
+        }
+
+        /// <summary>
+        /// Sets the sort options for the preset.
+        /// </summary>
+        /// <param name="sortOptions">An array of tuples containing sort option labels and values.</param>
+        /// <param name="submitLabel">The label for the submit button.</param>
+        /// <param name="hoverStyleParameterList">The style parameters for hover state.</param>
+        /// <param name="submitStyleParameterList">The style parameters for submit button.</param>
+        /// <returns>The current instance of <see cref="PresetBuilder"/>.</returns>
+        public PresetBuilder SetSortOptions((string label, string value)[] sortOptions, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
+        {
+            return SetChoices(sortOptions, false, submitLabel, hoverStyleParameterList, submitStyleParameterList);
+        }
+
+        /// <summary>
+        /// Sets the sort options for the preset.
+        /// </summary>
+        /// <param name="sortOptionLabels">An array of sort option labels.</param>
+        /// <param name="sortOptionValues">An array of sort option values.</param>
+        /// <param name="submitLabel">The label for the submit button.</param>
+        /// <param name="hoverStyleParameterList">The style parameters for hover state.</param>
+        /// <param name="submitStyleParameterList">The style parameters for submit button.</param>
+        /// <returns>The current instance of <see cref="PresetBuilder"/>.</returns>
+        public PresetBuilder SetSortOptions(string[] sortOptionLabels, string[] sortOptionValues, string submitLabel = null, ParameterList hoverStyleParameterList = null, ParameterList submitStyleParameterList = null)
+        {
+            return SetChoices(sortOptionLabels, sortOptionValues, false, submitLabel, hoverStyleParameterList, submitStyleParameterList);
         }
 
         /// <summary>

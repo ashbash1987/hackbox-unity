@@ -402,7 +402,7 @@ namespace Hackbox.Builders
         /// <param name="choices">The array of choices for the component, each containing a label and value.</param>
         /// <param name="name">The name of the component.</param>
         /// <param name="key">The key for the component.</param>
-        /// <param="multiSelect">Indicates if multiple selections are allowed.</param>
+        /// <param name="multiSelect">Indicates if multiple selections are allowed.</param>
         /// <param name="submitLabel">The label for the submit button.</param>
         /// <param name="styleOverrides">Optional style overrides for the component.</param>
         /// <param name="hoverStyleOverrides">Optional hover style overrides for the component.</param>
@@ -491,6 +491,80 @@ namespace Hackbox.Builders
         public StateBuilder AddChoicesComponent(Preset preset, string eventName, string[] choiceLabels, string[] choiceValues, string[][] choiceKeys, string name = null, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
         {
             return AddChoicesComponent(preset, eventName, choiceLabels.Zip(choiceValues, (label, value) => (label, value)).Zip(choiceKeys, (labelValue, keys) => (labelValue.label, labelValue.value, keys)).ToArray(), name, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
+        }
+
+        /// <summary>
+        /// Adds a sort component to the state.
+        /// </summary>
+        /// <param name="preset">The preset configuration for the sort component.</param>
+        /// <param name="eventName">The event name associated with the sort component.</param>
+        /// <param name="choices">The array of sort options for the component.</param>
+        /// <param name="name">The name of the component.</param>
+        /// <param name="key">The key for the component.</param>
+        /// <param name="submitLabel">The label for the submit button.</param>
+        /// <param name="styleOverrides">Optional style overrides for the component.</param>
+        /// <param name="hoverStyleOverrides">Optional hover style overrides for the component.</param>
+        /// <param name="submitStyleOverrides">Optional submit style overrides for the component.</param>
+        /// <param name="componentAction">Optional action to perform on the component.</param>
+        /// <returns>The current instance of <see cref="StateBuilder"/>.</returns>
+        public StateBuilder AddSortComponent(Preset preset, string eventName, string[] choices, string name = null, string key = null, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
+        {
+            Debug.Assert(preset.Type == Preset.PresetType.Sort);
+
+            UIComponent newComponent = new UIComponent(name, preset)
+            {
+                ["choices"] = new ChoicesParameter(choices.Select(x => new ChoicesParameter.Choice() { Label = x, Value = x }).ToList()),
+                ["event"] = new StringParameter(eventName)
+            };
+
+            return AddSortComponent(newComponent, key, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
+        }
+
+        /// <summary>
+        /// Adds a sort component to the state.
+        /// </summary>
+        /// <param name="preset">The preset configuration for the sort component.</param>
+        /// <param name="eventName">The event name associated with the sort component.</param>
+        /// <param name="choices">The array of sort options for the component, each containing a label and value.</param>
+        /// <param name="name">The name of the component.</param>
+        /// <param name="key">The key for the component.</param>
+        /// <param name="submitLabel">The label for the submit button.</param>
+        /// <param name="styleOverrides">Optional style overrides for the component.</param>
+        /// <param name="hoverStyleOverrides">Optional hover style overrides for the component.</param>
+        /// <param name="submitStyleOverrides">Optional submit style overrides for the component.</param>
+        /// <param name="componentAction">Optional action to perform on the component.</param>
+        /// <returns>The current instance of <see cref="StateBuilder"/>.</returns>
+        public StateBuilder AddSortComponent(Preset preset, string eventName, (string label, string value)[] choices, string name = null, string key = null, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
+        {
+            Debug.Assert(preset.Type == Preset.PresetType.Sort);
+
+            UIComponent newComponent = new UIComponent(name, preset)
+            {
+                ["choices"] = new ChoicesParameter(choices.Select(x => new ChoicesParameter.Choice() { Label = x.label, Value = x.value }).ToList()),
+                ["event"] = new StringParameter(eventName)
+            };
+
+            return AddSortComponent(newComponent, key, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
+        }
+
+        /// <summary>
+        /// Adds a sort component to the state.
+        /// </summary>
+        /// <param name="preset">The preset configuration for the sort component.</param>
+        /// <param name="eventName">The event name associated with the sort component.</param>
+        /// <param name="choiceLabels">The array of sort option labels for the component.</param>
+        /// <param name="choiceValues">The array of sort option values for the component.</param>
+        /// <param name="name">The name of the component.</param>
+        /// <param name="key">The key for the component.</param>
+        /// <param name="submitLabel">The label for the submit button.</param>
+        /// <param name="styleOverrides">Optional style overrides for the component.</param>
+        /// <param name="hoverStyleOverrides">Optional hover style overrides for the component.</param>
+        /// <param name="submitStyleOverrides">Optional submit style overrides for the component.</param>
+        /// <param name="componentAction">Optional action to perform on the component.</param>
+        /// <returns>The current instance of <see cref="StateBuilder"/>.</returns>
+        public StateBuilder AddSortComponent(Preset preset, string eventName, string[] choiceLabels, string[] choiceValues, string name = null, string key = null, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
+        {
+            return AddSortComponent(preset, eventName, choiceLabels.Zip(choiceValues, (label, value) => (label, value)).ToArray(), name, key, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
         }
 
         /// <summary>
@@ -736,6 +810,33 @@ namespace Hackbox.Builders
                 {
                     component["submit"] = new ParameterListParameter(ParameterListBuilder.Create().SetLabel("submitLabel").SetStyle(submitStyleOverrides));
                 }
+            }
+
+            if (hoverStyleOverrides != null)
+            {
+                component["hover"] = new ParameterListParameter(hoverStyleOverrides);
+            }
+
+            return AddComponent(component, key, styleOverrides, componentAction);
+        }
+
+
+        /// <summary>
+        /// Adds a partially-constructed sort component to the state.
+        /// </summary>
+        /// <param name="component">The sort component to add.</param>
+        /// <param name="key">The key for the component.</param>
+        /// <param name="submitLabel">The label for the submit button.</param>
+        /// <param name="styleOverrides">Style overrides for the component.</param>
+        /// <param name="hoverStyleOverrides">Style overrides for the hover state.</param>
+        /// <param name="submitStyleOverrides">Style overrides for the submit button.</param>
+        /// <param name="componentAction">An action to perform on the component.</param>
+        /// <returns>The current <see cref="StateBuilder"/> instance.</returns>
+        private StateBuilder AddSortComponent(UIComponent component, string key, string submitLabel, ParameterList styleOverrides, ParameterList hoverStyleOverrides, ParameterList submitStyleOverrides, Action<UIComponent> componentAction)
+        {
+            if (!string.IsNullOrEmpty(submitLabel))
+            {
+                component["submit"] = new ParameterListParameter(ParameterListBuilder.Create().SetLabel("submitLabel").SetStyle(submitStyleOverrides));
             }
 
             if (hoverStyleOverrides != null)
