@@ -109,6 +109,11 @@ namespace Hackbox.Parameters
         {
             GetGenericParameter<ValueT>(parameterName).Value = value;
         }
+
+        public IEnumerable<Parameter> GetMergedParameters(ParameterList otherList)
+        {
+            return Parameters.Union(otherList.Parameters, ParameterListComparer.Instance);
+        }
         #endregion
     }
 }

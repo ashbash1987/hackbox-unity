@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using Newtonsoft.Json;
 using Hackbox.Parameters;
 using UnityEngine;
@@ -196,20 +197,26 @@ namespace Hackbox.UI
         {
             json.WriteStartObject();
             {
-                foreach (Parameter parameter in ParameterList.Parameters)
+                if (ParameterList != null && ParameterList.Parameters != null && ParameterList.Parameters.Count > 0)
                 {
-                    parameter.WriteProp(json);
-                }
-
-                json.WritePropertyName("style");
-                json.WriteStartObject();
-                {
-                    foreach (Parameter parameter in StyleParameterList.Parameters)
+                    foreach (Parameter parameter in ParameterList.GetMergedParameters(Preset.ParameterList))
                     {
                         parameter.WriteProp(json);
                     }
                 }
-                json.WriteEndObject();
+
+                if (StyleParameterList != null && StyleParameterList.Parameters != null && StyleParameterList.Parameters.Count > 0)
+                {
+                    json.WritePropertyName("style");
+                    json.WriteStartObject();
+                    {
+                        foreach (Parameter parameter in ParameterList.GetMergedParameters(Preset.StyleParameterList))
+                        {
+                            parameter.WriteProp(json);
+                        }
+                    }
+                    json.WriteEndObject();
+                }
             }
             json.WriteEndObject();
         }
