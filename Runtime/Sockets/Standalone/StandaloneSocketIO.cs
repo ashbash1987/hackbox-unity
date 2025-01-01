@@ -16,10 +16,6 @@ namespace Hackbox
         {
             Socket = new SocketIO(uri, new SocketIOOptions() { EIO = engineVersion, Query = queryParameters });
 
-            NewtonsoftJsonSerializer serializer = new NewtonsoftJsonSerializer();
-            serializer.OptionsProvider = SerializerSettingsProvider;
-            Socket.JsonSerializer = serializer;
-
             Socket.OnConnected += (sender, e) => OnConnected?.Invoke();
             Socket.OnError += (sender, e) => OnError?.Invoke(e);
             Socket.OnDisconnected += (sender, e) => OnDisconnected?.Invoke(e);
@@ -29,15 +25,6 @@ namespace Hackbox
             Socket.OnPing += (sender, e) => OnPing?.Invoke();
             Socket.OnPong += (sender, e) => OnPong?.Invoke(e);
         }
-
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
-        {
-            Formatting = Formatting.None,
-            ContractResolver = new DefaultContractResolver()
-            {
-                NamingStrategy = new CamelCaseNamingStrategy()
-            }
-        };
 
         private readonly SocketIO Socket;
 
@@ -63,7 +50,7 @@ namespace Hackbox
             await Socket.DisconnectAsync();
         }
 
-        public async Task Emit(string eventName, JObject message)
+        public async Task Emit(string eventName, string message)
         {
             await Socket.EmitAsync(eventName, message);
         }
@@ -79,11 +66,6 @@ namespace Hackbox
         public void Off(string eventName)
         {
             Socket.Off(eventName);
-        }
-
-        private static JsonSerializerSettings SerializerSettingsProvider()
-        {
-            return SerializerSettings;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Hackbox
         Task Connect();
         Task Disconnect();
 
-        Task Emit(string eventName, JObject message);
+        Task Emit(string eventName, string message);
 
         void On(string eventName, Action<JObject> messageHandler);
         void Off(string eventName);

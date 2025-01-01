@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Hackbox.Parameters
 {
@@ -36,36 +36,42 @@ namespace Hackbox.Parameters
 
             public ParameterList StyleParameterList = new ParameterList();
 
-            internal JObject GenerateJSON()
+            internal void WriteJSON(JsonTextWriter json)
             {
-                JObject choiceObject = new JObject();
-
-                choiceObject["label"] = Label;
-                choiceObject["value"] = Value;
-                choiceObject["keys"] = new JArray(Keys);
-
-                if (Keys != null)
+                json.WriteStartObject();
                 {
-                    choiceObject["keys"] = new JArray(Keys);
-                }
+                    json.WritePropertyName("label"); json.WriteValue(Label);
+                    json.WritePropertyName("value"); json.WriteValue(Value);
+                    if (Keys != null)
+                    {
+                        json.WritePropertyName("keys");
+                        json.WriteStartArray();
+                        foreach (string key in Keys)
+                        {
+                            json.WriteValue(key);
+                        }
+                        json.WriteEndArray();
+                    }
 
-                if (StyleParameterList != null && StyleParameterList.Parameters.Count > 0)
-                {
-                    choiceObject["style"] = GenerateStyleProps();
+                    if (StyleParameterList != null && StyleParameterList.Parameters.Count > 0)
+                    {
+                        json.WritePropertyName("style");
+                        WriteStyleProps(json);
+                    }
                 }
-
-                return choiceObject;
+                json.WriteEndObject();
             }
 
-            private JObject GenerateStyleProps()
+            private void WriteStyleProps(JsonTextWriter json)
             {
-                JObject props = new JObject();
-                foreach (Parameter parameter in StyleParameterList.Parameters)
+                json.WriteStartObject();
                 {
-                    parameter.ApplyValueToJObject(props);
+                    foreach (Parameter parameter in StyleParameterList.Parameters)
+                    {
+                        parameter.WriteProp(json);
+                    }
                 }
-
-                return props;
+                json.WriteEndObject();
             }
         }
 
@@ -96,9 +102,17 @@ namespace Hackbox.Parameters
         [SerializeField]
         public ChoiceList _value = new ChoiceList();
 
-        public override void ApplyValueToJObject(JObject parent)
+        public override void WriteProp(JsonTextWriter json)
         {
-            parent[Name] = new JArray(Value.Select(x => x.GenerateJSON()).ToArray());
+            json.WritePropertyName(Name);
+            json.WriteStartArray();
+            {
+                foreach (Choice choice in Value)
+                {
+                    choice.WriteJSON(json);
+                }
+            }
+            json.WriteEndArray();            
         }
     }
 }

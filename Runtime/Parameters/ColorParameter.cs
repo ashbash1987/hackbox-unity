@@ -1,6 +1,6 @@
-using Newtonsoft.Json.Linq;
 using System;
 using UnityEngine;
+using Newtonsoft.Json;
 
 namespace Hackbox.Parameters
 {
@@ -33,9 +33,10 @@ namespace Hackbox.Parameters
         [SerializeField]
         public Color _value;
 
-        public override void ApplyValueToJObject(JObject parent)
+        public override void WriteProp(JsonTextWriter json)
         {
-            parent[Name] = Value.ToHTMLString();
+            json.WritePropertyName(Name);
+            json.WriteValue(Value.ToHTMLString());
         }
     }
 }

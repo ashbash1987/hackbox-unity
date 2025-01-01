@@ -1,5 +1,5 @@
 ﻿using System;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Hackbox.Parameters
 {
@@ -17,7 +17,7 @@ namespace Hackbox.Parameters
 
         public string Name = "";
 
-        public virtual void ApplyValueToJObject(JObject parent)
+        public virtual void WriteProp(JsonTextWriter json)
         {
         }
     }

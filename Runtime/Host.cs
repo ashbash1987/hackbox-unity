@@ -248,7 +248,7 @@ namespace Hackbox
             try
             {
                 member.State = state;
-                SendMemberUpdate(new JValue(member.UserID), state.GenerateJSON());
+                SendMemberUpdate(state, member);
             }
             catch (Exception ex)
             {
@@ -265,7 +265,7 @@ namespace Hackbox
                     member.State = state;
                 }
 
-                SendMemberUpdate(new JArray(members.Select(x => x.UserID).ToArray()), state.GenerateJSON());
+                SendMemberUpdate(state, members);
             }
             catch (Exception ex)
             {
@@ -282,7 +282,7 @@ namespace Hackbox
                     member.State = state;
                 }
 
-                SendMemberUpdate(new JArray(AllMembers.Select(x => x.UserID).ToArray()), state.GenerateJSON());
+                SendMemberUpdate(state, AllMembers);
             }
             catch (Exception ex)
             {
@@ -624,7 +624,7 @@ namespace Hackbox
             await StartSocket();
         }
 
-        private void SendMemberUpdate(JToken to, JObject statePayload)
+        private void SendMemberUpdate(State state, Member member)
         {
             if (_socket == null)
             {
@@ -632,14 +632,67 @@ namespace Hackbox
                 return;
             }
 
-            JObject obj = new JObject(
-                new JProperty("to", to),
-                new JProperty("data", statePayload)
-            );
+            StringWriter stringWriter = new StringWriter();
+            JsonTextWriter json = new JsonTextWriter(stringWriter);
 
-            _ = _socket.Emit("member.update", obj);
+            json.WriteStartObject();
+            {
+                json.WritePropertyName("to");
+                json.WriteValue(member.UserID);
 
-            VerboseLog($"Emitting...\n{obj.ToString(Formatting.None)}");
+                json.WritePropertyName("data");
+                state.WriteJSON(json);
+            }
+            json.WriteEndObject();
+
+            string data = stringWriter.ToString();
+            _ = _socket.Emit("member.update", data);
+
+            VerboseLog($"Emitting...\n{data}");
+        }
+
+        private void SendMemberUpdate(State state, IEnumerable<Member> members)
+        {
+            switch (members.Count())
+            {
+                case 0:
+                    return;
+
+                case 1:
+                    SendMemberUpdate(state, members.First());
+                    return;
+
+                default:
+                    if (_socket == null)
+                    {
+                        LogError("Cannot send a member update - socket has not been initialised!");
+                        return;
+                    }
+                    break;
+            }
+
+            StringWriter stringWriter = new StringWriter();
+            JsonTextWriter json = new JsonTextWriter(stringWriter);
+
+            json.WriteStartObject();
+            {
+                json.WritePropertyName("to");
+                json.WriteStartArray();
+                foreach (Member member in members)
+                {
+                    json.WriteValue(member.UserID);
+                }
+                json.WriteEndArray();
+
+                json.WritePropertyName("data");
+                state.WriteJSON(json);
+            }
+            json.WriteEndObject();
+
+            string data = stringWriter.ToString();
+            _ = _socket.Emit("member.update", data);
+
+            VerboseLog($"Emitting...\n{data}");
         }
 
         private void OnHostStateUpdate(JObject msgObject)

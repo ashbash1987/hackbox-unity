@@ -6,6 +6,8 @@ using UnityEngine;
 using Newtonsoft.Json.Linq;
 using Hackbox.UI;
 using Hackbox.Parameters;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Hackbox
 {
@@ -104,8 +106,6 @@ namespace Hackbox
             get => GetMainParameterValue<string>("background");
             set => SetMainParameter("background", value);
         }
-
-        private JObject _obj = new JObject();
 
         #region IEnumerable Interface & Collection Initialiser Implementation
         public IEnumerator GetEnumerator()
@@ -351,51 +351,74 @@ namespace Hackbox
             SetComponentParameterValue(componentName, "value", value);
         }
 
-        public JObject GenerateJSON()
+        public string GenerateJSON()
+        {
+            StringWriter stringWriter = new StringWriter();
+            JsonTextWriter json = new JsonTextWriter(stringWriter);
+            WriteJSON(json);
+            return stringWriter.ToString();
+        }
+
+        public void WriteJSON(JsonTextWriter json)
         {
             if (Theme == null)
             {
-                return _obj;
+                return;
             }
 
-            _obj = new JObject();
-            _obj["theme"] = Theme.GenerateJSON();
-            _obj["presets"] = GeneratePresets();
-
-            JObject ui = new JObject();
-            _obj["ui"] = ui;
-
-            JObject headerObj = new JObject();
-            _obj["ui"]["header"] = headerObj;
-
-            JObject mainObj = new JObject();
-            mainObj["components"] = new JArray(Components.Select(x => x.GenerateJSON()));
-            _obj["ui"]["main"] = mainObj;
-
-            foreach (Parameter parameter in HeaderParameterList.Parameters)
+            json.WriteStartObject();
             {
-                parameter.ApplyValueToJObject(headerObj);
-            }
+                json.WritePropertyName("theme"); Theme.WriteJSON(json);
+                json.WritePropertyName("presets"); WritePresets(json);
 
-            foreach (Parameter parameter in MainParameterList.Parameters)
-            {
-                parameter.ApplyValueToJObject(mainObj);
-            }
+                json.WritePropertyName("ui");
+                json.WriteStartObject();
+                {
+                    json.WritePropertyName("header");
+                    json.WriteStartObject();
+                    {
+                        foreach (Parameter parameter in HeaderParameterList.Parameters)
+                        {
+                            parameter.WriteProp(json);
+                        }
+                    }
+                    json.WriteEndObject();
 
-            return _obj;
+                    json.WritePropertyName("main");
+                    json.WriteStartObject();
+                    {
+                        foreach (Parameter parameter in MainParameterList.Parameters)
+                        {
+                            parameter.WriteProp(json);
+                        }
+
+                        json.WritePropertyName("components");
+                        json.WriteStartArray();
+                        foreach (UIComponent component in Components)
+                        {
+                            component.WriteJSON(json);
+                        }
+                        json.WriteEndArray();
+                    }
+                    json.WriteEndObject();
+                }
+                json.WriteEndObject();
+            }
+            json.WriteEndObject();
         }
         #endregion
 
         #region Private Methods
-        private JObject GeneratePresets()
+        private void WritePresets(JsonTextWriter json)
         {
-            JObject presets = new JObject();
-            foreach (Preset preset in Components.Select(x => x.Preset).Distinct())
+            json.WriteStartObject();
             {
-                presets[preset.name] = preset.GenerateJSON();
+                foreach (Preset preset in Components.Select(x => x.Preset).Distinct())
+                {
+                    json.WritePropertyName(preset.name); preset.WriteJSON(json);
+                }
             }
-
-            return presets;
+            json.WriteEndObject();
         }
         #endregion
     }

@@ -64,9 +64,9 @@ namespace Hackbox
             return Task.CompletedTask;
         }
 
-        public Task Emit(string eventName, JObject message)
+        public Task Emit(string eventName, string message)
         {
-            WebSocketEmit(eventName, message.ToString());
+            WebSocketEmit(eventName, message);
             return Task.CompletedTask;
         }
 

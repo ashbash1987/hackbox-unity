@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using Hackbox.Parameters;
 using UnityEngine;
 
@@ -54,8 +54,6 @@ namespace Hackbox.UI
                 Add(parameterName, value);
             }
         }
-
-        private JObject _obj = new JObject();
 
         private void OnValidate()
         {
@@ -178,47 +176,42 @@ namespace Hackbox.UI
         #endregion
 
         #region Internal Methods
-        internal JObject GenerateJSON()
+        internal void WriteJSON(JsonTextWriter json)
         {
-            _obj["type"] = Preset.name;
-
-            if (!string.IsNullOrEmpty(Key))
+            json.WriteStartObject();
             {
-                _obj["key"] = Key;
+                json.WritePropertyName("type"); json.WriteValue(Preset.name);
+
+                if (!string.IsNullOrEmpty(Key))
+                {
+                    json.WritePropertyName("key"); json.WriteValue(Key);
+                }
+
+                json.WritePropertyName("props"); WriteProps(json);
             }
-
-            _obj["props"] = GenerateProps();
-
-            return _obj;
+            json.WriteEndObject();
         }
 
-        internal JObject GenerateProps()
+        internal void WriteProps(JsonTextWriter json)
         {
-            //There's some strange lingering issue with the slicing of style properties, so let's do it here to make sure all is styled correctly
-            JObject props = Preset?.GenerateProps() ?? new JObject();
+            json.WriteStartObject();
+            {
+                foreach (Parameter parameter in ParameterList.Parameters)
+                {
+                    parameter.WriteProp(json);
+                }
 
-            foreach (Parameter parameter in ParameterList.Parameters)
-            {
-                parameter.ApplyValueToJObject(props);
+                json.WritePropertyName("style");
+                json.WriteStartObject();
+                {
+                    foreach (Parameter parameter in StyleParameterList.Parameters)
+                    {
+                        parameter.WriteProp(json);
+                    }
+                }
+                json.WriteEndObject();
             }
-
-            JObject style = null;
-            if (props.TryGetValue("style", out JToken styleToken))
-            {
-                style = styleToken as JObject;
-            }
-            if (style == null)
-            {
-                style = new JObject();
-                props["style"] = style;
-            }
-                    
-            foreach (Parameter parameter in StyleParameterList.Parameters)
-            {
-                parameter.ApplyValueToJObject(style);
-            }                    
-
-            return props;
+            json.WriteEndObject();
         }
         #endregion
     }

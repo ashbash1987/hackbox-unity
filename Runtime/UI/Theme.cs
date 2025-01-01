@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Hackbox.UI
@@ -57,8 +56,6 @@ namespace Hackbox.UI
             set => MainBackground = value?.ToHTMLStringWithAlpha();
         }
 
-        private JObject _obj = new JObject();
-
         #region Public Methods
         public static Theme Create(string name)
         {
@@ -69,27 +66,38 @@ namespace Hackbox.UI
         #endregion
 
         #region Internal Methods
-        internal JObject GenerateJSON()
+        internal void WriteJSON(JsonTextWriter json)
         {
-            JObject header = new JObject();
-            header["color"] = HeaderColor.ToHTMLString();
-            header["background"] = HeaderBackground;
-            header["minHeight"] = HeaderMinHeight;
-            header["maxHeight"] = HeaderMaxHeight;
-            if (!string.IsNullOrEmpty(HeaderFontFamily))
+            json.WriteStartObject();
             {
-                header["fontFamily"] = HeaderFontFamily;
+                json.WritePropertyName("header");
+                json.WriteStartObject();
+                {
+                    json.WritePropertyName("color"); json.WriteValue(HeaderColor.ToHTMLString());
+                    json.WritePropertyName("background"); json.WriteValue(HeaderBackground);
+                    json.WritePropertyName("minHeight"); json.WriteValue(HeaderMinHeight);
+                    json.WritePropertyName("maxHeight"); json.WriteValue(HeaderMaxHeight);
+
+                    if (!string.IsNullOrEmpty(HeaderFontFamily))
+                    {
+                        json.WritePropertyName("fontFamily"); json.WriteValue(HeaderFontFamily);
+                    }
+                }
+                json.WriteEndObject();
+
+                json.WritePropertyName("main");
+                json.WriteStartObject();
+                {
+                    json.WritePropertyName("color"); json.WriteValue(MainColor.ToHTMLString());
+                    json.WritePropertyName("background"); json.WriteValue(MainBackground);
+                    json.WritePropertyName("minWidth"); json.WriteValue(MainMinWidth);
+                    json.WritePropertyName("maxWidth"); json.WriteValue(MainMaxWidth);
+
+                }
+                json.WriteEndObject();
             }
-            _obj["header"] = header;
 
-            JObject main = new JObject();
-            main["color"] = MainColor.ToHTMLString();
-            main["background"] = MainBackground;
-            main["minWidth"] = MainMinWidth;
-            main["maxWidth"] = MainMaxWidth;
-            _obj["main"] = main;
-
-            return _obj;
+            json.WriteEndObject();
         }
         #endregion
     }

@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Hackbox.Parameters
 {
@@ -34,15 +34,17 @@ namespace Hackbox.Parameters
         [SerializeReference]
         public ParameterList _value = new ParameterList();
 
-        public override void ApplyValueToJObject(JObject parent)
+        public override void WriteProp(JsonTextWriter json)
         {
-            JObject parametersObject = new JObject();
-            foreach (Parameter parameter in Value.Parameters)
+            json.WritePropertyName(Name);
+            json.WriteStartObject();
             {
-                parameter.ApplyValueToJObject(parametersObject);
+                foreach (Parameter parameter in Value.Parameters)
+                {
+                    parameter.WriteProp(json);
+                }
             }
-
-            parent[Name] = parametersObject;
+            json.WriteEndObject();
         }
     }
 }

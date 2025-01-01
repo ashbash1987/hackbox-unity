@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using Hackbox.Parameters;
 
 namespace Hackbox.UI
@@ -34,8 +34,6 @@ namespace Hackbox.UI
                 Add(parameterName, value);
             }
         }
-
-        private JObject _obj = new JObject();
 
         private void OnValidate()
         {
@@ -141,32 +139,36 @@ namespace Hackbox.UI
         #endregion
 
         #region Internal Methods
-        internal JObject GenerateJSON()
+        internal void WriteJSON(JsonTextWriter json)
         {
-            _obj["type"] = Type.ToString();
-            _obj["props"] = GenerateProps();
-
-            return _obj;
+            json.WriteStartObject();
+            {
+                json.WritePropertyName("type"); json.WriteValue(Type.ToString());
+                json.WritePropertyName("props"); WriteProps(json);
+            }
+            json.WriteEndObject();
         }
 
-        internal JObject GenerateProps()
+        internal void WriteProps(JsonTextWriter json)
         {
-            JObject props = new JObject();
-            
-            JObject styleProps = new JObject();
-            props["style"] = styleProps;
-
-            foreach (Parameter parameter in StyleParameterList.Parameters)
+            json.WriteStartObject();
             {
-                parameter.ApplyValueToJObject(styleProps);
-            }
+                foreach (Parameter parameter in ParameterList.Parameters)
+                {
+                    parameter.WriteProp(json);
+                }
 
-            foreach (Parameter parameter in ParameterList.Parameters)
-            {
-                parameter.ApplyValueToJObject(props);
+                json.WritePropertyName("style");
+                json.WriteStartObject();
+                {
+                    foreach (Parameter parameter in StyleParameterList.Parameters)
+                    {
+                        parameter.WriteProp(json);
+                    }
+                }
+                json.WriteEndObject();
             }
-
-            return props;
+            json.WriteEndObject();
         }
         #endregion
     }
