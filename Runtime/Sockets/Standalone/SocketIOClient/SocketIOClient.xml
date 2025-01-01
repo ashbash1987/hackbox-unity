@@ -115,7 +115,7 @@
             </summary>
             <param name="eventName"></param>
         </member>
-        <member name="M:SocketIOClient.SocketIO.EmitAsync(System.String,System.Object[])">
+        <member name="M:SocketIOClient.SocketIO.EmitAsync(System.String,System.String)">
             <summary>
             Emits an event to the socket
             </summary>
@@ -123,7 +123,7 @@
             <param name="data">Any other parameters can be included. All serializable datastructures are supported, including byte[]</param>
             <returns></returns>
         </member>
-        <member name="M:SocketIOClient.SocketIO.EmitAsync(System.String,System.Action{SocketIOClient.SocketIOResponse},System.Object[])">
+        <member name="M:SocketIOClient.SocketIO.EmitAsync(System.String,System.Action{SocketIOClient.SocketIOResponse},System.String)">
             <summary>
             Emits an event to the socket
             </summary>
