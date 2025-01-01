@@ -102,7 +102,6 @@ namespace Hackbox
         {
             DrawSimpleProperty(nameof(Host.URL));
             DrawSimpleProperty(nameof(Host.HostName));
-            DrawSimpleProperty(nameof(Host.HostVersion));
             DrawSimpleProperty(nameof(Host.ReloadHost));
             DrawSimpleProperty(nameof(Host.TwitchRequired));
             DrawSimpleProperty(nameof(Host.ConnectOnStart));
@@ -154,7 +153,7 @@ namespace Hackbox
 
                     if (GUILayout.Button("View State JSON"))
                     {
-                        JSONViewer.ViewJSON(member.State.GenerateJSON(_obj.HostVersion));
+                        JSONViewer.ViewJSON(member.State.GenerateJSON());
                     }
                     EditorGUILayout.EndVertical();
                 }

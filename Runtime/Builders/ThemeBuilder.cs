@@ -272,17 +272,6 @@ namespace Hackbox.Builders
         #endregion
 
         /// <summary>  
-        /// Sets the fonts of the theme.  
-        /// </summary>  
-        /// <param name="fonts">The fonts to set.</param>  
-        /// <returns>The current <see cref="ThemeBuilder"/> instance.</returns>  
-        public ThemeBuilder SetFonts(params string[] fonts)
-        {
-            Theme.Fonts = fonts.ToList();
-            return this;
-        }
-
-        /// <summary>  
         /// Implicitly converts a <see cref="ThemeBuilder"/> to a <see cref="Theme"/>.  
         /// </summary>  
         /// <param name="builder">The <see cref="ThemeBuilder"/> instance to convert.</param>  

@@ -178,7 +178,7 @@ namespace Hackbox.UI
         #endregion
 
         #region Internal Methods
-        internal JObject GenerateJSON(int version)
+        internal JObject GenerateJSON()
         {
             _obj["type"] = Preset.name;
 
@@ -187,48 +187,36 @@ namespace Hackbox.UI
                 _obj["key"] = Key;
             }
 
-            _obj["props"] = GenerateProps(version);
+            _obj["props"] = GenerateProps();
 
             return _obj;
         }
 
-        internal JObject GenerateProps(int version)
+        internal JObject GenerateProps()
         {
             //There's some strange lingering issue with the slicing of style properties, so let's do it here to make sure all is styled correctly
-            JObject props = Preset?.GenerateProps(version) ?? new JObject();
+            JObject props = Preset?.GenerateProps() ?? new JObject();
 
             foreach (Parameter parameter in ParameterList.Parameters)
             {
-                parameter.ApplyValueToJObject(props, version);
+                parameter.ApplyValueToJObject(props);
             }
 
-            switch (version)
+            JObject style = null;
+            if (props.TryGetValue("style", out JToken styleToken))
             {
-                case 1:
-                    foreach (Parameter parameter in StyleParameterList.Parameters)
-                    {
-                        parameter.ApplyValueToJObject(props, version);
-                    }
-                    break;
-
-                default:
-                    JObject style = null;
-                    if (props.TryGetValue("style", out JToken styleToken))
-                    {
-                        style = styleToken as JObject;
-                    }
-                    if (style == null)
-                    {
-                        style = new JObject();
-                        props["style"] = style;
-                    }
-                    
-                    foreach (Parameter parameter in StyleParameterList.Parameters)
-                    {
-                        parameter.ApplyValueToJObject(style, version);
-                    }                    
-                    break;
+                style = styleToken as JObject;
             }
+            if (style == null)
+            {
+                style = new JObject();
+                props["style"] = style;
+            }
+                    
+            foreach (Parameter parameter in StyleParameterList.Parameters)
+            {
+                parameter.ApplyValueToJObject(style);
+            }                    
 
             return props;
         }

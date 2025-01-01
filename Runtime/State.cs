@@ -351,7 +351,7 @@ namespace Hackbox
             SetComponentParameterValue(componentName, "value", value);
         }
 
-        public JObject GenerateJSON(int version)
+        public JObject GenerateJSON()
         {
             if (Theme == null)
             {
@@ -359,9 +359,8 @@ namespace Hackbox
             }
 
             _obj = new JObject();
-            _obj["version"] = version;
-            _obj["theme"] = Theme.GenerateJSON(version);
-            _obj["presets"] = GeneratePresets(version);
+            _obj["theme"] = Theme.GenerateJSON();
+            _obj["presets"] = GeneratePresets();
 
             JObject ui = new JObject();
             _obj["ui"] = ui;
@@ -370,17 +369,17 @@ namespace Hackbox
             _obj["ui"]["header"] = headerObj;
 
             JObject mainObj = new JObject();
-            mainObj["components"] = new JArray(Components.Select(x => x.GenerateJSON(version)));
+            mainObj["components"] = new JArray(Components.Select(x => x.GenerateJSON()));
             _obj["ui"]["main"] = mainObj;
 
             foreach (Parameter parameter in HeaderParameterList.Parameters)
             {
-                parameter.ApplyValueToJObject(headerObj, version);
+                parameter.ApplyValueToJObject(headerObj);
             }
 
             foreach (Parameter parameter in MainParameterList.Parameters)
             {
-                parameter.ApplyValueToJObject(mainObj, version);
+                parameter.ApplyValueToJObject(mainObj);
             }
 
             return _obj;
@@ -388,12 +387,12 @@ namespace Hackbox
         #endregion
 
         #region Private Methods
-        private JObject GeneratePresets(int version)
+        private JObject GeneratePresets()
         {
             JObject presets = new JObject();
             foreach (Preset preset in Components.Select(x => x.Preset).Distinct())
             {
-                presets[preset.name] = preset.GenerateJSON(version);
+                presets[preset.name] = preset.GenerateJSON();
             }
 
             return presets;

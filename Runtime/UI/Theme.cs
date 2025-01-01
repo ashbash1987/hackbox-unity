@@ -31,9 +31,6 @@ namespace Hackbox.UI
         [Tooltip("The maximum width of the main section.")]
         public string MainMaxWidth = "350px";
 
-        [Header("Fonts")]
-        public List<string> Fonts = new List<string>();
-
         public Color? HeaderBackgroundColor
         {
             get
@@ -72,7 +69,7 @@ namespace Hackbox.UI
         #endregion
 
         #region Internal Methods
-        internal JObject GenerateJSON(int version)
+        internal JObject GenerateJSON()
         {
             JObject header = new JObject();
             header["color"] = HeaderColor.ToHTMLString();
@@ -91,18 +88,6 @@ namespace Hackbox.UI
             main["minWidth"] = MainMinWidth;
             main["maxWidth"] = MainMaxWidth;
             _obj["main"] = main;
-
-            if (Fonts != null && Fonts.Count > 0)
-            {
-                JArray fonts = new JArray();
-                foreach (string font in Fonts)
-                {
-                    JObject fontObject = new JObject();
-                    fontObject["family"] = font;
-                    fonts.Add(fontObject);
-                }
-                _obj["fonts"] = fonts;
-            }
 
             return _obj;
         }

@@ -17,7 +17,7 @@ namespace Hackbox.Parameters
 
         public string Name = "";
 
-        public virtual void ApplyValueToJObject(JObject parent, int version)
+        public virtual void ApplyValueToJObject(JObject parent)
         {
         }
     }

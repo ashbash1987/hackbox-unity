@@ -33,7 +33,7 @@ namespace Hackbox.Parameters
         [SerializeField]
         public string[] _value;
 
-        public override void ApplyValueToJObject(JObject parent, int version)
+        public override void ApplyValueToJObject(JObject parent)
         {
             parent[Name] = new JArray(Value);
         }
