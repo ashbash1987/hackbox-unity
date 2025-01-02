@@ -297,28 +297,14 @@ namespace Hackbox
             ThreadSafeActions.Enqueue(action);
         }
 
-        private void VerboseLog(string message)
-        {
-            if (Debugging == DebugLevel.Full)
-            {
-                DoUnityAction(() => Debug.Log(message));
-            }
-        }
-
         private void Log(string message)
         {
-            if (Debugging >= DebugLevel.Minimal)
-            {
-                DoUnityAction(() => Debug.Log(message));
-            }
+            DoUnityAction(() => Debug.Log(message));
         }
 
         private void LogWarn(string message)
         {
-            if (Debugging >= DebugLevel.Minimal)
-            {
-                DoUnityAction(() => Debug.LogWarning(message));
-            }
+            DoUnityAction(() => Debug.LogWarning(message));
         }
 
         private void LogError(string message)
@@ -403,7 +389,10 @@ namespace Hackbox
                 bool exists = response["exists"].Value<bool>();
                 if (exists)
                 {
-                    Log($"Room <b>{RoomCode}</b> exists.");
+                    if (Debugging >= DebugLevel.Minimal)
+                    {
+                        Log($"Room <b>{RoomCode}</b> exists.");
+                    }
                 }
                 else
                 {
@@ -450,7 +439,10 @@ namespace Hackbox
                 if (response["ok"].Value<bool>())
                 {
                     RoomCode = response["roomCode"].Value<string>();
-                    Log($"Successfully created room <b>{RoomCode}</b> for host <i>{UserID}</i>.");
+                    if (Debugging >= DebugLevel.Minimal)
+                    {
+                        Log($"Successfully created room <b>{RoomCode}</b> for host <i>{UserID}</i>.");
+                    }
                     DoUnityAction(() => OnRoomCreated.Invoke(RoomCode));
                 }
                 else
@@ -539,7 +531,10 @@ namespace Hackbox
 
         private void OnDisconnected(string error)
         {
-            LogWarn($"Disconnected from {AppName}: {error}");
+            if (Debugging >= DebugLevel.Minimal)
+            {
+                LogWarn($"Disconnected from {AppName}: {error}");
+            }
             DoUnityAction(() =>
             {
                 OnRoomDisconnected.Invoke(RoomCode);
@@ -553,7 +548,10 @@ namespace Hackbox
 
         private void OnReconnectAttempt(int attemptCount)
         {
-            Log($"Reconnecting to {AppName} <b>{RoomCode}</b> (attempt {attemptCount})...");
+            if (Debugging >= DebugLevel.Minimal)
+            {
+                Log($"Reconnecting to {AppName} <b>{RoomCode}</b> (attempt {attemptCount})...");
+            }
             DoUnityAction(() =>
             {
                 OnRoomReconnecting.Invoke(RoomCode);
@@ -562,7 +560,10 @@ namespace Hackbox
 
         private void OnReconnected(int attemptCount)
         {
-            Log($"Reconnected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i> (attempt {attemptCount}).");
+            if (Debugging >= DebugLevel.Minimal)
+            {
+                Log($"Reconnected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i> (attempt {attemptCount}).");
+            }
 
             DoUnityAction(() =>
             {
@@ -589,19 +590,28 @@ namespace Hackbox
 
         private void OnPing()
         {
-            VerboseLog($"Ping...");
+            if (Debugging == DebugLevel.Full)
+            {
+                Log($"Ping...");
+            }
         }
 
         private void OnPong(TimeSpan e)
         {
-            VerboseLog($"...Pong.");
+            if (Debugging == DebugLevel.Full)
+            {
+                Log($"...Pong.");
+            }
 
             DoUnityAction(() => OnPingPong.Invoke());           
         }
 
         private async Task EndSocket()
         {
-            Log($"Closing socket connection to {AppName}...");
+            if (Debugging >= DebugLevel.Minimal)
+            {
+                Log($"Closing socket connection to {AppName}...");
+            }
             _socketManuallyClosing = true;
 
             if (_socket != null)
@@ -611,7 +621,10 @@ namespace Hackbox
                 _socket = null;
             }
 
-            Log("Closed socket connection.");
+            if (Debugging >= DebugLevel.Minimal)
+            {
+                Log("Closed socket connection.");
+            }
         }
 
         private async Task RestartSocket()
@@ -648,7 +661,10 @@ namespace Hackbox
             string data = stringWriter.ToString();
             _ = _socket.Emit("member.update", data);
 
-            VerboseLog($"Emitting...\n{data}");
+            if (Debugging == DebugLevel.Full)
+            {
+                Log($"Emitting...\n{data}");
+            }
         }
 
         private void SendMemberUpdate(State state, IEnumerable<Member> members)
@@ -692,7 +708,10 @@ namespace Hackbox
             string data = stringWriter.ToString();
             _ = _socket.Emit("member.update", data);
 
-            VerboseLog($"Emitting...\n{data}");
+            if (Debugging == DebugLevel.Full)
+            {
+                Log($"Emitting...\n{data}");
+            }
         }
 
         private void OnHostStateUpdate(JObject msgObject)
@@ -716,14 +735,21 @@ namespace Hackbox
                         Member newMember = new Member(memberData);
                         Members[newMember.UserID] = newMember;
 
-                        Log($"Member <b>{newMember.Name}</b> <i>{newMember.UserID}</i> connected to room <b>{RoomCode}</b>.");
+                        if (Debugging >= DebugLevel.Minimal)
+                        {
+                            Log($"Member <b>{newMember.Name}</b> <i>{newMember.UserID}</i> connected to room <b>{RoomCode}</b>.");
+                        }
                         DoUnityAction(() => OnMemberJoined.Invoke(newMember));
                     }
                 }
 
                 foreach (Member oldMember in oldMembers)
                 {
-                    Log($"<b>{oldMember.Name}</b> has been kicked from room <b>{RoomCode}</b>.");
+                    if (Debugging >= DebugLevel.Minimal)
+                    {
+                        Log($"<b>{oldMember.Name}</b> has been kicked from room <b>{RoomCode}</b>.");
+                    }
+
                     if (Members.TryRemove(oldMember.UserID, out _))
                     {
                         DoUnityAction(() => OnMemberKicked.Invoke(oldMember));
@@ -740,7 +766,10 @@ namespace Hackbox
         {
             try
             {
-                VerboseLog($"Receiving...\n{msgObject.ToString(Formatting.None)}");
+                if (Debugging == DebugLevel.Full)
+                {
+                    Log($"Receiving...\n{msgObject.ToString(Formatting.None)}");
+                }
 
                 string from = (string)msgObject["from"];
                 if (!Members.TryGetValue(from, out Member fromMember))
@@ -753,7 +782,10 @@ namespace Hackbox
                 long timestamp = (long)msgObject["timestamp"];
 
                 Message message = new Message(fromMember, id, DateTimeOffset.FromUnixTimeMilliseconds(timestamp), (JObject)msgObject["message"]);
-                Log($"<i>{fromMember.Name}</i> {message}");
+                if (Debugging >= DebugLevel.Minimal)
+                {
+                    Log($"<i>{fromMember.Name}</i> {message}");
+                }
                 DoUnityAction(() =>
                 {
                     OnMessage.Invoke(message);
@@ -775,7 +807,10 @@ namespace Hackbox
         {
             try
             {
-                VerboseLog($"Receiving...\n{msgObject.ToString(Formatting.None)}");
+                if (Debugging == DebugLevel.Full)
+                {
+                    Log($"Receiving...\n{msgObject.ToString(Formatting.None)}");
+                }
 
                 string from = (string)msgObject["from"];
                 if (!Members.TryGetValue(from, out Member fromMember))
@@ -788,7 +823,10 @@ namespace Hackbox
                 long timestamp = (long)msgObject["timestamp"];
 
                 Message message = new Message(fromMember, id, DateTimeOffset.FromUnixTimeMilliseconds(timestamp), (JObject)msgObject["message"]);
-                Log($"<i>{fromMember.Name}</i> {message}");
+                if (Debugging >= DebugLevel.Minimal)
+                {
+                    Log($"<i>{fromMember.Name}</i> {message}");
+                }
                 DoUnityAction(() =>
                 {
                     OnValueChange.Invoke(message);
