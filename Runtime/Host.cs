@@ -72,6 +72,13 @@ namespace Hackbox
 
         #region Public Properties
         public bool Connected => _socket?.Connected ?? false;
+
+        public bool Connecting
+        {
+            get;
+            private set;
+        } = false;
+
         public bool Disconnected => _socket?.Disconnected ?? true;
 
         public string RoomCode
@@ -118,7 +125,7 @@ namespace Hackbox
 
         protected virtual void Start()
         {
-            if (!Connected && ConnectOnStart)
+            if (!Connected && !Connecting && ConnectOnStart)
             {
                 Connect();
             }
@@ -126,7 +133,7 @@ namespace Hackbox
 
         protected virtual void OnEnable()
         {
-            if (!Connected && ReconnectOnEnable)
+            if (!Connected && !Connecting && ReconnectOnEnable)
             {
                 Connect();
             }
@@ -170,6 +177,12 @@ namespace Hackbox
         #region Public Methods
         public void Connect(bool forceNewRoom = false)
         {
+            if (Connecting)
+            {
+                return;
+            }
+            Connecting = true;
+
             IEnumerator Sequence()
             {
                 if (forceNewRoom)
@@ -190,6 +203,7 @@ namespace Hackbox
                     yield return GenerateRoom();
                     if (string.IsNullOrEmpty(RoomCode))
                     {
+                        Connecting = false;
                         yield break;
                     }
                 }
@@ -230,6 +244,7 @@ namespace Hackbox
 
         public void Disconnect()
         {
+            Connecting = false;
             _ = EndSocket();
         }
 
@@ -500,6 +515,8 @@ namespace Hackbox
 
         private void OnConnected()
         {
+            Connecting = false;
+
             try
             {
                 if (_socket == null)
@@ -526,11 +543,13 @@ namespace Hackbox
 
         private void OnError(string error)
         {
+            Connecting = false;
             LogError($"Failed connection to {AppName}: {error}");
         }
 
         private void OnDisconnected(string error)
         {
+            Connecting = false;
             if (Debugging >= DebugLevel.Minimal)
             {
                 LogWarn($"Disconnected from {AppName}: {error}");
@@ -548,6 +567,7 @@ namespace Hackbox
 
         private void OnReconnectAttempt(int attemptCount)
         {
+            Connecting = true;
             if (Debugging >= DebugLevel.Minimal)
             {
                 Log($"Reconnecting to {AppName} <b>{RoomCode}</b> (attempt {attemptCount})...");
@@ -560,6 +580,7 @@ namespace Hackbox
 
         private void OnReconnected(int attemptCount)
         {
+            Connecting = false;
             if (Debugging >= DebugLevel.Minimal)
             {
                 Log($"Reconnected to {AppName} <b>{RoomCode}</b> with host <i>{UserID}</i> (attempt {attemptCount}).");
@@ -581,6 +602,7 @@ namespace Hackbox
 
         private void OnReconnectFailed()
         {
+            Connecting = false;
             LogError($"Reconnect to {AppName} <b>{RoomCode}</b> failed.");
             DoUnityAction(() =>
             {
@@ -608,6 +630,7 @@ namespace Hackbox
 
         private async Task EndSocket()
         {
+            Connecting = false;
             if (Debugging >= DebugLevel.Minimal)
             {
                 Log($"Closing socket connection to {AppName}...");
