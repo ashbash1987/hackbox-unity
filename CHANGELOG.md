@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.13.0] - 2025-07-14
+
+### Added
+- Added `ParameterListComparer` for better handling of Parameter lists merging.
+- Added an overloaded `AddChoicesComponent` to `StateBuilder`
+
+### Fixed
+- Fixed an connection issue that was caused by multiple connect calls being made on the same Host instance.
+- Fixed the regex in `BackgroundHelpers` to properly match the beginning of the string.
+
+### Changed
+- Refactored the socket data stream code to improve performance.
+
+### Removed
+- Removed HostVersion on the Host component and Fonts properties on the Theme object as these are no longer in use; font use is now inferred from presets/component style properties.
+
 ## [v0.12.0] - 2024-09-15
 
 ### Added
