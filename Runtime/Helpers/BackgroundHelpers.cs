@@ -147,7 +147,7 @@ namespace Hackbox
         #region Images
         public static bool TryParseImage(this string value, out string url, out string scalingAndPositioning)
         {
-            Regex regex = new Regex(@"url\((?<url>[^)]+)\) (?<scalingAndPositioning>[^)]+)");
+            Regex regex = new Regex(@"^url\((?<url>[^)]+)\) (?<scalingAndPositioning>[^)]+)");
             Match match = regex.Match(value);
 
             if (match.Success)

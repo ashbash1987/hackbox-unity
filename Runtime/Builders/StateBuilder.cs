@@ -271,6 +271,7 @@ namespace Hackbox.Builders
         {
             return SetMainMaximumWidth($"{width}{dimensionUnit}");
         }
+
         /// <summary>
         /// Adds a text component to the state.
         /// </summary>
@@ -363,6 +364,33 @@ namespace Hackbox.Builders
             };
 
             return AddComponent(newComponent, key, styleOverrides, componentAction);
+        }
+
+        /// <summary>
+        /// Adds a choices component to the state.
+        /// </summary>
+        /// <param name="preset">The preset configuration for the choices component.</param>
+        /// <param name="eventName">The event name associated with the choices component.</param>
+        /// <param name="name">The name of the component.</param>
+        /// <param name="key">The key for the component.</param>
+        /// <param name="multiSelect">Indicates if multiple selections are allowed.</param>
+        /// <param name="submitLabel">The label for the submit button.</param>
+        /// <param name="styleOverrides">Optional style overrides for the component.</param>
+        /// <param name="hoverStyleOverrides">Optional hover style overrides for the component.</param>
+        /// <param name="submitStyleOverrides">Optional submit style overrides for the component.</param>
+        /// <param name="componentAction">Optional action to perform on the component.</param>
+        /// <returns>The current instance of <see cref="StateBuilder"/>.</returns>
+        public StateBuilder AddChoicesComponent(Preset preset, string eventName, string name = null, string key = null, bool multiSelect = false, string submitLabel = null, ParameterList styleOverrides = null, ParameterList hoverStyleOverrides = null, ParameterList submitStyleOverrides = null, Action<UIComponent> componentAction = null)
+        {
+            Debug.Assert(preset.Type == Preset.PresetType.Choices);
+
+            UIComponent newComponent = new UIComponent(name, preset)
+            {
+                ["event"] = new StringParameter(eventName),
+                ["multiSelect"] = new BoolParameter(multiSelect)
+            };
+
+            return AddChoicesComponent(newComponent, key, multiSelect, submitLabel, styleOverrides, hoverStyleOverrides, submitStyleOverrides, componentAction);
         }
 
         /// <summary>
