@@ -6,8 +6,6 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "SocketIOClient.dll",
-        "SocketIOClient.Newtonsoft.Json.dll",
         "Newtonsoft.Json.dll"
     ],
     "autoReferenced": true,

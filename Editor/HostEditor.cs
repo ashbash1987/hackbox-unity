@@ -100,7 +100,6 @@ namespace Hackbox
 
         private void DrawSettingsGroup()
         {
-            DrawSimpleProperty(nameof(Host.URL));
             DrawSimpleProperty(nameof(Host.HostName));
             DrawSimpleProperty(nameof(Host.ReloadHost));
             DrawSimpleProperty(nameof(Host.TwitchRequired));
@@ -114,7 +113,7 @@ namespace Hackbox
         {
             if (_obj.Connected)
             {
-                EditorGUILayout.LabelField("Server", _obj.URL);
+                EditorGUILayout.LabelField("Server", Host.URL);
                 EditorGUILayout.LabelField("Room Code", _obj.RoomCode);
                 EditorGUILayout.LabelField("Host User ID", _obj.UserID);
                 GUI.enabled = Application.isPlaying;
